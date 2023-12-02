@@ -1,0 +1,26 @@
+package com.example.video;
+
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.example.video.repository.VideoRepository;
+import io.micronaut.context.event.ApplicationEventListener;
+import io.micronaut.discovery.event.ServiceReadyEvent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Singleton
+public class ApplicationStartup implements ApplicationEventListener<ServiceReadyEvent> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationStartup.class);
+
+    @Inject
+    private CqlSession cqlSession;
+
+    @Override
+    public void onApplicationEvent(ServiceReadyEvent event) {
+       LOGGER.info("Startup Initialization");
+        VideoRepository.createTableVideo(cqlSession);
+        LOGGER.info("+ Table VideoItems created if needed.");
+        LOGGER.info("[OK]");
+    }
+}
