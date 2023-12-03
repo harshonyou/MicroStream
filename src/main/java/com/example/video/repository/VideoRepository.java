@@ -1,6 +1,5 @@
 package com.example.video.repository;
 
-import com.example.video.dto.VideoDTO;
 import com.example.video.model.Video;
 
 import java.util.List;
