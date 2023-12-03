@@ -1,7 +1,7 @@
 package com.example.video;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.example.video.repository.VideoRepository;
+import com.example.video.repository.CassandraVideoRepository;
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.discovery.event.ServiceReadyEvent;
 import jakarta.inject.Inject;
@@ -19,7 +19,7 @@ public class ApplicationStartup implements ApplicationEventListener<ServiceReady
     @Override
     public void onApplicationEvent(ServiceReadyEvent event) {
        LOGGER.info("Startup Initialization");
-        VideoRepository.createTableVideo(cqlSession);
+        CassandraVideoRepository.createTableVideo(cqlSession);
         LOGGER.info("+ Table VideoItems created if needed.");
         LOGGER.info("[OK]");
     }
