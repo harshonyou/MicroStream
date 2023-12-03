@@ -3,8 +3,11 @@ package com.example.video.service;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.video.dto.VideoDTO;
 import com.example.video.model.Video;
+import com.example.video.producer.KafkaMessagePublisher;
+import com.example.video.producer.MessagePublisher;
 import com.example.video.repository.CassandraVideoRepository;
 import com.example.video.repository.VideoRepository;
+import io.micronaut.scheduling.annotation.Scheduled;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -22,6 +25,8 @@ public class UserManager implements VideoService {
     @Inject
     private CqlSession cqlSession;
     private VideoRepository videoRepository;
+    @Inject
+    private MessagePublisher messagePublisher;
 
     @PostConstruct
     public void init() {
@@ -66,5 +71,10 @@ public class UserManager implements VideoService {
     @Override
     public void deleteAll() {
         videoRepository.deleteAll();
+    }
+
+    @Scheduled(fixedDelay = "10s")
+    public void sendFakeUpdate() {
+        messagePublisher.sendFakeUpdate("Hello World!");
     }
 }
