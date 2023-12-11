@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=micronautCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    networks:
+      - cassandra_network
+
+  cassandra-init:
+    image: cassandra:latest
+    container_name: cassandra-init
+    depends_on:
+      - cassandra
+    command: >
+      /bin/bash -c "
+        until cqlsh cassandra -e 'describe keyspaces';
+        do
+          echo 'Waiting for Cassandra to be up...'
+          sleep 2
+        done &&
+        cqlsh cassandra -e \"CREATE KEYSPACE IF NOT EXISTS micronaut WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};\""
+    networks:
+      - cassandra_network
+
+networks:
+  cassandra_network:
+    driver: bridge
+
+volumes:
+  cassandra_data:
