@@ -38,7 +38,6 @@ public class CassandraVideoRepository implements VideoRepository {
                 .withPartitionKey(USER_ID, TEXT)
                 .withClusteringColumn(VIDEO_ID, TIMEUUID)
                 .withColumn(VIDEO_TITLE, TEXT)
-                .withColumn(VIDEO_WATCHED, BOOLEAN)
                 .withClusteringOrder(VIDEO_ID, ClusteringOrder.DESC)
                 .build());
     }
@@ -50,8 +49,7 @@ public class CassandraVideoRepository implements VideoRepository {
             cqlSession.execute(psInsertVideo.bind(
                     video.getUserId(),
                     video.getVideoId(),
-                    video.getTitle(),
-                    video.getWatched()));
+                    video.getTitle()));
             return video;
         }
 
@@ -59,14 +57,10 @@ public class CassandraVideoRepository implements VideoRepository {
         if(video.getTitle() != null) {
             toBeUpdated.setTitle(video.getTitle());
         }
-        if(video.getWatched() != null) {
-            toBeUpdated.setWatched(video.getWatched());
-        }
         cqlSession.execute(psInsertVideo.bind(
                 toBeUpdated.getUserId(),
                 toBeUpdated.getVideoId(),
-                toBeUpdated.getTitle(),
-                toBeUpdated.getWatched()));
+                toBeUpdated.getTitle()));
         return toBeUpdated;
     }
 
@@ -107,7 +101,6 @@ public class CassandraVideoRepository implements VideoRepository {
         video.setUserId(row.getString(USER_ID));
         video.setVideoId(row.getUuid(VIDEO_ID));
         video.setTitle(row.getString(VIDEO_TITLE));
-        video.setWatched(row.getBoolean(VIDEO_WATCHED));
         return video;
     }
 
@@ -117,7 +110,6 @@ public class CassandraVideoRepository implements VideoRepository {
                 .value(USER_ID, QueryBuilder.bindMarker())
                 .value(VIDEO_ID, QueryBuilder.bindMarker())
                 .value(VIDEO_TITLE, QueryBuilder.bindMarker())
-                .value(VIDEO_WATCHED, QueryBuilder.bindMarker())
                 .build());
 
         psSelectVideo = cqlSession.prepare(

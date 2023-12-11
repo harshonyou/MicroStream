@@ -9,10 +9,9 @@ import java.util.UUID;
 public interface VideoRepository {
     public static final String TABLE_VIDEOS = "videos";
     public static final String USER_ID = "user_id";
-    public static final String VIDEO_ID = "item_id";
+    public static final String VIDEO_ID = "video_id";
     public static final String VIDEO_TITLE = "title";
-    public static final String VIDEO_WATCHED = "watched";
-
+    public static final String VIDEO_TAGS = "tags";
     Video save(Video video);
     Optional<Video> findById(String userId, UUID videoId);
     List<Video> findByUser(String userId);

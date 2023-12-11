@@ -27,7 +27,4 @@ public class Video {
 
     @CqlName(VIDEO_TITLE)
     private String title;
-
-    @CqlName(VIDEO_WATCHED)
-    private Boolean watched;
 }

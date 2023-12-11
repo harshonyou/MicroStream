@@ -11,5 +11,4 @@ public class VideoDTO {
     private String userId;
     private UUID videoId;
     private String title;
-    private Boolean watched;
 }
