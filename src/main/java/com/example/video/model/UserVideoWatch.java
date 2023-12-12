@@ -15,8 +15,8 @@ import java.util.UUID;
 
 import static com.example.video.repository.UserVideoWatchRepository.*;
 
-@Setter
 @Getter
+@Setter
 @Entity
 @CqlName(TABLE_WATCHED_VIDEOS)
 public class UserVideoWatch {

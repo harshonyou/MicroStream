@@ -11,8 +11,8 @@ import java.util.UUID;
 
 import static com.example.video.repository.VideoRepository.*;
 
-@Setter
 @Getter
+@Setter
 @Entity
 @CqlName(TABLE_VIDEOS)
 public class Video {

@@ -1,5 +1,6 @@
 package com.example.video.consumer;
 
 public interface MessageListener {
-    void receiveFakeUpdate(String message);
+    void receiveNewVideo(String message);
+    void receiveVideoWatched(String message);
 }

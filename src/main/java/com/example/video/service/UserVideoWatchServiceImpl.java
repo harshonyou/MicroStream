@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.video.dto.UserVideoWatchDTO;
 import com.example.video.mapper.UserVideoWatchMapper;
 import com.example.video.model.UserVideoWatch;
+import com.example.video.producer.MessagePublisher;
 import com.example.video.repository.CassandraUserVideoWatchRepository;
 import com.example.video.repository.UserVideoWatchRepository;
 import jakarta.annotation.PostConstruct;
@@ -24,14 +25,21 @@ public class UserVideoWatchServiceImpl implements UserVideoWatchService{
 
     private UserVideoWatchRepository userVideoWatchRepository;
 
+    @Inject
+    private MessagePublisher messagePublisher;
+
     @PostConstruct
     public void init() {
         userVideoWatchRepository = new CassandraUserVideoWatchRepository(cqlSession);
     }
 
+
+
     @Override
     public UserVideoWatchDTO save(UserVideoWatchDTO userVideoWatchDto) {
-        return fromEntity(userVideoWatchRepository.save(fromDto(userVideoWatchDto)));
+        userVideoWatchDto = fromEntity(userVideoWatchRepository.save(fromDto(userVideoWatchDto)));
+        messagePublisher.sendVideoWatched(userVideoWatchDto.toString());
+        return userVideoWatchDto;
     }
 
     @Override

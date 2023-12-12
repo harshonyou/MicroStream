@@ -32,13 +32,21 @@ public class VideoServiceImpl implements VideoService {
         videoRepository = new CassandraVideoRepository(cqlSession);
     }
 
+//    public VideoServiceImpl(CqlSession cqlSession, MessagePublisher messagePublisher) {
+//        this.cqlSession = cqlSession;
+//        this.messagePublisher = messagePublisher;
+//        videoRepository = new CassandraVideoRepository(cqlSession);
+//    }
+
     public VideoServiceImpl(VideoRepository videoRepository) {
         this.videoRepository = videoRepository;
     }
 
     @Override
     public VideoDTO save(VideoDTO videoDto) {
-         return fromEntity(videoRepository.save(fromDto(videoDto)), videoDto.getUserId());
+        videoDto = fromEntity(videoRepository.save(fromDto(videoDto)), videoDto.getUserId());
+        messagePublisher.sendNewVideo(videoDto.toString());
+        return videoDto;
     }
 
     @Override
@@ -72,8 +80,8 @@ public class VideoServiceImpl implements VideoService {
         videoRepository.deleteAll();
     }
 
-    @Scheduled(fixedDelay = "10s")
-    public void sendFakeUpdate() {
-        messagePublisher.sendFakeUpdate("Hello World!");
-    }
+//    @Scheduled(fixedDelay = "10s")
+//    public void sendFakeUpdate() {
+//        messagePublisher.sendFakeUpdate("Hello World!");
+//    }
 }

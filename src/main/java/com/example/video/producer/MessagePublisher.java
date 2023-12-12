@@ -1,5 +1,8 @@
 package com.example.video.producer;
 
 public interface MessagePublisher {
-    void sendFakeUpdate(String message);
+
+    void sendNewVideo(String message);
+
+    void sendVideoWatched(String message);
 }
