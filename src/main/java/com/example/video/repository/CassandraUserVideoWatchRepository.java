@@ -9,7 +9,12 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.example.video.model.UserVideoWatch;
 import jakarta.inject.Singleton;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.datastax.oss.driver.api.core.type.DataTypes.*;
@@ -42,7 +47,7 @@ public class CassandraUserVideoWatchRepository implements UserVideoWatchReposito
     @Override
     public UserVideoWatch save(UserVideoWatch userVideoWatch) {
         if(userVideoWatch.getWatchedTime() == null) {
-            userVideoWatch.setWatchedTime(java.time.LocalTime.now());
+            userVideoWatch.setWatchedTime(Instant.now());
         }
 
         cqlSession.execute(psInsertUserVideoWatch.bind(
@@ -83,7 +88,7 @@ public class CassandraUserVideoWatchRepository implements UserVideoWatchReposito
         UserVideoWatch userVideoWatch = new UserVideoWatch();
         userVideoWatch.setUserId(row.getString(USER_ID));
         userVideoWatch.setVideoId(row.getUuid(VIDEO_ID));
-        userVideoWatch.setWatchedTime(row.getLocalTime(WATCHED_TIME));
+        userVideoWatch.setWatchedTime(row.getInstant(WATCHED_TIME));
         return userVideoWatch;
     }
     private void prepareStatements() {

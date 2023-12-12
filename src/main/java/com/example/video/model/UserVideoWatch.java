@@ -7,6 +7,9 @@ import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -18,7 +21,7 @@ import static com.example.video.repository.UserVideoWatchRepository.*;
 @CqlName(TABLE_WATCHED_VIDEOS)
 public class UserVideoWatch {
 
-        @PartitionKey
+    @PartitionKey
     @CqlName(USER_ID)
     private String userId;
 
@@ -27,5 +30,5 @@ public class UserVideoWatch {
     private UUID videoId;
 
     @CqlName(WATCHED_TIME)
-    private LocalTime watchedTime;
+    private Instant watchedTime;
 }
