@@ -6,15 +6,20 @@ import io.micronaut.configuration.kafka.annotation.Topic;
 
 @KafkaListener(groupId = "vm-server", offsetReset = OffsetReset.EARLIEST)
 public class KafkaMessageListener implements MessageListener {
-    @Topic("new-video")
+    @Topic("video-creation-events")
     @Override
-    public void receiveNewVideo(String message) {
+    public void handleVideoCreationEvents(String message) {
         System.out.println("Received message: " + message);
     }
 
-    @Topic("video-watched")
+    @Topic("video-engagement-events")
     @Override
-    public void receiveVideoWatched(String message) {
+    public void handleVideoEngagementEvents(String message) {
+        System.out.println("Received message: " + message);
+    }
+    @Topic("video-feedback-events")
+    @Override
+    public void handleVideoFeedbackEvents(String message) {
         System.out.println("Received message: " + message);
     }
 }

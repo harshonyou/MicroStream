@@ -38,7 +38,7 @@ public class UserVideoWatchServiceImpl implements UserVideoWatchService{
     @Override
     public UserVideoWatchDTO save(UserVideoWatchDTO userVideoWatchDto) {
         userVideoWatchDto = fromEntity(userVideoWatchRepository.save(fromDto(userVideoWatchDto)));
-        messagePublisher.sendVideoWatched(userVideoWatchDto.toString());
+        messagePublisher.notifyOnVideoWatched(userVideoWatchDto.toString());
         return userVideoWatchDto;
     }
 

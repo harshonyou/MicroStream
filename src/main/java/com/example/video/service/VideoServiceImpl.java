@@ -6,7 +6,6 @@ import com.example.video.model.Video;
 import com.example.video.producer.MessagePublisher;
 import com.example.video.repository.CassandraVideoRepository;
 import com.example.video.repository.VideoRepository;
-import io.micronaut.scheduling.annotation.Scheduled;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -45,7 +44,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public VideoDTO save(VideoDTO videoDto) {
         videoDto = fromEntity(videoRepository.save(fromDto(videoDto)), videoDto.getUserId());
-        messagePublisher.sendNewVideo(videoDto.toString());
+        messagePublisher.notifyOnNewVideoPosted(videoDto.toString());
         return videoDto;
     }
 

@@ -6,11 +6,15 @@ import io.micronaut.configuration.kafka.annotation.Topic;
 @KafkaClient(id = "vm-client")
 public interface KafkaMessagePublisher extends MessagePublisher{
 
-    @Topic("new-video")
+    @Topic("video-creation-events")
     @Override
-    void sendNewVideo(String message);
+    void notifyOnNewVideoPosted(String message);
 
-    @Topic("video-watched")
+    @Topic("video-engagement-events")
     @Override
-    void sendVideoWatched(String message);
+    void notifyOnVideoWatched(String message);
+
+    @Topic("video-feedback-events")
+    @Override
+    void notifyOnLikeDislike(String message);
 }
