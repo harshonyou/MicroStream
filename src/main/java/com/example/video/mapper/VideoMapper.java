@@ -9,6 +9,7 @@ public class VideoMapper {
         v.setUserId(dto.getUserId());
         v.setVideoId(dto.getVideoId());
         v.setTitle(dto.getTitle());
+        v.setTags(dto.getTags());
         return v;
     }
 
@@ -17,6 +18,7 @@ public class VideoMapper {
         dto.setUserId(user);
         dto.setVideoId(v.getVideoId());
         dto.setTitle(v.getTitle());
+        dto.setTags(v.getTags());
         return dto;
     }
 }

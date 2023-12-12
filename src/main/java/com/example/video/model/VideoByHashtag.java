@@ -7,28 +7,21 @@ import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
 import java.util.UUID;
 
-import static com.example.video.repository.VideoRepository.*;
+import static com.example.video.repository.VideoByHashtagRepository.*;
 
 @Getter
 @Setter
 @Entity
-@CqlName(TABLE_VIDEOS)
-public class Video {
+@CqlName(TABLE_HASHTAGS)
+public class VideoByHashtag {
 
     @PartitionKey
-    @CqlName(USER_ID)
-    private String userId;
+    @CqlName(HASHTAG)
+    private String hashtag;
 
     @ClusteringColumn
     @CqlName(VIDEO_ID)
     private UUID videoId;
-
-    @CqlName(VIDEO_TITLE)
-    private String title;
-
-    @CqlName(VIDEO_TAGS)
-    private Set<String> tags;
 }

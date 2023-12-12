@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -13,4 +14,5 @@ public class VideoDTO {
     private String userId;
     private UUID videoId;
     private String title;
+    private Set<String> tags;
 }
