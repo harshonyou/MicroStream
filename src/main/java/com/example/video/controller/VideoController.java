@@ -1,7 +1,7 @@
 package com.example.video.controller;
 
 import com.example.video.dto.VideoDTO;
-import com.example.video.service.UserManager;
+import com.example.video.service.VideoServiceImpl;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.validation.Validated;
@@ -18,7 +18,7 @@ import java.util.UUID;
 public class VideoController {
 
     @Inject
-    private UserManager userManager;
+    private VideoServiceImpl userManager;
 
     @Get(value = "/{user}/videos/")
     public List<VideoDTO> findAllByUser(

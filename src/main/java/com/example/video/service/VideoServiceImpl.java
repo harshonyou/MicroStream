@@ -3,7 +3,6 @@ package com.example.video.service;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.video.dto.VideoDTO;
 import com.example.video.model.Video;
-import com.example.video.producer.KafkaMessagePublisher;
 import com.example.video.producer.MessagePublisher;
 import com.example.video.repository.CassandraVideoRepository;
 import com.example.video.repository.VideoRepository;
@@ -20,7 +19,7 @@ import static com.example.video.mapper.VideoMapper.fromDto;
 import static com.example.video.mapper.VideoMapper.fromEntity;
 
 @Singleton
-public class UserManager implements VideoService {
+public class VideoServiceImpl implements VideoService {
 
     @Inject
     private CqlSession cqlSession;
@@ -33,7 +32,7 @@ public class UserManager implements VideoService {
         videoRepository = new CassandraVideoRepository(cqlSession);
     }
 
-    public UserManager(VideoRepository videoRepository) {
+    public VideoServiceImpl(VideoRepository videoRepository) {
         this.videoRepository = videoRepository;
     }
 
