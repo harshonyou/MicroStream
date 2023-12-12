@@ -3,11 +3,11 @@ package com.example.video.service;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.video.dto.VideoDTO;
 import com.example.video.model.Video;
-import com.example.video.model.VideoByHashtag;
+import com.example.video.model.VideoTag;
 import com.example.video.producer.MessagePublisher;
-import com.example.video.repository.CassandraVideoByHashtagRepository;
+import com.example.video.repository.CassandraVideoTagRepository;
 import com.example.video.repository.CassandraVideoRepository;
-import com.example.video.repository.VideoByHashtagRepository;
+import com.example.video.repository.VideoTagRepository;
 import com.example.video.repository.VideoRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
@@ -26,14 +26,14 @@ public class VideoServiceImpl implements VideoService {
     @Inject
     private CqlSession cqlSession;
     private VideoRepository videoRepository;
-    private VideoByHashtagRepository hashtagRepository;
+    @Inject
+    private VideoTagService videoTagService;
     @Inject
     private MessagePublisher messagePublisher;
 
     @PostConstruct
     public void init() {
         videoRepository = new CassandraVideoRepository(cqlSession);
-        hashtagRepository = new CassandraVideoByHashtagRepository(cqlSession);
     }
 
 //    public VideoServiceImpl(CqlSession cqlSession, MessagePublisher messagePublisher) {
@@ -51,12 +51,7 @@ public class VideoServiceImpl implements VideoService {
         videoDto = fromEntity(videoRepository.save(fromDto(videoDto)), videoDto.getUserId());
 
         if(videoDto.getTags() != null) {
-            for (String tag : videoDto.getTags()) {
-                VideoByHashtag videoByHashtag = new VideoByHashtag();
-                videoByHashtag.setHashtag(tag);
-                videoByHashtag.setVideoId(videoDto.getVideoId());
-                hashtagRepository.save(videoByHashtag);
-            }
+            videoTagService.save(videoDto.getTags(), videoDto.getVideoId());
         }
 
         messagePublisher.notifyOnNewVideoPosted(videoDto.toString());

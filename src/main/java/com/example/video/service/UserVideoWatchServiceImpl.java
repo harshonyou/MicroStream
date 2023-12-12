@@ -33,8 +33,6 @@ public class UserVideoWatchServiceImpl implements UserVideoWatchService{
         userVideoWatchRepository = new CassandraUserVideoWatchRepository(cqlSession);
     }
 
-
-
     @Override
     public UserVideoWatchDTO save(UserVideoWatchDTO userVideoWatchDto) {
         userVideoWatchDto = fromEntity(userVideoWatchRepository.save(fromDto(userVideoWatchDto)));

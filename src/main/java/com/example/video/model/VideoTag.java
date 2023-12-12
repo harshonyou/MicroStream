@@ -9,17 +9,17 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-import static com.example.video.repository.VideoByHashtagRepository.*;
+import static com.example.video.repository.VideoTagRepository.*;
 
 @Getter
 @Setter
 @Entity
-@CqlName(TABLE_HASHTAGS)
-public class VideoByHashtag {
+@CqlName(TABLE_TAGS)
+public class VideoTag {
 
     @PartitionKey
-    @CqlName(HASHTAG)
-    private String hashtag;
+    @CqlName(TAG)
+    private String tag;
 
     @ClusteringColumn
     @CqlName(VIDEO_ID)
