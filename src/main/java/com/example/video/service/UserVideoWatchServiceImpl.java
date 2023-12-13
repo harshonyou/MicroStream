@@ -23,7 +23,7 @@ public class UserVideoWatchServiceImpl implements UserVideoWatchService{
     @Inject
     private CqlSession cqlSession;
 
-    private UserVideoWatchRepository userVideoWatchRepository;
+    private UserVideoWatchRepository userVideoWatchRepository; // TODO: Add @Transactional annotation
 
     @Inject
     private MessagePublisher messagePublisher;

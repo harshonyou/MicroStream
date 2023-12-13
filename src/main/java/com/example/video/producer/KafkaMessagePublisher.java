@@ -8,7 +8,7 @@ public interface KafkaMessagePublisher extends MessagePublisher{
 
     @Topic("video-creation-events")
     @Override
-    void notifyOnNewVideoPosted(String message);
+    void notifyOnNewVideoPosted(String message); // TODO: Add @KafkaKey annotation
 
     @Topic("video-engagement-events")
     @Override
