@@ -7,7 +7,7 @@
         <option name="micronaut.processing.annotations" value="com.example.*" />
         <option name="micronaut.processing.group" value="com.example" />
         <option name="micronaut.processing.incremental" value="true" />
-        <option name="micronaut.processing.module" value="video-microservice" />
+        <option name="micronaut.processing.module" value="video-service" />
         <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut.validation/micronaut-validation-processor/4.2.0/ee2d30a603b64471f872a0e3b5dfdf8b9e3c24b6/micronaut-validation-processor-4.2.0.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut.validation/micronaut-validation/4.2.0/20dfed8b73d1c02255cf6b1b4ab6ce4de8bac7e6/micronaut-validation-4.2.0.jar" />
@@ -31,14 +31,14 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm/9.6/aa205cf0a06dbd8e04ece91c0b37c3f5d567546a/asm-9.6.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.javaparser/javaparser-core/3.25.6/5e058bea33f92e5dd6f41f86066009cd56250452/javaparser-core-3.25.6.jar" />
         </processorPath>
-        <module name="video-microservice.test" />
+        <module name="video-service.test" />
       </profile>
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <option name="micronaut.processing.annotations" value="com.example.*" />
         <option name="micronaut.processing.group" value="com.example" />
         <option name="micronaut.processing.incremental" value="true" />
-        <option name="micronaut.processing.module" value="video-microservice" />
+        <option name="micronaut.processing.module" value="video-service" />
         <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut.validation/micronaut-validation-processor/4.2.0/ee2d30a603b64471f872a0e3b5dfdf8b9e3c24b6/micronaut-validation-processor-4.2.0.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut.validation/micronaut-validation/4.2.0/20dfed8b73d1c02255cf6b1b4ab6ce4de8bac7e6/micronaut-validation-4.2.0.jar" />
@@ -105,8 +105,12 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.jnr/jnr-x86asm/1.0.2/6936bbd6c5b235665d87bd450f5e13b52d4b48/jnr-x86asm-1.0.2.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.javaparser/javaparser-core/3.25.6/5e058bea33f92e5dd6f41f86066009cd56250452/javaparser-core-3.25.6.jar" />
         </processorPath>
-        <module name="video-microservice.main" />
+        <module name="video-service.main" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="video-microservice.main" target="17" />
+      <module name="video-microservice.test" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

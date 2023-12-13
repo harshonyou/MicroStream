@@ -5,11 +5,10 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/video-microservice" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/video-service" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/video-microservice" />
+            <option value="$PROJECT_DIR$/video-service" />
           </set>
         </option>
       </GradleProjectSettings>
