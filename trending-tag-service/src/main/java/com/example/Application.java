@@ -24,14 +24,14 @@ public class Application {
 //        tagClient.send("micronaut");
 //    }
 
-    @Scheduled(fixedDelay = "10s")
-    public void sendFakeUpdate() {
-        String[] tags = {"micronaut", "java", "kafka", "cassandra", "docker", "kubernetes", "aws", "azure", "gcp"};
-
-        int randomIndex = (int) (Math.random() * tags.length);
-        boolean randomLikeStatus = Math.random() > 0.5;
-
-        tagClient.send(tags[randomIndex], randomLikeStatus);
-    }
+//    @Scheduled(fixedDelay = "5s")
+//    public void sendFakeUpdate() {
+//        String[] tags = {"micronaut", "java", "kafka", "cassandra", "docker", "kubernetes", "aws", "azure", "gcp"};
+//
+//        int randomIndex = (int) (Math.random() * tags.length);
+//        boolean randomLikeStatus = Math.random() > 0.5;
+//
+//        tagClient.send(tags[randomIndex], randomLikeStatus);
+//    }
 
 }
