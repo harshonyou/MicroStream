@@ -61,11 +61,11 @@ public class Application {
         Map<String, Long> topHashtagCounts = topTags.getTopHashtags();
 
         // Print the top hashtags and their counts
-        System.out.println("Top 10 Hashtags:");
-        topHashtagCounts.forEach((topHashtag, topCount) -> {
-            System.out.print(topHashtag + ": " + topCount + " | ");
-        });
-        System.out.println();
+//        System.out.println("Top 10 Hashtags:");
+//        topHashtagCounts.forEach((topHashtag, topCount) -> {
+//            System.out.print(topHashtag + ": " + topCount + " | ");
+//        });
+//        System.out.println();
     }
 
 }

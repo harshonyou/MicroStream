@@ -9,21 +9,22 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
+import org.apache.kafka.streams.state.WindowStore;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Factory
@@ -33,6 +34,11 @@ public class HashtagAggregator {
 
     @Inject
     TopTags topTags;
+
+    private final PriorityQueue<Map.Entry<String, Long>> topTagsQueue = new PriorityQueue<>(
+            Comparator.comparingLong(Map.Entry::getValue)
+    );
+    private final Map<String, Long> tagCounts = new HashMap<>();
     //    JsonObjectSerializer objectSerializer;
     @Singleton
     @Named("hashtag-aggregator")
@@ -46,14 +52,14 @@ public class HashtagAggregator {
 //        JsonSerde<Tags> tagsSerde = new JsonSerde<>(objectSerializer, Tags.class);
 //        JsonObjectSerde<Tags> tagsSerde = new JsonObjectSerde<>(objectSerializer, Tags.class);
 
-        String stateStoreName = "hashtagCountsStore";
-        StoreBuilder<KeyValueStore<String, Long>> storeBuilder = Stores.keyValueStoreBuilder(
-                Stores.persistentKeyValueStore(stateStoreName),
-                Serdes.String(),
-                Serdes.Long()
-        );
-
-        builder.addStateStore(storeBuilder);
+        String stateStoreName = "something-random";
+//        StoreBuilder<KeyValueStore<String, Long>> storeBuilder = Stores.keyValueStoreBuilder(
+//                Stores.persistentKeyValueStore(stateStoreName),
+//                Serdes.String(),
+//                Serdes.Long()
+//        );
+//
+//        builder.addStateStore(storeBuilder);
 
 
         KStream<String, Tags> stream = builder.stream("tags", Consumed.with(Serdes.String(), tagsSerde));
@@ -67,9 +73,24 @@ public class HashtagAggregator {
         KTable<Windowed<String>, Long> windowedHashtagCounts = flatMapStream
                 .groupBy((key, hashtag) -> hashtag, Grouped.with(Serdes.String(), Serdes.String()))
                 .windowedBy(oneHourWindow)
-                .count();
+                .aggregate(
+                        () -> 0L,
+                        (key, tag, count) -> count + 1,
+                        Materialized.<String, Long, WindowStore<Bytes, byte[]>>as(stateStoreName)
+                                .withKeySerde(Serdes.String())
+                                .withValueSerde(Serdes.Long())
+                );
+
+        windowedHashtagCounts.toStream().foreach((key, count) -> updateTopTags(key.key(), count));
 
 
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+//        windowedHashtagCounts.toStream()
+//                .peek((key, value) -> System.out.println("WINDOWED AGGREGATE | " +
+//                        "Current Time: " + LocalDateTime.now(ZoneId.systemDefault()).format(formatter) + ", " +
+//                        "Window: " + LocalDateTime.ofInstant(Instant.ofEpochMilli(key.window().start()), ZoneId.systemDefault()).format(formatter) + " to " + LocalDateTime.ofInstant(Instant.ofEpochMilli(key.window().end()), ZoneId.systemDefault()).format(formatter) +
+//                        ", Hashtag: " + key.key() +
+//                        ", Count: " + value));
 
 
 
@@ -98,6 +119,29 @@ public class HashtagAggregator {
 //        flatMapStream.foreach((key, value) -> System.out.println("STREAMING | " + "\t" +" Key: " + key + ", Value: " + value));
 
         return stream;
+    }
+
+    private synchronized void updateTopTags(String tag, Long count) {
+        // Update count in the hash map
+        tagCounts.put(tag, count);
+
+        // Add new count to the priority queue
+        topTagsQueue.add(new AbstractMap.SimpleEntry<>(tag, count));
+
+        // Remove the smallest count if the queue size exceeds 10
+        if (topTagsQueue.size() > 10) {
+            topTagsQueue.poll();
+        }
+
+        // Optionally, print the current top 10 tags for debugging
+        System.out.println("Current Top 10 Tags: " + getTopTags());
+    }
+
+    private List<String> getTopTags() {
+        return topTagsQueue.stream()
+                .sorted(Comparator.comparingLong(Map.Entry<String, Long>::getValue).reversed())
+                .map((entry) -> entry.getKey() + ": " + entry.getValue())
+                .collect(Collectors.toList());
     }
 
     private void updateTopHashtagsStateStore(String hashtag, Long count) {
