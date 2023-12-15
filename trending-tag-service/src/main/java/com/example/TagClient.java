@@ -9,7 +9,7 @@ public interface TagClient {
 
     @Topic("tags")
     void send(
-            @KafkaKey String tag,
-            boolean likeStatus
+            @KafkaKey String key,
+            Tags tags
     );
 }

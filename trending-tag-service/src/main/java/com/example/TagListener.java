@@ -8,9 +8,9 @@ import io.micronaut.configuration.kafka.annotation.Topic;
 public class TagListener {
 
     @Topic("tags")
-    void receive(@KafkaKey String tag,
-                 boolean likeStatus) {
-        System.out.println("LISTENER | Key: " + tag + ", Value: " + likeStatus);
+    void receive(@KafkaKey String id,
+                 Tags tags) {
+        System.out.println("LISTENER | Key: " + id + ", Value: " + tags);
     }
 
     @Topic("word-count")

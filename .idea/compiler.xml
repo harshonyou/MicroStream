@@ -38,6 +38,7 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut.serde/micronaut-serde-processor/2.4.0/184e8514fa4240d969301503adbc472a29248b87/micronaut-serde-processor-2.4.0.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut.serde/micronaut-serde-api/2.4.0/c7189bbd3ee794eb7cd8fe602c6599a85f68413a/micronaut-serde-api-2.4.0.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut/micronaut-graal/4.2.1/ff3b34caea69a46e3b2f37f9a4482b6c4ed818a2/micronaut-graal-4.2.1.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut/micronaut-inject-java/4.2.1/56d0d7e287b751f7b60c10143f3b8b22ea31c088/micronaut-inject-java-4.2.1.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut/micronaut-core-processor/4.2.1/4cd731bfa996f2f0bee325c9b31eb1ea6c877612/micronaut-core-processor-4.2.1.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.micronaut/micronaut-json-core/4.2.1/6587d06cb2c675760097fe3021b6bf705b1ea792/micronaut-json-core-4.2.1.jar" />

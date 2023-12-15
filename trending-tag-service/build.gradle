@@ -12,10 +12,12 @@ repositories {
 }
 
 dependencies {
+    annotationProcessor("org.projectlombok:lombok")
     annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
     implementation("io.micronaut.kafka:micronaut-kafka")
     implementation("io.micronaut.kafka:micronaut-kafka-streams")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
+    compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
 }
 
