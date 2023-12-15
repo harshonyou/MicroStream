@@ -1,23 +1,16 @@
 package com.example;
 
-import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
-import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.scheduling.annotation.Scheduled;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @Singleton
 public class Application {
 
-    private TagClient tagClient;
-
-    @Inject
-    TopTags topTags;
+    private final TagClient tagClient;
 
     public Application(TagClient tagClient) {
         this.tagClient = tagClient;
@@ -26,11 +19,6 @@ public class Application {
     public static void main(String[] args) {
         Micronaut.run(Application.class, args);
     }
-
-//    @EventListener
-//    void startup(StartupEvent event) {
-//        tagClient.send("micronaut");
-//    }
 
     @Scheduled(fixedDelay = "10s")
     public void sendFakeUpdate() {
@@ -60,16 +48,6 @@ public class Application {
         System.out.println("SENDING | " + "\t " + "Key: "+id+" , Value:"+ t.toString());
 
         tagClient.send(id, t);
-
-
-        Map<String, Long> topHashtagCounts = topTags.getTopHashtags();
-
-        // Print the top hashtags and their counts
-//        System.out.println("Top 10 Hashtags:");
-//        topHashtagCounts.forEach((topHashtag, topCount) -> {
-//            System.out.print(topHashtag + ": " + topCount + " | ");
-//        });
-//        System.out.println();
     }
 
 }

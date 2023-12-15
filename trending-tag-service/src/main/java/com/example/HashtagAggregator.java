@@ -27,9 +27,6 @@ public class HashtagAggregator {
     @Inject
     TagsSerde tagsSerde;
 
-    @Inject
-    TopTags topTags;
-
     private final PriorityQueue<Map.Entry<String, Long>> topTagsQueue = new PriorityQueue<>(
             Comparator.comparingLong(Map.Entry::getValue)
     );
