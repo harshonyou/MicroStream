@@ -4,14 +4,19 @@ import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.scheduling.annotation.Scheduled;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.util.Map;
 import java.util.Set;
 
 @Singleton
 public class Application {
 
     private TagClient tagClient;
+
+    @Inject
+    TopTags topTags;
 
     public Application(TagClient tagClient) {
         this.tagClient = tagClient;
@@ -39,6 +44,7 @@ public class Application {
 
         t.setLikeStatus(randomLikeStatus.equals("like"));
         t.setTags(tagSet);
+        t.setLikeStatus(true);
 
 
         // generate random string for id
@@ -50,6 +56,16 @@ public class Application {
         System.out.println("SENDING | " + "\t " + "Key: "+id+" , Value:"+ t.toString());
 
         tagClient.send(id, t);
+
+
+        Map<String, Long> topHashtagCounts = topTags.getTopHashtags();
+
+        // Print the top hashtags and their counts
+        System.out.println("Top 10 Hashtags:");
+        topHashtagCounts.forEach((topHashtag, topCount) -> {
+            System.out.print(topHashtag + ": " + topCount + " | ");
+        });
+        System.out.println();
     }
 
 }
