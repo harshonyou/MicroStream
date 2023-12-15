@@ -54,6 +54,7 @@ public class HashtagAggregator {
                                 .withValueSerde(Serdes.Long()));
 
         windowedHashtagCounts
+                .suppress(Suppressed.untilTimeLimit(Duration.ofMinutes(1), Suppressed.BufferConfig.unbounded()))
                 .toStream()
                 .foreach((key, count) -> updateTopTags(key.key(), count));
 
