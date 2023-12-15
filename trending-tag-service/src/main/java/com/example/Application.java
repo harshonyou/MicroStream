@@ -26,7 +26,7 @@ public class Application {
 //        tagClient.send("micronaut");
 //    }
 
-    @Scheduled(fixedDelay = "5s")
+    @Scheduled(fixedDelay = "10s")
     public void sendFakeUpdate() {
         String[] tags = {"micronaut", "java", "kafka", "cassandra", "docker", "kubernetes", "aws", "azure", "gcp"};
         String[] likeStatus = {"like", "dislike"};
@@ -47,7 +47,7 @@ public class Application {
             id += (char) ((int) (Math.random() * 26) + 97);
         }
 
-        System.out.println("SENDING: " + t.toString());
+        System.out.println("SENDING | " + "\t " + "Key: "+id+" , Value:"+ t.toString());
 
         tagClient.send(id, t);
     }

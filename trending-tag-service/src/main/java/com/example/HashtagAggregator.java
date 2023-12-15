@@ -35,7 +35,7 @@ public class HashtagAggregator {
 //        JsonObjectSerde<Tags> tagsSerde = new JsonObjectSerde<>(objectSerializer, Tags.class);
 
         KStream<String, Tags> stream = builder.stream("tags", Consumed.with(Serdes.String(), tagsSerde));
-        stream.foreach((key, value) -> System.out.println("STREAMS: Key: " + key + ", Value: " + value));
+        stream.foreach((key, value) -> System.out.println("STREAMING | " + "\t" +" Key: " + key + ", Value: " + value));
 
         return stream;
     }

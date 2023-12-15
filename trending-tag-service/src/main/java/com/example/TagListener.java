@@ -10,7 +10,7 @@ public class TagListener {
     @Topic("tags")
     void receive(@KafkaKey String id,
                  Tags tags) {
-        System.out.println("LISTENER | Key: " + id + ", Value: " + tags);
+        System.out.println("LISTENING | " + "\t" +" Key: " + id + ", Value: " + tags);
     }
 
     @Topic("word-count")
