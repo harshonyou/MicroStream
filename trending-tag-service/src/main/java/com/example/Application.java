@@ -7,6 +7,7 @@ import io.micronaut.scheduling.annotation.Scheduled;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,14 +34,17 @@ public class Application {
 
     @Scheduled(fixedDelay = "10s")
     public void sendFakeUpdate() {
-        String[] tags = {"micronaut", "java", "kafka", "cassandra", "docker", "kubernetes", "aws", "azure", "gcp"};
+        String[] tags = {"micronaut", "java", "kafka", "cassandra", "docker", "kubernetes", "aws", "azure", "gcp", "golang", "c++", "kotlin"};
         String[] likeStatus = {"like", "dislike"};
 
         Tags t = new Tags();
         String randomLikeStatus = likeStatus[(int) (Math.random() * likeStatus.length)];
 
-        int randomIndex = (int) (Math.random() * tags.length);
-        Set<String> tagSet = Set.of(tags);
+        Set<String> tagSet = new HashSet<>();
+        tagSet.add(tags[(int) (Math.random() * tags.length)]);
+        tagSet.add(tags[(int) (Math.random() * tags.length)]);
+        tagSet.add(tags[(int) (Math.random() * tags.length)]);
+//        Set<String> tagSet = Set.of(tags);
 
         t.setLikeStatus(randomLikeStatus.equals("like"));
         t.setTags(tagSet);
