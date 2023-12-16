@@ -39,32 +39,29 @@ public class HashtagAggregator {
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, "0");
 
         KStream<String, Tags> stream = builder.stream("tags", Consumed.with(Serdes.String(), tagsSerde));
-        TimeWindows oneHourWindow = TimeWindows.of(Duration.ofHours(1));
 
-        KTable<Windowed<String>, Long> windowedHashtagCounts = stream
+        stream
                 .filter((key, value) -> value.isLikeStatus())
                 .flatMapValues(Tags::getTags)
                 .groupBy((key, hashtag) -> hashtag, Grouped.with(Serdes.String(), Serdes.String()))
-                .windowedBy(oneHourWindow)
+                .windowedBy(TimeWindows.of(Duration.ofMinutes(1)).grace(Duration.ofSeconds(10)))
                 .aggregate(
                         () -> 0L,
                         (key, tag, count) -> count + 1,
                         Materialized.<String, Long, WindowStore<Bytes, byte[]>>as("something-random")
                                 .withKeySerde(Serdes.String())
-                                .withValueSerde(Serdes.Long()));
-
-        windowedHashtagCounts
-                .suppress(Suppressed.untilTimeLimit(Duration.ofMinutes(1), Suppressed.BufferConfig.unbounded()))
+                                .withValueSerde(Serdes.Long()))
+                .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
                 .toStream()
-                .foreach((key, count) -> updateTopTags(key.key(), count));
+                .transform(() -> new TopNHashtagsTransformer(10, Duration.ofMinutes(1)));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        windowedHashtagCounts.toStream()
-                .peek((key, value) -> System.out.println("WINDOWED AGGREGATE | " +
-                        "Current Time: " + LocalDateTime.now(ZoneId.systemDefault()).format(formatter) + ", " +
-                        "Window: " + LocalDateTime.ofInstant(Instant.ofEpochMilli(key.window().start()), ZoneId.systemDefault()).format(formatter) + " to " + LocalDateTime.ofInstant(Instant.ofEpochMilli(key.window().end()), ZoneId.systemDefault()).format(formatter) +
-                        ", Hashtag: " + key.key() +
-                        ", Count: " + value));
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+//        windowedHashtagCounts.toStream()
+//                .peek((key, value) -> System.out.println("WINDOWED AGGREGATE | " +
+//                        "Current Time: " + LocalDateTime.now(ZoneId.systemDefault()).format(formatter) + ", " +
+//                        "Window: " + LocalDateTime.ofInstant(Instant.ofEpochMilli(key.window().start()), ZoneId.systemDefault()).format(formatter) + " to " + LocalDateTime.ofInstant(Instant.ofEpochMilli(key.window().end()), ZoneId.systemDefault()).format(formatter) +
+//                        ", Hashtag: " + key.key() +
+//                        ", Count: " + value));
 
         return stream;
     }
@@ -89,9 +86,10 @@ public class HashtagAggregator {
                 .collect(Collectors.toList());
     }
 
-    @Scheduled(fixedDelay = "1h")
-    public synchronized void purgeTopTags() {
-        System.out.println("Purging Top 10 Tags");
-        topTagsQueue.clear();
-    }
+//    @Scheduled(fixedDelay = "10s")
+//    public synchronized void purgeTopTags() {
+//        System.out.println("Current Top 10 Tags: " + getTopTags());
+////        System.out.println("Purging Top 10 Tags");
+////        topTagsQueue.clear();
+//    }
 }
