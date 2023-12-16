@@ -54,7 +54,7 @@ public class HashtagAggregator {
                                 .withValueSerde(Serdes.Long()))
                 .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
                 .toStream()
-                .transform(() -> new TopNHashtagsTransformer(10, Duration.ofMinutes(1)));
+                .transform(() -> new TopNHashtagsTransformer(10, Duration.ofSeconds(35)));
 
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 //        windowedHashtagCounts.toStream()

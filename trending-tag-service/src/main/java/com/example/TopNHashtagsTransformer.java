@@ -39,7 +39,7 @@ public class TopNHashtagsTransformer implements Transformer<Windowed<String>, Lo
 
     @Override
     public KeyValue<String, Long> transform(Windowed<String> key, Long value) {
-//        System.out.println("TopNHashtagsTransformer | " + key.key() + " : " + value);
+        System.out.println("TopNHashtagsTransformer | " + key.key() + " : " + value);
         if (topNHashtags.size() > n) {
             if (value > topNHashtags.peek().getValue()) {
                 topNHashtags.add(new AbstractMap.SimpleEntry<>(key.key(), value));
