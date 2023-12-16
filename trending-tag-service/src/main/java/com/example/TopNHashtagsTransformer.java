@@ -34,7 +34,7 @@ public class TopNHashtagsTransformer implements Transformer<Windowed<String>, Lo
                     Comparator.comparingLong(Map.Entry::getValue)
             );
 
-//            context.schedule(emitInterval, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
+            context.schedule(emitInterval, PunctuationType.WALL_CLOCK_TIME, this::punctuate);
         }
 
     @Override
