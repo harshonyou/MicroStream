@@ -9,8 +9,6 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import jakarta.inject.Inject;
 
-import java.util.List;
-
 @Controller("/tag-like")
 public class AggregatedTagLikeController {
 
@@ -29,8 +27,8 @@ public class AggregatedTagLikeController {
 
     @Get("/top-10")
     public Iterable<AggregatedTagLikeDTO> getTop10Tags() {
-        List<AggregatedTagLikeDTO> topTen = tagLikeRepository.findTopTagsByHourlyLikes();
-        topTen.forEach(System.out::println);
-        return topTen;
+//        List<AggregatedTagLikeDTO> topTen = tagLikeRepository.findTopTagsByHourlyLikes();
+//        topTen.forEach(System.out::println);
+        return tagLikeRepository.findTopTagsByHourlyLikes();
     }
 }

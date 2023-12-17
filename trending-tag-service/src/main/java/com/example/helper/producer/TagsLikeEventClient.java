@@ -1,4 +1,4 @@
-package com.example.producer;
+package com.example.helper.producer;
 
 import com.example.dto.TagsLikeEventDTO;
 import io.micronaut.configuration.kafka.annotation.KafkaClient;

@@ -36,8 +36,9 @@ public class TagAggregatorStream {
         KStream<String, TagsLikeEventDTO> stream = builder.stream("tags-like-event", Consumed.with(Serdes.String(), tagsLikeEventDTOSerde));
 
         stream
-                .filter((tags, likeStatus) -> likeStatus.isLikeStatus())
+                .filter((tags, likeStatus) -> likeStatus.isLikeStatus() && likeStatus.getTags() != null)
                 .flatMapValues(TagsLikeEventDTO::getTags)
+                .mapValues(tag -> tag.toLowerCase())
                 .groupBy((tags, tag) -> tag, Grouped.with(Serdes.String(), Serdes.String()))
                 .windowedBy(TimeWindows.of(Duration.ofMinutes(1)).grace(Duration.ofSeconds(10)))
                 .aggregate(
@@ -48,7 +49,7 @@ public class TagAggregatorStream {
                                 .withValueSerde(Serdes.Long()))
                 .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
                 .toStream()
-                .transform(() -> new TopNTagsTransformer(10, Duration.ofSeconds(35), aggregatedTagLikeRepository));
+                .transform(() -> new TopNTagsTransformer(100, Duration.ofSeconds(35), aggregatedTagLikeRepository));
 
         return stream;
     }
