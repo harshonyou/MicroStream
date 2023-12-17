@@ -3,6 +3,7 @@
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/trending-tag-service" />
+    <file type="web" url="file://$PROJECT_DIR$/trending-tag-service-old" />
     <file type="web" url="file://$PROJECT_DIR$/video-service" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="temurin-17" project-jdk-type="JavaSDK" />

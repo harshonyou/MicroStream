@@ -1,4 +1,4 @@
-package com.example;
+package com.example.events;
 
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.AllArgsConstructor;

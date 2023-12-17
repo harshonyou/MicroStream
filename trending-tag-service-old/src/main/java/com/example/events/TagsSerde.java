@@ -1,4 +1,4 @@
-package com.example;
+package com.example.events;
 
 import io.micronaut.configuration.kafka.serde.JsonObjectSerde;
 import io.micronaut.json.JsonObjectSerializer;

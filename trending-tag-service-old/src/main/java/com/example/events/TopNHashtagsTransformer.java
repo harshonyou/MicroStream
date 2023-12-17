@@ -1,4 +1,4 @@
-package com.example;
+package com.example.events;
 
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
@@ -19,7 +19,6 @@ public class TopNHashtagsTransformer implements Transformer<Windowed<String>, Lo
         private final int n;
 
         private PriorityQueue<Map.Entry<String, Long>> topNHashtags;
-//        private KeyValueStore<String, Long> stateStore;
 
         public TopNHashtagsTransformer(int n, Duration emitInterval) {
             if(n <= 0) throw new IllegalArgumentException("N must be greater than 0");
@@ -29,7 +28,6 @@ public class TopNHashtagsTransformer implements Transformer<Windowed<String>, Lo
 
         @Override
         public void init(ProcessorContext context) {
-//            this.stateStore = context.getStateStore("hashtag-counts");
             this.topNHashtags = new PriorityQueue<>(
                     Comparator.comparingLong(Map.Entry::getValue)
             );
@@ -63,12 +61,10 @@ public class TopNHashtagsTransformer implements Transformer<Windowed<String>, Lo
                 .map((entry) -> entry.getKey() + ": " + entry.getValue())
                 .collect(Collectors.toList()));
 
-        // Clear the topNHashtags for the next window
         topNHashtags.clear();
     }
 
     @Override
     public void close() {
-
     }
 }
