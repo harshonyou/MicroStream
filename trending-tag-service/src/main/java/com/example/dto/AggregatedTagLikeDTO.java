@@ -1,14 +1,15 @@
-package com.example.model;
+package com.example.dto;
 
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @AllArgsConstructor
+@ToString
 @Serdeable
-public class TagLikeDTO {
+public class AggregatedTagLikeDTO {
     private final String tag;
-    private final int hourlyLikes;
+    private final Long hourlyLikes;
 }
