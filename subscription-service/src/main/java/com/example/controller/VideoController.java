@@ -16,6 +16,16 @@ public class VideoController {
         this.videoRepository = videoRepository;
     }
 
+    @Get("/timeline/{userId}")
+    public List<VideoRecommendationDTO> getTimeline(int userId) {
+        return videoRepository.getUserTimeline(userId);
+    }
+
+    @Get("/recommendations/{userId}")
+    public List<VideoRecommendationDTO> getRecommendations(int userId) {
+        return videoRepository.recommendVideos(userId);
+    }
+
     @Get("/recommendations/{userId}/{tag}")
     public List<VideoRecommendationDTO> getRecommendations(int userId, String tag) {
         return videoRepository.recommendVideosByTag(userId, tag);

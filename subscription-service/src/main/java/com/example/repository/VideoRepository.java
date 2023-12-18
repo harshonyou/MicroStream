@@ -18,6 +18,30 @@ public class VideoRepository {
         this.driver = driver;
     }
 
+    public List<VideoRecommendationDTO> getUserTimeline(int userId) {
+        try (Session session = driver.session()) {
+            return session.readTransaction(tx -> getUserTimeline(tx, userId));
+        }
+    }
+
+    private List<VideoRecommendationDTO> getUserTimeline(Transaction tx, int userId) {
+        String query = "MATCH (user:User {id: $userId})-[:SUBSCRIBES_TO]->(subscribedTag:Tag) " +
+                "WITH user, COLLECT(subscribedTag) AS subscribedTags " +
+                "MATCH (user)-[:LIKES]->(:Video)-[:CONTAINS]->(likedTag:Tag) " +
+                "WITH user, subscribedTags, COLLECT(likedTag) AS likedTags " +
+                "WITH user, REDUCE(output = [], t IN (subscribedTags + likedTags) | output + t) AS allTags " +
+                "UNWIND allTags AS tag " +
+                "MATCH (tag)<-[:CONTAINS]-(recommendedVideo:Video) " +
+                "WHERE NOT (user)-[:LIKES|WATCHES]->(recommendedVideo) " +
+                "WITH recommendedVideo, COLLECT(DISTINCT tag.name) AS Tags, recommendedVideo.views AS Views " +
+                "RETURN recommendedVideo.title AS RecommendedVideo, Tags, Views " +
+                "ORDER BY SIZE(Tags) DESC, Views DESC " +
+                "LIMIT 10";
+
+        var result = tx.run(query, org.neo4j.driver.Values.parameters("userId", userId));
+        return getVideoRecommendationDTOS(result);
+    }
+
     public List<VideoRecommendationDTO> recommendVideos(int userId) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> recommendVideos(tx, userId));
@@ -26,9 +50,10 @@ public class VideoRepository {
 
     private List<VideoRecommendationDTO> recommendVideos(Transaction tx, int userId) {
         String query = "MATCH (user:User {id: $userId})-[:SUBSCRIBES_TO]->(tag:Tag)<-[:CONTAINS]-(recommendedVideo:Video) " +
-                "WHERE NOT (user)-[:LIKES|WATCHES]->(recommendedVideo) " +
-                "RETURN recommendedVideo.title AS title, recommendedVideo.views AS views " +
-                "ORDER BY views DESC " +
+                "WHERE NOT (user)-[:LIKES|:WATCHES]->(recommendedVideo) " +
+                "WITH recommendedVideo, COLLECT(tag.name) AS Tags, recommendedVideo.views AS Views " +
+                "RETURN recommendedVideo.title AS RecommendedVideo, Tags, Views " +
+                "ORDER BY SIZE(Tags) DESC, Views DESC " +
                 "LIMIT 10";
 
         var result = tx.run(query, org.neo4j.driver.Values.parameters("userId", userId));
@@ -42,10 +67,12 @@ public class VideoRepository {
     }
 
     private List<VideoRecommendationDTO> recommendVideosByTag(Transaction tx, int userId, String tagName) {
-        String query = "MATCH (user:User {id: $userId})-[:SUBSCRIBES_TO]->(tag:Tag {name: $tagName})<-[:CONTAINS]-(recommendedVideo:Video) " +
-                "WHERE NOT (user)-[:LIKES|WATCHES]->(recommendedVideo) " +
-                "RETURN recommendedVideo.title AS title, recommendedVideo.views AS views " +
-                "ORDER BY views DESC " +
+        String query = "MATCH (user:User {id: $userId})-[:LIKES|WATCHES]->(watchedVideo:Video) " +
+                "WITH user, COLLECT(watchedVideo) AS watchedVideos " +
+                "MATCH (tag:Tag {name: $tagName})-[:CONTAINS]-(recommendedVideo:Video) " +
+                "WHERE NOT recommendedVideo IN watchedVideos " +
+                "RETURN recommendedVideo.title AS RecommendedVideo, recommendedVideo.views AS Views " +
+                "ORDER BY Views DESC " +
                 "LIMIT 10";
 
         var result = tx.run(query, org.neo4j.driver.Values.parameters("userId", userId, "tagName", tagName));
@@ -57,8 +84,8 @@ public class VideoRepository {
 
         while (result.hasNext()) {
             var record = result.next();
-            var title = record.get("title").asString();
-            var views = record.get("views").asInt();
+            var title = record.get("RecommendedVideo").asString();
+            var views = record.get("Views").asInt();
 
             recommendedVideos.add(new VideoRecommendationDTO(title, views));
         }
