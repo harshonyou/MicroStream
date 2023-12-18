@@ -6,13 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Introspected
 public class Video {
-    private int id;
+    private UUID id;
     private String title;
-    private int views;
+    private Long views;
 }

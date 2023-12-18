@@ -7,13 +7,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+import java.util.UUID;
+
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 @Introspected
 @Serdeable
-public class VideoRecommendationDTO {
-    private String recommendedVideoTitle;
-    private int views;
+public class RecommendedVideoDTO {
+    private UUID id;
+    private String title;
+    // Subset of tags that the recommended video is affiliated with
+    private Set<String> affiliatedTags;
+    private Long views;
 }

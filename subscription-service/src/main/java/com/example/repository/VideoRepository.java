@@ -1,16 +1,12 @@
 package com.example.repository;
 
-import com.example.dto.VideoRecommendationDTO;
+import com.example.dto.RecommendedVideoDTO;
 import com.example.model.Tag;
 import com.example.model.Video;
 import jakarta.inject.Singleton;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
+import org.neo4j.driver.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Singleton
 public class VideoRepository {
@@ -20,58 +16,65 @@ public class VideoRepository {
         this.driver = driver;
     }
 
-    public void postVideo(Long userId, Video video, List<Tag> tags) {
+    public void postVideo(String userId, Video video, Set<Tag> tags) {
         try (Session session = driver.session()) {
-            String createVideoQuery = "CREATE (v:Video {id: $id, title: $title, views: $views})";
-            session.writeTransaction(tx -> tx.run(createVideoQuery,
-                    org.neo4j.driver.Values.parameters(
-                            "id", video.getId(),
-                            "title", video.getTitle(),
-                            "views", video.getViews())));
+            session.writeTransaction(tx -> {
+                // Create video
+                String createVideoQuery = "CREATE (v:Video {id: $id, title: $title, views: $views})";
+                tx.run(createVideoQuery, org.neo4j.driver.Values.parameters(
+                        "id", String.valueOf(video.getId()),
+                        "title", video.getTitle(),
+                        "views", video.getViews()));
 
-            String relateUserToVideoQuery = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) CREATE (u)-[:POSTS]->(v)";
-            session.writeTransaction(tx -> tx.run(relateUserToVideoQuery,
-                    org.neo4j.driver.Values.parameters(
-                            "userId", userId,
-                            "videoId", video.getId())));
+                // Relate user to video
+                String relateUserToVideoQuery = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) CREATE (u)-[:POSTS]->(v)";
+                tx.run(relateUserToVideoQuery, org.neo4j.driver.Values.parameters(
+                        "userId", userId,
+                        "videoId", String.valueOf(video.getId())));
 
-            for (Tag tag : tags) {
-                String relateVideoToTagQuery = "MATCH (v:Video {id: $videoId}), (t:Tag {name: $tagName}) MERGE (v)-[:CONTAINS]->(t)";
-                session.writeTransaction(tx -> tx.run(relateVideoToTagQuery,
-                        org.neo4j.driver.Values.parameters(
-                                "videoId", video.getId(),
-                                "tagName", tag.getName())));
-            }
+                // Relate video to tags
+                for (Tag tag : tags) {
+                    String relateVideoToTagQuery = "MATCH (v:Video {id: $videoId}), (t:Tag {name: $tagName}) MERGE (v)-[:CONTAINS]->(t)";
+                    tx.run(relateVideoToTagQuery, org.neo4j.driver.Values.parameters(
+                            "videoId", String.valueOf(video.getId()),
+                            "tagName", tag.getName()));
+                }
+                return null; // No return value needed
+            });
         }
     }
 
-    public void likeVideo(Long userId, Long videoId) {
+    public void likeVideo(String userId, UUID videoId) {
         try (Session session = driver.session()) {
             String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:LIKES]->(v)";
-            session.writeTransaction(tx -> tx.run(query,
-                    org.neo4j.driver.Values.parameters(
-                            "userId", userId,
-                            "videoId", videoId)));
+            session.writeTransaction(tx -> {
+                tx.run(query, org.neo4j.driver.Values.parameters(
+                        "userId", userId,
+                        "videoId", String.valueOf(videoId)));
+                return null; // No return value needed
+            });
         }
     }
 
-    public void watchVideo(Long userId, Long videoId) {
+    public void watchVideo(String userId, UUID videoId) {
         try (Session session = driver.session()) {
             String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:WATCHES]->(v)";
-            session.writeTransaction(tx -> tx.run(query,
-                    org.neo4j.driver.Values.parameters(
-                            "userId", userId,
-                            "videoId", videoId)));
+            session.writeTransaction(tx -> {
+                tx.run(query, org.neo4j.driver.Values.parameters(
+                        "userId", userId,
+                        "videoId", String.valueOf(videoId))); // Ensure UUID is converted to String
+                return null; // No return value needed
+            });
         }
     }
 
-    public List<VideoRecommendationDTO> getUserTimeline(int userId) {
+    public List<RecommendedVideoDTO> getUserTimeline(String userId) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> getUserTimeline(tx, userId));
         }
     }
 
-    private List<VideoRecommendationDTO> getUserTimeline(Transaction tx, int userId) {
+    private List<RecommendedVideoDTO> getUserTimeline(Transaction tx, String userId) {
         String query = "MATCH (user:User {id: $userId})-[:SUBSCRIBES_TO]->(subscribedTag:Tag) " +
                 "WITH user, COLLECT(subscribedTag) AS subscribedTags " +
                 "MATCH (user)-[:LIKES]->(:Video)-[:CONTAINS]->(likedTag:Tag) " +
@@ -80,8 +83,8 @@ public class VideoRepository {
                 "UNWIND allTags AS tag " +
                 "MATCH (tag)<-[:CONTAINS]-(recommendedVideo:Video) " +
                 "WHERE NOT (user)-[:LIKES|WATCHES]->(recommendedVideo) " +
-                "WITH recommendedVideo, COLLECT(DISTINCT tag.name) AS Tags, recommendedVideo.views AS Views " +
-                "RETURN recommendedVideo.title AS RecommendedVideo, Tags, Views " +
+                "WITH recommendedVideo, recommendedVideo.id AS Id, COLLECT(DISTINCT tag.name) AS Tags, recommendedVideo.views AS Views " +
+                "RETURN recommendedVideo.title AS RecommendedVideo, Id, Tags, Views " +
                 "ORDER BY SIZE(Tags) DESC, Views DESC " +
                 "LIMIT 10";
 
@@ -89,17 +92,17 @@ public class VideoRepository {
         return getVideoRecommendationDTOS(result);
     }
 
-    public List<VideoRecommendationDTO> recommendVideos(int userId) {
+    public List<RecommendedVideoDTO> recommendVideos(String userId) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> recommendVideos(tx, userId));
         }
     }
 
-    private List<VideoRecommendationDTO> recommendVideos(Transaction tx, int userId) {
+    private List<RecommendedVideoDTO> recommendVideos(Transaction tx, String userId) {
         String query = "MATCH (user:User {id: $userId})-[:SUBSCRIBES_TO]->(tag:Tag)<-[:CONTAINS]-(recommendedVideo:Video) " +
                 "WHERE NOT (user)-[:LIKES|:WATCHES]->(recommendedVideo) " +
-                "WITH recommendedVideo, COLLECT(tag.name) AS Tags, recommendedVideo.views AS Views " +
-                "RETURN recommendedVideo.title AS RecommendedVideo, Tags, Views " +
+                "WITH recommendedVideo, recommendedVideo.id AS Id, COLLECT(tag.name) AS Tags, recommendedVideo.views AS Views " +
+                "RETURN recommendedVideo.title AS RecommendedVideo, Id, Tags, Views " +
                 "ORDER BY SIZE(Tags) DESC, Views DESC " +
                 "LIMIT 10";
 
@@ -107,18 +110,19 @@ public class VideoRepository {
         return getVideoRecommendationDTOS(result);
     }
 
-    public List<VideoRecommendationDTO> recommendVideosByTag(int userId, String tagName) {
+    public List<RecommendedVideoDTO> recommendVideosByTag(String userId, String tagName) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> recommendVideosByTag(tx, userId, tagName));
         }
     }
 
-    private List<VideoRecommendationDTO> recommendVideosByTag(Transaction tx, int userId, String tagName) {
+    private List<RecommendedVideoDTO> recommendVideosByTag(Transaction tx, String userId, String tagName) {
         String query = "MATCH (user:User {id: $userId})-[:LIKES|WATCHES]->(watchedVideo:Video) " +
                 "WITH user, COLLECT(watchedVideo) AS watchedVideos " +
                 "MATCH (tag:Tag {name: $tagName})-[:CONTAINS]-(recommendedVideo:Video) " +
                 "WHERE NOT recommendedVideo IN watchedVideos " +
-                "RETURN recommendedVideo.title AS RecommendedVideo, recommendedVideo.views AS Views " +
+                "WITH recommendedVideo, recommendedVideo.id AS Id, COLLECT(tag.name) AS Tags, recommendedVideo.views AS Views " +
+                "RETURN recommendedVideo.title AS RecommendedVideo, Id, Tags, Views " +
                 "ORDER BY Views DESC " +
                 "LIMIT 10";
 
@@ -126,15 +130,18 @@ public class VideoRepository {
         return getVideoRecommendationDTOS(result);
     }
 
-    private List<VideoRecommendationDTO> getVideoRecommendationDTOS(Result result) {
-        List<VideoRecommendationDTO> recommendedVideos = new ArrayList<>();
+    private List<RecommendedVideoDTO> getVideoRecommendationDTOS(Result result) {
+        List<RecommendedVideoDTO> recommendedVideos = new ArrayList<>();
 
         while (result.hasNext()) {
             var record = result.next();
-            var title = record.get("RecommendedVideo").asString();
-            var views = record.get("Views").asInt();
 
-            recommendedVideos.add(new VideoRecommendationDTO(title, views));
+            UUID id = UUID.fromString(record.get("Id").asString());
+            String title = record.get("RecommendedVideo").asString();
+            Set<String> affinityTags = new HashSet<>(record.get("Tags").asList(Value::asString));
+            long views = record.get("Views").asLong();
+
+            recommendedVideos.add(new RecommendedVideoDTO(id, title, affinityTags, views));
         }
 
         return recommendedVideos;

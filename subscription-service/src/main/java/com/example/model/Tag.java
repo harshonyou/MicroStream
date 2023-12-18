@@ -12,6 +12,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @Introspected
 public class Tag {
-    private int id;
     private String name;
 }
