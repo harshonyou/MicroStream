@@ -1,6 +1,8 @@
 package com.example.repository;
 
 import com.example.dto.VideoRecommendationDTO;
+import com.example.model.Tag;
+import com.example.model.Video;
 import jakarta.inject.Singleton;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Result;
@@ -16,6 +18,51 @@ public class VideoRepository {
 
     VideoRepository(Driver driver) {
         this.driver = driver;
+    }
+
+    public void postVideo(Long userId, Video video, List<Tag> tags) {
+        try (Session session = driver.session()) {
+            String createVideoQuery = "CREATE (v:Video {id: $id, title: $title, views: $views})";
+            session.writeTransaction(tx -> tx.run(createVideoQuery,
+                    org.neo4j.driver.Values.parameters(
+                            "id", video.getId(),
+                            "title", video.getTitle(),
+                            "views", video.getViews())));
+
+            String relateUserToVideoQuery = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) CREATE (u)-[:POSTS]->(v)";
+            session.writeTransaction(tx -> tx.run(relateUserToVideoQuery,
+                    org.neo4j.driver.Values.parameters(
+                            "userId", userId,
+                            "videoId", video.getId())));
+
+            for (Tag tag : tags) {
+                String relateVideoToTagQuery = "MATCH (v:Video {id: $videoId}), (t:Tag {name: $tagName}) MERGE (v)-[:CONTAINS]->(t)";
+                session.writeTransaction(tx -> tx.run(relateVideoToTagQuery,
+                        org.neo4j.driver.Values.parameters(
+                                "videoId", video.getId(),
+                                "tagName", tag.getName())));
+            }
+        }
+    }
+
+    public void likeVideo(Long userId, Long videoId) {
+        try (Session session = driver.session()) {
+            String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:LIKES]->(v)";
+            session.writeTransaction(tx -> tx.run(query,
+                    org.neo4j.driver.Values.parameters(
+                            "userId", userId,
+                            "videoId", videoId)));
+        }
+    }
+
+    public void watchVideo(Long userId, Long videoId) {
+        try (Session session = driver.session()) {
+            String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:WATCHES]->(v)";
+            session.writeTransaction(tx -> tx.run(query,
+                    org.neo4j.driver.Values.parameters(
+                            "userId", userId,
+                            "videoId", videoId)));
+        }
     }
 
     public List<VideoRecommendationDTO> getUserTimeline(int userId) {
