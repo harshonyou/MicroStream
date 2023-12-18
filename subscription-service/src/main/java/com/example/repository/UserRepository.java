@@ -20,9 +20,9 @@ public class UserRepository {
         }
     }
 
-    private Void createUser(Transaction session, User user) {
+    private Void createUser(Transaction tx, User user) {
         String query = "CREATE (u:User {id: $id, name: $name})";
-        session.run(query, org.neo4j.driver.Values.parameters(
+        tx.run(query, org.neo4j.driver.Values.parameters(
                 "id", user.getId(),
                 "name", user.getName()));
 

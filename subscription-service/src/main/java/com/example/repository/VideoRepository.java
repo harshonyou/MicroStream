@@ -18,54 +18,58 @@ public class VideoRepository {
 
     public void postVideo(String userId, Video video, Set<Tag> tags) {
         try (Session session = driver.session()) {
-            session.writeTransaction(tx -> {
-                // Create video
-                String createVideoQuery = "CREATE (v:Video {id: $id, title: $title, views: $views})";
-                tx.run(createVideoQuery, org.neo4j.driver.Values.parameters(
-                        "id", String.valueOf(video.getId()),
-                        "title", video.getTitle(),
-                        "views", video.getViews()));
-
-                // Relate user to video
-                String relateUserToVideoQuery = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) CREATE (u)-[:POSTS]->(v)";
-                tx.run(relateUserToVideoQuery, org.neo4j.driver.Values.parameters(
-                        "userId", userId,
-                        "videoId", String.valueOf(video.getId())));
-
-                // Relate video to tags
-                for (Tag tag : tags) {
-                    String relateVideoToTagQuery = "MATCH (v:Video {id: $videoId}), (t:Tag {name: $tagName}) MERGE (v)-[:CONTAINS]->(t)";
-                    tx.run(relateVideoToTagQuery, org.neo4j.driver.Values.parameters(
-                            "videoId", String.valueOf(video.getId()),
-                            "tagName", tag.getName()));
-                }
-                return null; // No return value needed
-            });
+            session.writeTransaction(tx -> postVideo(tx, userId, video, tags));
         }
+    }
+    public Void postVideo(Transaction tx, String userId, Video video, Set<Tag> tags) {
+        String createVideoQuery = "CREATE (v:Video {id: $id, title: $title, views: $views})";
+        tx.run(createVideoQuery, org.neo4j.driver.Values.parameters(
+                "id", String.valueOf(video.getId()),
+                "title", video.getTitle(),
+                "views", video.getViews()));
+
+        String relateUserToVideoQuery = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) CREATE (u)-[:POSTS]->(v)";
+        tx.run(relateUserToVideoQuery, org.neo4j.driver.Values.parameters(
+                "userId", userId,
+                "videoId", String.valueOf(video.getId())));
+
+        for (Tag tag : tags) {
+            String relateVideoToTagQuery = "MATCH (v:Video {id: $videoId}), (t:Tag {name: $tagName}) MERGE (v)-[:CONTAINS]->(t)";
+            tx.run(relateVideoToTagQuery, org.neo4j.driver.Values.parameters(
+                    "videoId", String.valueOf(video.getId()),
+                    "tagName", tag.getName()));
+        }
+        return null;
     }
 
     public void likeVideo(String userId, UUID videoId) {
         try (Session session = driver.session()) {
-            String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:LIKES]->(v)";
-            session.writeTransaction(tx -> {
-                tx.run(query, org.neo4j.driver.Values.parameters(
-                        "userId", userId,
-                        "videoId", String.valueOf(videoId)));
-                return null; // No return value needed
-            });
+            session.writeTransaction(tx -> likeVideo(tx, userId, videoId));
         }
+    }
+
+    private Void likeVideo(Transaction tx, String userId, UUID videoId) {
+        String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:LIKES]->(v)";
+
+        tx.run(query, org.neo4j.driver.Values.parameters(
+                "userId", userId,
+                "videoId", String.valueOf(videoId)));
+        return null;
     }
 
     public void watchVideo(String userId, UUID videoId) {
         try (Session session = driver.session()) {
-            String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:WATCHES]->(v)";
-            session.writeTransaction(tx -> {
-                tx.run(query, org.neo4j.driver.Values.parameters(
-                        "userId", userId,
-                        "videoId", String.valueOf(videoId))); // Ensure UUID is converted to String
-                return null; // No return value needed
-            });
+            session.writeTransaction(tx -> watchVideo(tx, userId, videoId));
         }
+    }
+
+    private Void watchVideo(Transaction tx, String userId, UUID videoId) {
+        String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:WATCHES]->(v)";
+
+        tx.run(query, org.neo4j.driver.Values.parameters(
+                "userId", userId,
+                "videoId", String.valueOf(videoId)));
+        return null;
     }
 
     public List<RecommendedVideoDTO> getUserTimeline(String userId) {
