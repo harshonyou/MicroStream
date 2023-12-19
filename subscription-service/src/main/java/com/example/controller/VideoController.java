@@ -1,12 +1,9 @@
 package com.example.controller;
 
 import com.example.dto.RecommendedVideoDTO;
-import com.example.model.Video;
 import com.example.repository.VideoRepository;
-import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
 
 import java.util.List;
 
@@ -26,11 +23,11 @@ public class VideoController {
 
     @Get("/recommendations/{userId}")
     public List<RecommendedVideoDTO> getRecommendations(String userId) {
-        return videoRepository.recommendVideos(userId);
+        return videoRepository.getUserRecommendations(userId);
     }
 
     @Get("/recommendations/{userId}/{tag}")
     public List<RecommendedVideoDTO> getRecommendations(String userId, String tag) {
-        return videoRepository.recommendVideosByTag(userId, tag);
+        return videoRepository.getUserRecommendationsByTag(userId, tag);
     }
 }

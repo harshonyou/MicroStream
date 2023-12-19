@@ -18,21 +18,22 @@ public class TagRepository {
         this.driver = driver;
     }
 
-    public Optional<Tag> findByTag(String tagName) {
+    public Optional<Tag> findByName(String tagName) {
         try (Session session = driver.session()) {
-            return session.readTransaction(tx -> findById(tx, tagName));
+            return session.readTransaction(tx -> findByName(tx, tagName));
         }
     }
 
-    private Optional<Tag> findById(Transaction tx, String tagName) {
+    private Optional<Tag> findByName(Transaction tx, String tagName) {
         String query = "MATCH (t:Tag {name: $tagName}) RETURN t";
 
-        var result = tx.run(query, org.neo4j.driver.Values.parameters("tagName", tagName)).single();
+        var result = tx.run(query, org.neo4j.driver.Values.parameters("tagName", tagName));
 
-        if (result == null) {
-            return Optional.empty();
-        } else {
+        if (result.hasNext()) {
+            var record = result.single();
             return Optional.of(new Tag(tagName));
+        } else {
+            return Optional.empty();
         }
     }
 

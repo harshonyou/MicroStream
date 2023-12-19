@@ -42,13 +42,13 @@ public class VideoRepository {
         return null;
     }
 
-    public void likeVideo(String userId, UUID videoId) {
+    public void likeVideo(UUID videoId, String userId) {
         try (Session session = driver.session()) {
-            session.writeTransaction(tx -> likeVideo(tx, userId, videoId));
+            session.writeTransaction(tx -> likeVideo(tx, videoId, userId));
         }
     }
 
-    private Void likeVideo(Transaction tx, String userId, UUID videoId) {
+    private Void likeVideo(Transaction tx, UUID videoId, String userId) {
         String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:LIKES]->(v)";
 
         tx.run(query, org.neo4j.driver.Values.parameters(
@@ -57,13 +57,13 @@ public class VideoRepository {
         return null;
     }
 
-    public void watchVideo(String userId, UUID videoId) {
+    public void watchVideo(UUID videoId, String userId) {
         try (Session session = driver.session()) {
-            session.writeTransaction(tx -> watchVideo(tx, userId, videoId));
+            session.writeTransaction(tx -> watchVideo(tx, videoId, userId));
         }
     }
 
-    private Void watchVideo(Transaction tx, String userId, UUID videoId) {
+    private Void watchVideo(Transaction tx, UUID videoId, String userId) {
         String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:WATCHES]->(v)";
 
         tx.run(query, org.neo4j.driver.Values.parameters(
@@ -96,13 +96,13 @@ public class VideoRepository {
         return getVideoRecommendationDTOS(result);
     }
 
-    public List<RecommendedVideoDTO> recommendVideos(String userId) {
+    public List<RecommendedVideoDTO> getUserRecommendations(String userId) {
         try (Session session = driver.session()) {
-            return session.readTransaction(tx -> recommendVideos(tx, userId));
+            return session.readTransaction(tx -> getUserRecommendations(tx, userId));
         }
     }
 
-    private List<RecommendedVideoDTO> recommendVideos(Transaction tx, String userId) {
+    private List<RecommendedVideoDTO> getUserRecommendations(Transaction tx, String userId) {
         String query = "MATCH (user:User {id: $userId})-[:SUBSCRIBES_TO]->(tag:Tag)<-[:CONTAINS]-(recommendedVideo:Video) " +
                 "WHERE NOT (user)-[:LIKES|:WATCHES]->(recommendedVideo) " +
                 "WITH recommendedVideo, recommendedVideo.id AS Id, COLLECT(tag.name) AS Tags, recommendedVideo.views AS Views " +
@@ -114,13 +114,13 @@ public class VideoRepository {
         return getVideoRecommendationDTOS(result);
     }
 
-    public List<RecommendedVideoDTO> recommendVideosByTag(String userId, String tagName) {
+    public List<RecommendedVideoDTO> getUserRecommendationsByTag(String userId, String tagName) {
         try (Session session = driver.session()) {
-            return session.readTransaction(tx -> recommendVideosByTag(tx, userId, tagName));
+            return session.readTransaction(tx -> getUserRecommendationsByTag(tx, userId, tagName));
         }
     }
 
-    private List<RecommendedVideoDTO> recommendVideosByTag(Transaction tx, String userId, String tagName) {
+    private List<RecommendedVideoDTO> getUserRecommendationsByTag(Transaction tx, String userId, String tagName) {
         String query = "MATCH (user:User {id: $userId})-[:LIKES|WATCHES]->(watchedVideo:Video) " +
                 "WITH user, COLLECT(watchedVideo) AS watchedVideos " +
                 "MATCH (tag:Tag {name: $tagName})-[:CONTAINS]-(recommendedVideo:Video) " +

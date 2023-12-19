@@ -28,13 +28,14 @@ public class UserRepository {
     private Optional<User> findById(Transaction tx, String userId) {
         String query = "MATCH (u:User {id: $userId}) RETURN u";
 
-        var result = tx.run(query, org.neo4j.driver.Values.parameters("userId", userId)).single();
+        var result = tx.run(query, org.neo4j.driver.Values.parameters("userId", userId));
 
-        if (result == null) {
-            return Optional.empty();
-        } else {
-            String userName = result.get("u").get("name").asString();
+        if (result.hasNext()) {
+            var record = result.single();
+            String userName = record.get("u").get("name").asString();
             return Optional.of(new User(userId, userName));
+        } else {
+            return Optional.empty();
         }
     }
 
