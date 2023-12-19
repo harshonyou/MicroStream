@@ -1,10 +1,15 @@
 package com.example.repository;
 
+import com.example.dto.RecommendedVideoDTO;
 import com.example.model.User;
 import jakarta.inject.Singleton;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Singleton
 public class UserRepository {
@@ -12,6 +17,25 @@ public class UserRepository {
 
     UserRepository(Driver driver) {
         this.driver = driver;
+    }
+
+    public Optional<User> findById(String userId) {
+        try (Session session = driver.session()) {
+            return session.readTransaction(tx -> findById(tx, userId));
+        }
+    }
+
+    private Optional<User> findById(Transaction tx, String userId) {
+        String query = "MATCH (u:User {id: $userId}) RETURN u";
+
+        var result = tx.run(query, org.neo4j.driver.Values.parameters("userId", userId)).single();
+
+        if (result == null) {
+            return Optional.empty();
+        } else {
+            String userName = result.get("u").get("name").asString();
+            return Optional.of(new User(userId, userName));
+        }
     }
 
     public void addUser(User user) {
