@@ -10,8 +10,6 @@ import jakarta.inject.Singleton;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.example.mapper.TagMapper.fromEntity;
-
 @Singleton
 public class TagServiceImpl implements TagService {
     @Inject
@@ -19,7 +17,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public void addTag(String tagName) {
-        if(findByName(tagName).isPresent())
+        if(findByTagName(tagName).isPresent())
             return;
 
         tagRepository.addTag(new Tag(tagName));
@@ -32,8 +30,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Optional<TagDTO> findByName(String tagName) {
-        Optional<Tag> tag = tagRepository.findByName(tagName);
+    public Optional<TagDTO> findByTagName(String tagName) {
+        Optional<Tag> tag = tagRepository.findByTagName(tagName);
 
         return tag.map(TagMapper::fromEntity);
     }

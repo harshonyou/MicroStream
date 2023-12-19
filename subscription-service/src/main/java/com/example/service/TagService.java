@@ -8,5 +8,5 @@ import java.util.Set;
 public interface TagService {
     void addTag(String tagName);
     void addTags(Set<String> tagNames);
-    Optional<TagDTO> findByName(String tagName);
+    Optional<TagDTO> findByTagName(String tagName);
 }

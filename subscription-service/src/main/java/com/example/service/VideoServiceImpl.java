@@ -35,19 +35,4 @@ public class VideoServiceImpl implements VideoService {
     public void watchVideo(UUID videoId, String userId) {
         videoRepository.watchVideo(videoId, userId);
     }
-
-    @Override
-    public List<RecommendedVideoDTO> getTimeline(String userId) {
-        return videoRepository.getUserTimeline(userId);
-    }
-
-    @Override
-    public List<RecommendedVideoDTO> getRecommendations(String userId) {
-        return videoRepository.getUserRecommendations(userId);
-    }
-
-    @Override
-    public List<RecommendedVideoDTO> getRecommendations(String userId, String tag) {
-        return videoRepository.getUserRecommendationsByTag(userId, tag);
-    }
 }

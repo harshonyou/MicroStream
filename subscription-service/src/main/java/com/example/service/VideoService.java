@@ -10,19 +10,9 @@ import java.util.UUID;
 
 public interface VideoService {
 
-    default void postVideo(VideoDTO video) {
-        postVideo(video);
-    }
-
     void postVideo(String userId, VideoDTO video, Set<TagDTO> tags);
 
     void likeVideo(UUID videoId, String userId);
 
     void watchVideo(UUID videoId, String userId);
-
-    List<RecommendedVideoDTO> getTimeline(String userId);
-
-    List<RecommendedVideoDTO> getRecommendations(String userId);
-
-    List<RecommendedVideoDTO> getRecommendations(String userId, String tag);
 }

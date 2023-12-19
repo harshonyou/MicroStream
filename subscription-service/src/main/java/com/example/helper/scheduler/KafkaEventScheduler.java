@@ -32,12 +32,18 @@ public class KafkaEventScheduler {
     @Inject
     private VideoFeedbackEventClient videoFeedbackEventClient;
 
+    private static final  boolean SEND_FAKE_UPDATE = false;
+
     @EventListener
     public void onStartup(ServerStartupEvent event) {
     }
 
     @Scheduled(fixedDelay = "10s")
     public void doSomething() {
+        if(!SEND_FAKE_UPDATE) {
+            return;
+        }
+
         String randomUserId = String.valueOf((int) (Math.random() * 1000));
         UUID randomVideoId = UUID.randomUUID();
         String randomVideoTitle = "Video " + randomVideoId.toString();
