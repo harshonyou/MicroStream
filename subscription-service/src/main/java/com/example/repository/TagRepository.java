@@ -25,7 +25,10 @@ public class TagRepository {
     }
 
     private Optional<Tag> findByTagName(Transaction tx, String tagName) {
-        String query = "MATCH (t:Tag {name: $tagName}) RETURN t";
+        String query = """
+                MATCH (t:Tag {name: $tagName})
+                RETURN t
+                """;
 
         var result = tx.run(query, org.neo4j.driver.Values.parameters("tagName", tagName));
 
@@ -44,7 +47,9 @@ public class TagRepository {
     }
 
     private Void addTag(Transaction tx, Tag tag) {
-        String query = "CREATE (t:Tag {name: $tagName})";
+        String query = """
+                CREATE (t:Tag {name: $tagName})
+                """;
         tx.run(query, org.neo4j.driver.Values.parameters(
                 "tagName", tag.getName()));
 
@@ -58,8 +63,10 @@ public class TagRepository {
     }
 
     private Void associateUserWithTag(Transaction tx, String tagName, String userId) {
-        String query = "MATCH (u:User {id: $userId}), (t:Tag {name: $tagName}) " +
-                "MERGE (u)-[:SUBSCRIBES_TO]->(t)";
+        String query = """
+                MATCH (u:User {id: $userId}), (t:Tag {name: $tagName})
+                MERGE (u)-[:SUBSCRIBES_TO]->(t)
+                """;
 
         tx.run(query, org.neo4j.driver.Values.parameters(
                 "userId", userId,
@@ -74,8 +81,10 @@ public class TagRepository {
     }
 
     private Void disassociateUserFromTag(Transaction tx, String tagName, String userId) {
-        String query = "MATCH (u:User {id: $userId})-[r:SUBSCRIBES_TO]->(t:Tag {name: $tagName}) " +
-                "DELETE r";
+        String query = """
+                MATCH (u:User {id: $userId})-[r:SUBSCRIBES_TO]->(t:Tag {name: $tagName})
+                DELETE r
+                """;
 
         tx.run(query, org.neo4j.driver.Values.parameters(
                 "userId", userId,

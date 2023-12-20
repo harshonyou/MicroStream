@@ -21,20 +21,28 @@ public class VideoRepository {
             session.writeTransaction(tx -> postVideo(tx, userId, video, tags));
         }
     }
-    public Void postVideo(Transaction tx, String userId, Video video, Set<Tag> tags) {
-        String createVideoQuery = "CREATE (v:Video {id: $id, title: $title, views: $views})";
+    public Void postVideo(Transaction tx, String userId, Video video, Set<Tag> tags) { // TODO: Split this into multiple repo
+        String createVideoQuery = """
+                CREATE (v:Video {id: $id, title: $title, views: $views})
+                """;
         tx.run(createVideoQuery, org.neo4j.driver.Values.parameters(
                 "id", String.valueOf(video.getId()),
                 "title", video.getTitle(),
                 "views", video.getViews()));
 
-        String relateUserToVideoQuery = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) CREATE (u)-[:POSTS]->(v)";
+        String relateUserToVideoQuery = """
+                MATCH (u:User {id: $userId}), (v:Video {id: $videoId})
+                CREATE (u)-[:POSTS]->(v)
+                """;
         tx.run(relateUserToVideoQuery, org.neo4j.driver.Values.parameters(
                 "userId", userId,
                 "videoId", String.valueOf(video.getId())));
 
         for (Tag tag : tags) {
-            String relateVideoToTagQuery = "MATCH (v:Video {id: $videoId}), (t:Tag {name: $tagName}) MERGE (v)-[:CONTAINS]->(t)";
+            String relateVideoToTagQuery = """
+                    MATCH (v:Video {id: $videoId}), (t:Tag {name: $tagName})
+                    MERGE (v)-[:CONTAINS]->(t)
+                    """;
             tx.run(relateVideoToTagQuery, org.neo4j.driver.Values.parameters(
                     "videoId", String.valueOf(video.getId()),
                     "tagName", tag.getName()));

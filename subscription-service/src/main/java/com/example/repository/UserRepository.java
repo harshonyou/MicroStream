@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Singleton
-public class UserRepository {
+public class UserRepository { // TODO: Have an interface
     private final Driver driver;
 
     UserRepository(Driver driver) {
@@ -26,7 +26,10 @@ public class UserRepository {
     }
 
     private Optional<User> findById(Transaction tx, String userId) {
-        String query = "MATCH (u:User {id: $userId}) RETURN u";
+        String query = """
+                MATCH (u:User {id: $userId})
+                RETURN u
+                """;
 
         var result = tx.run(query, org.neo4j.driver.Values.parameters("userId", userId));
 
@@ -46,9 +49,11 @@ public class UserRepository {
     }
 
     private Void createUser(Transaction tx, User user) {
-        String query = "CREATE (u:User {id: $id, name: $name})";
+        String query = """
+                CREATE (u:User {id: $userId, name: $name})
+                """;
         tx.run(query, org.neo4j.driver.Values.parameters(
-                "id", user.getId(),
+                "userId", user.getId(),
                 "name", user.getName()));
 
         return null;
