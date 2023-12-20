@@ -2,7 +2,7 @@ package com.example.service;
 
 public interface SubscriptionService {
 
-    void associateUserWithTag(String tagName, String userId); // TODO: boolean?
+    void subscribeUserToTag(String tagName, String userId); // TODO: boolean?
 
-    void disassociateUserFromTag(String tagName, String userId);
+    void unsubscribeUserFromTag(String tagName, String userId);
 }

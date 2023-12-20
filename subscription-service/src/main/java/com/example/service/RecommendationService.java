@@ -9,5 +9,5 @@ public interface RecommendationService {
 
     List<RecommendedVideoDTO> getUserRecommendations(String userId);
 
-    List<RecommendedVideoDTO> getUserRecommendations(String userId, String tag);
+    List<RecommendedVideoDTO> getUserRecommendations(String userId, String tagName);
 }

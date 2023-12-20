@@ -5,6 +5,9 @@ import com.example.repository.VideoRepository;
 import com.example.service.RecommendationService;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.QueryValue;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
@@ -17,18 +20,22 @@ public class RecommendationController {
         this.recommendationService = recommendationService;
     }
 
-    @Get("/timeline/{userId}")
-    public List<RecommendedVideoDTO> getTimeline(String userId) {
+    @Get("/users/{userId}/timeline")
+    public List<RecommendedVideoDTO> getTimeline(
+            @PathVariable(value = "userId") @NotEmpty String userId) {
         return recommendationService.getUserTimeline(userId);
     }
 
-    @Get("/recommendations/{userId}")
-    public List<RecommendedVideoDTO> getRecommendations(String userId) {
+    @Get("/users/{userId}/videos/recommendations")
+    public List<RecommendedVideoDTO> getRecommendations(
+            @PathVariable(value = "userId") @NotEmpty String userId) {
         return recommendationService.getUserRecommendations(userId);
     }
 
-    @Get("/recommendations/{userId}/{tag}")
-    public List<RecommendedVideoDTO> getRecommendations(String userId, String tag) {
-        return recommendationService.getUserRecommendations(userId, tag);
+    @Get("/users/{userId}/tags/{tagName}/videos/recommendations")
+    public List<RecommendedVideoDTO> getRecommendations(
+            @PathVariable(value = "userId") @NotEmpty String userId,
+            @PathVariable(value = "tagName") @NotEmpty String tagName) {
+        return recommendationService.getUserRecommendations(userId, tagName);
     }
 }

@@ -123,7 +123,7 @@ public class VideoRepository {
     private List<RecommendedVideoDTO> getUserRecommendationsByTag(Transaction tx, String userId, String tagName) {
         String query = "MATCH (user:User {id: $userId})-[:LIKES|WATCHES]->(watchedVideo:Video) " +
                 "WITH user, COLLECT(watchedVideo) AS watchedVideos " +
-                "MATCH (tag:Tag {name: $tagName})-[:CONTAINS]-(recommendedVideo:Video) " +
+                "MATCH (tag:Tag {name: $tagName})<-[:CONTAINS]-(recommendedVideo:Video) " +
                 "WHERE NOT recommendedVideo IN watchedVideos " +
                 "WITH recommendedVideo, recommendedVideo.id AS Id, COLLECT(tag.name) AS Tags, recommendedVideo.views AS Views " +
                 "RETURN recommendedVideo.title AS RecommendedVideo, Id, Tags, Views " +

@@ -16,13 +16,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     TagSubscriptionEventClient eventClient;
 
     @Override
-    public void associateUserWithTag(String tagName, String userId) {
+    public void subscribeUserToTag(String tagName, String userId) {
         tagRepository.associateUserWithTag(tagName, userId);
         eventClient.notifyOnTagSubscribeUnsubscribe(userId, new TagEngagementEventDTO(userId, tagName, true));
     }
 
     @Override
-    public void disassociateUserFromTag(String tagName, String userId) {
+    public void unsubscribeUserFromTag(String tagName, String userId) {
         tagRepository.disassociateUserFromTag(tagName, userId);
         eventClient.notifyOnTagSubscribeUnsubscribe(userId, new TagEngagementEventDTO(userId, tagName, false));
     }

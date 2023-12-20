@@ -23,7 +23,7 @@ public class RecommendationServiceImpl implements RecommendationService{
     }
 
     @Override
-    public List<RecommendedVideoDTO> getUserRecommendations(String userId, String tag) {
-        return videoRepository.getUserRecommendationsByTag(userId, tag);
+    public List<RecommendedVideoDTO> getUserRecommendations(String userId, String tagName) {
+        return videoRepository.getUserRecommendationsByTag(userId, tagName);
     }
 }
