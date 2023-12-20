@@ -8,6 +8,8 @@ import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotEmpty;
 
+import static com.example.validator.DurationValidator.isValidDuration;
+
 @Controller("/api/v1")
 public class AggregatedTagLikeController {
 
@@ -38,6 +40,10 @@ public class AggregatedTagLikeController {
     public Iterable<PastIntervalAggregatedTagLikeDTO> getTopHashtags(
             @QueryValue(value = "interval") @NotEmpty String interval,
             @QueryValue(value = "limit") Integer limit) {
+        if(!isValidDuration(interval)) {
+            throw new IllegalArgumentException("Invalid interval"); // TODO: Send back HTTP 400
+        }
+
         if(limit > 100) {
             limit = 100;
         }
