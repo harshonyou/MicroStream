@@ -18,9 +18,9 @@ public class VideoTagController {
     @Inject
     private VideoTagService videoTagService;
 
-    @Get(value = "/videos/{tag}/")
+    @Get(value = "/videos/tags/{tagName}/")
     public List<VideoTagDTO> findByTag(
-            @PathVariable(value = "tag") @NotEmpty String tag) {
-        return videoTagService.findByTag(tag);
+            @PathVariable(value = "tagName") @NotEmpty String tagName) {
+        return videoTagService.findByTag(tagName);
     }
 }

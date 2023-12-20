@@ -8,6 +8,7 @@ import io.micronaut.validation.Validated;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,58 +19,60 @@ import java.util.UUID;
 public class VideoController {
 
     @Inject
-    private VideoServiceImpl userManager;
+    private VideoServiceImpl videoManager;
 
-    @Get(value = "/{user}/videos/")
+    @Get(value = "/users/{userId}/videos/")
     public List<VideoDTO> findAllByUser(
-            @PathVariable(value = "user") @NotEmpty String user) {
-        return userManager.findByUser(user);
+            @PathVariable(value = "userId") @NotEmpty String userId) {
+        return videoManager.findByUser(userId);
     }
 
-    @Get(value = "/{user}/videos/{uid}")
+    @Get(value = "/users/{userId}/videos/{videoId}")
     public HttpResponse<VideoDTO> findById(
-            @PathVariable(value = "user") @NotEmpty String user,
-            @PathVariable(value = "uid") @NotEmpty String videoId) {
-        Optional<VideoDTO> e = userManager.findById(user, UUID.fromString(videoId));
+            @PathVariable(value = "userId") @NotEmpty String userId,
+            @PathVariable(value = "videoId") @NotEmpty String videoId) {
+        Optional<VideoDTO> e = videoManager.findById(userId, UUID.fromString(videoId));
         if (e.isEmpty()) return HttpResponse.notFound();
         return HttpResponse.ok(e.get());
     }
 
-    @Post(value = "/{user}/videos/")
-    public HttpResponse<VideoDTO> create(
-            @PathVariable(value = "user") @NotEmpty String user,
+    @Post(value = "/users/{userId}/videos/")
+    public HttpResponse<VideoDTO> create( // TODO: When creating a post based on the video ID, the tags does not work
+            @PathVariable(value = "userId") @NotEmpty String userId,
             @Body @NotNull VideoDTO video) {
-        video.setUserId(user);
-        video = userManager.save(video);
+        video.setUserId(userId);
+        video = videoManager.save(video);
         return HttpResponse.created(video);
     }
 
-    @Patch(value = "/{user}/videos/{uid}")
+    @Patch(value = "/users/{userId}/videos/{videoId}") // PUT?
     public HttpResponse<VideoDTO> update(
-            @PathVariable(value = "user") @NotEmpty String user,
-            @PathVariable(value = "uid") @NotEmpty String videoId,
+            @PathVariable(value = "userId") @NotEmpty String userId,
+            @PathVariable(value = "videoId") @NotEmpty String videoId,
             @Body @NotNull VideoDTO video) {
-        Optional<VideoDTO> e = userManager.findById(user, UUID.fromString(videoId));
+        Optional<VideoDTO> e = videoManager.findById(userId, UUID.fromString(videoId));
         if (e.isEmpty()) return HttpResponse.notFound();
-        video.setUserId(user);
-        video = userManager.save(video);
+        // TODO: Maybe also update tags? from the tag DB
+        video.setUserId(userId);
+        video.setVideoId(UUID.fromString(videoId));
+        video = videoManager.save(video);
         return HttpResponse.ok(video);
     }
 
-    @Delete(value = "/{user}/videos/")
+    @Delete(value = "/users/{userId}/videos/")
     public HttpResponse<Void> deleteAllByUser(
-            @PathVariable(value = "user") @NotEmpty String user) {
-        userManager.deleteByUser(user);
+            @PathVariable(value = "userId") @NotEmpty String userId) {
+        videoManager.deleteByUser(userId);
         return HttpResponse.noContent();
     }
 
-    @Delete(value = "/{user}/videos/{vid}")
+    @Delete(value = "/users/{userId}/videos/{videoId}")
     public HttpResponse<Void> deleteById(
-            @PathVariable(value = "user") @NotEmpty String user,
-            @PathVariable(value = "vid") @NotEmpty String videoId) {
-        Optional<VideoDTO> e = userManager.findById(user, UUID.fromString(videoId));
+            @PathVariable(value = "userId") @NotEmpty String userId,
+            @PathVariable(value = "videoId") @NotEmpty String videoId) {
+        Optional<VideoDTO> e = videoManager.findById(userId, UUID.fromString(videoId));
         if (e.isEmpty()) return HttpResponse.notFound();
-        userManager.deleteById(user, UUID.fromString(videoId));
+        videoManager.deleteById(userId, UUID.fromString(videoId));
         return HttpResponse.noContent();
     }
 

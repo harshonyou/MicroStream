@@ -1,7 +1,7 @@
 package com.example.video;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.example.video.repository.CassandraUserVideoWatchRepository;
+import com.example.video.repository.CassandraVideoEngagementRepository;
 import com.example.video.repository.CassandraVideoTagRepository;
 import com.example.video.repository.CassandraVideoRepository;
 import io.micronaut.context.event.ApplicationEventListener;
@@ -23,7 +23,7 @@ public class ApplicationStartup implements ApplicationEventListener<ServiceReady
         LOGGER.info("Startup Initialization");
         CassandraVideoRepository.createTableVideo(cqlSession);
         LOGGER.info("+ Table VideoItems created if needed.");
-        CassandraUserVideoWatchRepository.createTableUserVideoWatch(cqlSession);
+        CassandraVideoEngagementRepository.createTableUserVideoWatch(cqlSession);
         LOGGER.info("+ Table UserVideoWatch created if needed.");
         CassandraVideoTagRepository.createTableTag(cqlSession);
         LOGGER.info("+ Table VideoByHashtag created if needed.");

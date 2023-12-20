@@ -1,13 +1,11 @@
 package com.example.video.service;
 
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.example.video.dto.VideoCreationEventDTO;
 import com.example.video.dto.VideoDTO;
 import com.example.video.model.Video;
-import com.example.video.model.VideoTag;
-import com.example.video.producer.MessagePublisher;
-import com.example.video.repository.CassandraVideoTagRepository;
+import com.example.video.producer.VideoCreationEventClient;
 import com.example.video.repository.CassandraVideoRepository;
-import com.example.video.repository.VideoTagRepository;
 import com.example.video.repository.VideoRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
@@ -29,7 +27,7 @@ public class VideoServiceImpl implements VideoService {
     @Inject
     private VideoTagService videoTagService;
     @Inject
-    private MessagePublisher messagePublisher;
+    private VideoCreationEventClient eventClient;
 
     @PostConstruct
     public void init() {
@@ -54,7 +52,16 @@ public class VideoServiceImpl implements VideoService {
             videoTagService.save(videoDto.getTags(), videoDto.getVideoId());
         }
 
-        messagePublisher.notifyOnNewVideoPosted(videoDto.toString());
+        eventClient.notifyOnNewVideoPosted(
+                videoDto.getUserId(),
+                new VideoCreationEventDTO(
+                        videoDto.getUserId(),
+                        videoDto.getVideoId(),
+                        videoDto.getTitle(),
+                        videoDto.getTags()
+                )
+        );
+
         return videoDto;
     }
 

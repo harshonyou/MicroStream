@@ -7,19 +7,16 @@ import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.UUID;
 
-import static com.example.video.repository.UserVideoWatchRepository.*;
+import static com.example.video.repository.VideoEngagementRepository.*;
 
 @Getter
 @Setter
 @Entity
-@CqlName(TABLE_WATCHED_VIDEOS)
-public class UserVideoWatch {
+@CqlName(TABLE_VIDEO_ENGAGEMENTS)
+public class UserEngagement {
 
     @PartitionKey
     @CqlName(USER_ID)

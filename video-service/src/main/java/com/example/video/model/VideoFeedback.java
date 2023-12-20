@@ -9,7 +9,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @ToString
-public class LikeVideo {
+public class VideoFeedback {
     private String userId;
     private UUID videoId;
     private boolean likeStatus; // TODO: change to enum

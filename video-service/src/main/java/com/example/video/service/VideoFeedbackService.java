@@ -2,6 +2,6 @@ package com.example.video.service;
 
 import java.util.UUID;
 
-public interface LikeVideoService {
+public interface VideoFeedbackService {
     void save(String userId, UUID videoId, boolean likeStatus);
 }

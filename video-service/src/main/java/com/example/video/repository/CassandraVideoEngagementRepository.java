@@ -6,22 +6,17 @@ import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
-import com.example.video.model.UserVideoWatch;
+import com.example.video.model.UserEngagement;
 import jakarta.inject.Singleton;
 
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.datastax.oss.driver.api.core.type.DataTypes.*;
-import static com.example.video.repository.UserVideoWatchRepository.*;
 
 @Singleton
-public class CassandraUserVideoWatchRepository implements UserVideoWatchRepository {
+public class CassandraVideoEngagementRepository implements VideoEngagementRepository {
     private PreparedStatement psInsertUserVideoWatch;
     private PreparedStatement psSelectUserVideoWatch;
     private PreparedStatement psSelectVideoWatch;
@@ -29,13 +24,13 @@ public class CassandraUserVideoWatchRepository implements UserVideoWatchReposito
 
     private final CqlSession cqlSession;
 
-    public CassandraUserVideoWatchRepository(CqlSession cqlSession) {
+    public CassandraVideoEngagementRepository(CqlSession cqlSession) {
         this.cqlSession = cqlSession;
         prepareStatements();
     }
 
     public static void createTableUserVideoWatch(CqlSession cqlSession) {
-        cqlSession.execute(SchemaBuilder.createTable(TABLE_WATCHED_VIDEOS)
+        cqlSession.execute(SchemaBuilder.createTable(TABLE_VIDEO_ENGAGEMENTS)
                 .ifNotExists()
                 .withPartitionKey(USER_ID, TEXT)
                 .withClusteringColumn(VIDEO_ID, TIMEUUID)
@@ -45,21 +40,21 @@ public class CassandraUserVideoWatchRepository implements UserVideoWatchReposito
     }
 
     @Override
-    public UserVideoWatch save(UserVideoWatch userVideoWatch) {
-        if(userVideoWatch.getWatchedTime() == null) {
-            userVideoWatch.setWatchedTime(Instant.now());
+    public UserEngagement save(UserEngagement userEngagement) {
+        if(userEngagement.getWatchedTime() == null) {
+            userEngagement.setWatchedTime(Instant.now());
         }
 
         cqlSession.execute(psInsertUserVideoWatch.bind(
-                userVideoWatch.getUserId(),
-                userVideoWatch.getVideoId(),
-                userVideoWatch.getWatchedTime()));
+                userEngagement.getUserId(),
+                userEngagement.getVideoId(),
+                userEngagement.getWatchedTime()));
 
-        return userVideoWatch;
+        return userEngagement;
     }
 
     @Override
-    public List<UserVideoWatch> findByUser(String userId) {
+    public List<UserEngagement> findByUser(String userId) {
         return cqlSession.execute(psSelectVideoWatchByUser.bind(userId))
                 .all()
                 .stream()
@@ -68,7 +63,7 @@ public class CassandraUserVideoWatchRepository implements UserVideoWatchReposito
     }
 
     @Override
-    public List<UserVideoWatch> findByVideo(java.util.UUID videoId) {
+    public List<UserEngagement> findByVideo(java.util.UUID videoId) {
         return cqlSession.execute(psSelectVideoWatch.bind(videoId))
                 .all()
                 .stream()
@@ -77,15 +72,15 @@ public class CassandraUserVideoWatchRepository implements UserVideoWatchReposito
     }
 
     @Override
-    public Optional<UserVideoWatch> findById(String userId, java.util.UUID videoId) {
+    public Optional<UserEngagement> findById(String userId, java.util.UUID videoId) {
         Row row = cqlSession.execute(psSelectUserVideoWatch.bind(userId, videoId)).one();
         return (row != null) ?
                 Optional.of(mapRowToUserVideoWatch(row)) :
                 Optional.empty();
     }
 
-    private UserVideoWatch mapRowToUserVideoWatch(Row row) {
-        UserVideoWatch userVideoWatch = new UserVideoWatch();
+    private UserEngagement mapRowToUserVideoWatch(Row row) {
+        UserEngagement userVideoWatch = new UserEngagement();
         userVideoWatch.setUserId(row.getString(USER_ID));
         userVideoWatch.setVideoId(row.getUuid(VIDEO_ID));
         userVideoWatch.setWatchedTime(row.getInstant(WATCHED_TIME));
@@ -93,14 +88,14 @@ public class CassandraUserVideoWatchRepository implements UserVideoWatchReposito
     }
     private void prepareStatements() {
         psInsertUserVideoWatch = cqlSession.prepare(
-                QueryBuilder.insertInto(TABLE_WATCHED_VIDEOS)
+                QueryBuilder.insertInto(TABLE_VIDEO_ENGAGEMENTS)
                         .value(USER_ID, QueryBuilder.bindMarker())
                         .value(VIDEO_ID, QueryBuilder.bindMarker())
                         .value(WATCHED_TIME, QueryBuilder.bindMarker())
                         .build());
 
         psSelectUserVideoWatch = cqlSession.prepare(
-                QueryBuilder.selectFrom(TABLE_WATCHED_VIDEOS)
+                QueryBuilder.selectFrom(TABLE_VIDEO_ENGAGEMENTS)
                         .all()
                         .whereColumn(USER_ID).isEqualTo(QueryBuilder.bindMarker())
                         .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())
@@ -113,7 +108,7 @@ public class CassandraUserVideoWatchRepository implements UserVideoWatchReposito
 //                        .build());
 
         psSelectVideoWatchByUser = cqlSession.prepare(
-                QueryBuilder.selectFrom(TABLE_WATCHED_VIDEOS)
+                QueryBuilder.selectFrom(TABLE_VIDEO_ENGAGEMENTS)
                         .all()
                         .whereColumn(USER_ID).isEqualTo(QueryBuilder.bindMarker())
                         .build());
