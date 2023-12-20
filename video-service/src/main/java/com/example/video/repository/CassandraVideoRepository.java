@@ -53,7 +53,16 @@ public class CassandraVideoRepository implements VideoRepository {
             return video;
         }
 
-        Video toBeUpdated = findById(video.getUserId(), video.getVideoId()).get();
+        Optional<Video> optionalVideo = findById(video.getUserId(), video.getVideoId());
+        if(optionalVideo.isEmpty()) {
+            cqlSession.execute(psInsertVideo.bind(
+                    video.getUserId(),
+                    video.getVideoId(),
+                    video.getTitle()));
+            return video;
+        }
+
+        Video toBeUpdated = optionalVideo.get();
         if(video.getTitle() != null) {
             toBeUpdated.setTitle(video.getTitle());
         }

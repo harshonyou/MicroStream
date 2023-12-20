@@ -1,7 +1,9 @@
 package com.example.video.controller;
 
+import com.datastax.oss.driver.shaded.guava.common.annotations.VisibleForTesting;
 import com.example.video.dto.VideoDTO;
 import com.example.video.service.VideoServiceImpl;
+import com.example.video.util.ForTesting;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.validation.Validated;
@@ -45,7 +47,8 @@ public class VideoController {
         return HttpResponse.created(video);
     }
 
-    @Patch(value = "/users/{userId}/videos/{videoId}") // PUT?
+    @Deprecated
+    @Patch(value = "/users/{userId}/videos/{videoId}") // TODO: PUT?
     public HttpResponse<VideoDTO> update(
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "videoId") @NotEmpty String videoId,
@@ -59,6 +62,7 @@ public class VideoController {
         return HttpResponse.ok(video);
     }
 
+    @ForTesting
     @Delete(value = "/users/{userId}/videos/")
     public HttpResponse<Void> deleteAllByUser(
             @PathVariable(value = "userId") @NotEmpty String userId) {
@@ -66,6 +70,7 @@ public class VideoController {
         return HttpResponse.noContent();
     }
 
+    @ForTesting
     @Delete(value = "/users/{userId}/videos/{videoId}")
     public HttpResponse<Void> deleteById(
             @PathVariable(value = "userId") @NotEmpty String userId,

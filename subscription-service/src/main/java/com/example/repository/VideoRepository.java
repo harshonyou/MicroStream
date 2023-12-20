@@ -49,7 +49,10 @@ public class VideoRepository {
     }
 
     private Void likeVideo(Transaction tx, UUID videoId, String userId) {
-        String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:LIKES]->(v)";
+        String query = """
+                MATCH (u:User {id: $userId}), (v:Video {id: $videoId})
+                MERGE (u)-[:LIKES]->(v)
+                """;
 
         tx.run(query, org.neo4j.driver.Values.parameters(
                 "userId", userId,
@@ -81,7 +84,10 @@ public class VideoRepository {
     }
 
     private Void watchVideo(Transaction tx, UUID videoId, String userId) {
-        String query = "MATCH (u:User {id: $userId}), (v:Video {id: $videoId}) MERGE (u)-[:WATCHES]->(v)";
+        String query = """
+                MATCH (u:User {id: $userId}), (v:Video {id: $videoId})
+                MERGE (u)-[:WATCHES]->(v)
+                """;
 
         tx.run(query, org.neo4j.driver.Values.parameters(
                 "userId", userId,
