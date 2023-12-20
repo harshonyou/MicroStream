@@ -57,6 +57,23 @@ public class VideoRepository {
         return null;
     }
 
+    public void incrementVideoViews(UUID videoId) {
+        try (Session session = driver.session()) {
+            session.writeTransaction(tx -> incrementVideoViews(tx, videoId));
+        }
+    }
+
+    private Void incrementVideoViews(Transaction tx, UUID videoId) {
+        String query = """
+                MATCH (v:Video {id: $videoId})
+                SET v.views = coalesce(v.views, 0) + 1
+                """;
+
+        tx.run(query, org.neo4j.driver.Values.parameters(
+                "videoId", videoId));
+        return null;
+    }
+
     public void watchVideo(UUID videoId, String userId) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> watchVideo(tx, videoId, userId));
