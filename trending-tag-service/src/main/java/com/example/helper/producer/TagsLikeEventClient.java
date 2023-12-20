@@ -1,6 +1,6 @@
 package com.example.helper.producer;
 
-import com.example.dto.TagsLikeEventDTO;
+import com.example.dto.VideoFeedbackEventDTO;
 import io.micronaut.configuration.kafka.annotation.KafkaClient;
 import io.micronaut.configuration.kafka.annotation.KafkaKey;
 import io.micronaut.configuration.kafka.annotation.Topic;
@@ -10,6 +10,6 @@ public interface TagsLikeEventClient {
     @Topic("tags-like-event")
     void send(
             @KafkaKey String key,
-            TagsLikeEventDTO tags
+            VideoFeedbackEventDTO tags
     );
 }

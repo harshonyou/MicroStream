@@ -9,7 +9,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @Serdeable
-public class AggregatedTagLikeDTO {
+public class CurrentHourAggregatedTagLikeDTO {
     private final String tag;
     private final Long hourlyLikes;
 }

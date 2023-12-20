@@ -1,8 +1,8 @@
 package com.example.stream;
 
-import com.example.dto.TagsLikeEventDTO;
+import com.example.dto.VideoFeedbackEventDTO;
 import com.example.repository.AggregatedTagLikeRepository;
-import com.example.serde.TagsLikeEventDTOSerde;
+import com.example.serde.VideoFeedbackEventDTOSerde;
 import io.micronaut.configuration.kafka.streams.ConfiguredStreamBuilder;
 import io.micronaut.context.annotation.Factory;
 import jakarta.inject.Inject;
@@ -24,20 +24,20 @@ public class TagAggregatorStream {
     @Inject
     private AggregatedTagLikeRepository aggregatedTagLikeRepository;
     @Inject
-    private TagsLikeEventDTOSerde tagsLikeEventDTOSerde;
+    private VideoFeedbackEventDTOSerde tagsLikeEventDTOSerde;
 
     @Singleton
     @Named("tag-aggregator-stream")
-    public KStream<String, TagsLikeEventDTO> tagAggregatorStream(ConfiguredStreamBuilder builder) {
+    public KStream<String, VideoFeedbackEventDTO> tagAggregatorStream(ConfiguredStreamBuilder builder) {
         Properties props = new Properties();
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, "0");
 
-        KStream<String, TagsLikeEventDTO> stream = builder.stream("tags-like-event", Consumed.with(Serdes.String(), tagsLikeEventDTOSerde));
+        KStream<String, VideoFeedbackEventDTO> stream = builder.stream("tags-like-event", Consumed.with(Serdes.String(), tagsLikeEventDTOSerde));
 
         stream
                 .filter((tags, likeStatus) -> likeStatus.isLikeStatus() && likeStatus.getTags() != null)
-                .flatMapValues(TagsLikeEventDTO::getTags)
+                .flatMapValues(VideoFeedbackEventDTO::getTags)
                 .mapValues(tag -> tag.toLowerCase())
                 .groupBy((tags, tag) -> tag, Grouped.with(Serdes.String(), Serdes.String()))
                 .windowedBy(TimeWindows.of(Duration.ofMinutes(1)).grace(Duration.ofSeconds(10)))

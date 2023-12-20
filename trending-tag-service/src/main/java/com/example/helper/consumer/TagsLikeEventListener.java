@@ -1,6 +1,6 @@
 package com.example.helper.consumer;
 
-import com.example.dto.TagsLikeEventDTO;
+import com.example.dto.VideoFeedbackEventDTO;
 import io.micronaut.configuration.kafka.annotation.KafkaKey;
 import io.micronaut.configuration.kafka.annotation.KafkaListener;
 import io.micronaut.configuration.kafka.annotation.Topic;
@@ -9,7 +9,7 @@ import io.micronaut.configuration.kafka.annotation.Topic;
 public class TagsLikeEventListener {
     @Topic("tags-like-event")
     void receive(@KafkaKey String id,
-                 TagsLikeEventDTO tags) {
+                 VideoFeedbackEventDTO tags) {
         System.out.println("LISTENING | " + "\t" +" Key: " + id + ", Value: " + tags);
     }
 }

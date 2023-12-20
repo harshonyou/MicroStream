@@ -1,14 +1,17 @@
 package com.example.repository;
 
 
+import com.example.dto.PastIntervalAggregatedTagLikeDTO;
 import com.example.model.AggregatedTagLike;
-import com.example.dto.AggregatedTagLikeDTO;
+import com.example.dto.CurrentHourAggregatedTagLikeDTO;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.jdbc.annotation.JdbcRepository;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.CrudRepository;
 
 import java.util.List;
+
+import static com.example.util.IntervalConverter.convertToPostgresInterval;
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
 public interface AggregatedTagLikeRepository extends CrudRepository<AggregatedTagLike, String> {
@@ -24,6 +27,25 @@ public interface AggregatedTagLikeRepository extends CrudRepository<AggregatedTa
             "SELECT tag, hourly_likes " +
             "FROM current_hour_aggregated " +
             "ORDER BY hourly_likes DESC " +
-            "LIMIT 10", nativeQuery = true)
-    List<AggregatedTagLikeDTO> findTopTagsByHourlyLikes();
+            "LIMIT :limit", nativeQuery = true)
+    List<CurrentHourAggregatedTagLikeDTO> findTopTagsByHourlyLikes(Integer limit);
+
+    @Query(value = "WITH current_interval_aggregated AS ( " +
+            "    SELECT tag, " +
+            "           SUM(aggregated_likes) AS interval_likes, " +
+            "           DATE_TRUNC('hour', minute_interval) AS start_interval " +
+            "    FROM aggregated_tag_likes " +
+            "    WHERE minute_interval >= NOW() - CAST(:interval AS interval) " +
+            "      AND minute_interval < NOW() " +
+            "    GROUP BY tag, start_interval " +
+            ") " +
+            "SELECT tag, interval_likes " +
+            "FROM current_interval_aggregated " +
+            "ORDER BY interval_likes DESC " +
+            "LIMIT :limit", nativeQuery = true)
+    List<PastIntervalAggregatedTagLikeDTO> findTopTagsByIntervalLikes(String interval, Integer limit);
+
+    default List<PastIntervalAggregatedTagLikeDTO> findTopTagsByCustomInterval(String interval, Integer limit) {
+        return findTopTagsByIntervalLikes(convertToPostgresInterval(interval), limit);
+    }
 }

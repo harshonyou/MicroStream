@@ -1,6 +1,6 @@
 package com.example.helper.scheduler;
 
-import com.example.dto.TagsLikeEventDTO;
+import com.example.dto.VideoFeedbackEventDTO;
 import com.example.helper.producer.TagsLikeEventClient;
 import io.micronaut.scheduling.annotation.Scheduled;
 import jakarta.inject.Inject;
@@ -29,7 +29,7 @@ public class TagsLikeEventSchedule {
         String[] tags = {"micronaut", "java", "kafka", "cassandra", "docker", "kubernetes", "aws", "azure", "gcp", "golang", "c++", "kotlin"};
         String[] likeStatus = {"like", "dislike"};
 
-        TagsLikeEventDTO t = new TagsLikeEventDTO();
+        VideoFeedbackEventDTO t = new VideoFeedbackEventDTO();
         String randomLikeStatus = likeStatus[(int) (Math.random() * likeStatus.length)];
 
         Set<String> tagSet = new HashSet<>();

@@ -11,7 +11,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Serdeable
-public class TagsLikeEventDTO {
+public class VideoFeedbackEventDTO {
     private Set<String> tags;
     private boolean likeStatus;
 }

@@ -1,15 +1,14 @@
 package com.example.controller;
 
+import com.example.dto.PastIntervalAggregatedTagLikeDTO;
 import com.example.model.AggregatedTagLike;
-import com.example.dto.AggregatedTagLikeDTO;
+import com.example.dto.CurrentHourAggregatedTagLikeDTO;
 import com.example.repository.AggregatedTagLikeRepository;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.NotEmpty;
 
-@Controller("/tag-like")
+@Controller("/api/v1")
 public class AggregatedTagLikeController {
 
     @Inject
@@ -25,10 +24,24 @@ public class AggregatedTagLikeController {
         return tagLikeRepository.findAll();
     }
 
-    @Get("/top-10")
-    public Iterable<AggregatedTagLikeDTO> getTop10Tags() {
-//        List<AggregatedTagLikeDTO> topTen = tagLikeRepository.findTopTagsByHourlyLikes();
-//        topTen.forEach(System.out::println);
-        return tagLikeRepository.findTopTagsByHourlyLikes();
+    @Get("/hashtags/top/current")
+    public Iterable<CurrentHourAggregatedTagLikeDTO> getTopHashtags(
+            @QueryValue(value = "limit") Integer limit) {
+        if(limit > 100) {
+            limit = 100;
+        }
+
+        return tagLikeRepository.findTopTagsByHourlyLikes(limit);
+    }
+
+    @Get("/hashtags/top/past")
+    public Iterable<PastIntervalAggregatedTagLikeDTO> getTopHashtags(
+            @QueryValue(value = "interval") @NotEmpty String interval,
+            @QueryValue(value = "limit") Integer limit) {
+        if(limit > 100) {
+            limit = 100;
+        }
+
+        return tagLikeRepository.findTopTagsByCustomInterval(interval, limit);
     }
 }
