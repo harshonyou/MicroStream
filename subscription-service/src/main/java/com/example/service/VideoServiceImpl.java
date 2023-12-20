@@ -29,6 +29,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public void likeVideo(UUID videoId, String userId) {
         videoRepository.likeVideo(videoId, userId);
+        videoRepository.incrementVideoViews(videoId);
     }
 
     @Override
