@@ -3,9 +3,9 @@
 * Diagrams for the architecture
 
 - Code
-* Ochestration using Docker using Compose (each Microservice in a container)
+* Orchestration using Docker using Compose (each Microservice in a container)
 * Automated tests
-* Scan the containers for vulerabilities and resolve any detected issues
+* Scan the containers for vulnerabilities and resolve any detected issues
 
 - CLI
 * Post video
