@@ -1,0 +1,15 @@
+- Paper work
+* Document overall architecture
+* Diagrams for the architecture
+
+- Code
+* Ochestration using Docker using Compose (each Microservice in a container)
+* Automated tests
+* Scan the containers for vulerabilities and resolve any detected issues
+
+- CLI
+* Post video
+* Like/Dislike Video
+* Show current trending tags
+* Next video to watch for the subscriptions for a user
+
