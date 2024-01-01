@@ -4,50 +4,54 @@ import com.example.dto.PastIntervalAggregatedTagLikeDTO;
 import com.example.model.AggregatedTagLike;
 import com.example.dto.CurrentHourAggregatedTagLikeDTO;
 import com.example.repository.AggregatedTagLikeRepository;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotEmpty;
+
+import java.util.List;
 
 import static com.example.validator.DurationValidator.isValidDuration;
 
 @Controller("/api/v1")
 public class AggregatedTagLikeController {
-
     @Inject
     AggregatedTagLikeRepository tagLikeRepository;
 
-    @Post("/")
-    public void likeTag(@Body AggregatedTagLike tag) {
-        tagLikeRepository.save(tag);
-    }
-
-    @Get("/")
-    public Iterable<AggregatedTagLike> getTags() {
-        return tagLikeRepository.findAll();
-    }
-
     @Get("/hashtags/top/current")
-    public Iterable<CurrentHourAggregatedTagLikeDTO> getTopHashtags(
+    public HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> getTopHashtags(
             @QueryValue(value = "limit") Integer limit) {
         if(limit > 100) {
             limit = 100;
         }
 
-        return tagLikeRepository.findTopTagsByHourlyLikes(limit);
+        List<CurrentHourAggregatedTagLikeDTO> tags = tagLikeRepository.findTopTagsByHourlyLikes(limit);
+
+        if (tags.isEmpty()) {
+            return HttpResponse.noContent();
+        }
+
+        return HttpResponse.ok(tags);
     }
 
     @Get("/hashtags/top/past")
-    public Iterable<PastIntervalAggregatedTagLikeDTO> getTopHashtags(
+    public HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> getTopHashtags(
             @QueryValue(value = "interval") @NotEmpty String interval,
             @QueryValue(value = "limit") Integer limit) {
         if(!isValidDuration(interval)) {
-            throw new IllegalArgumentException("Invalid interval"); // TODO: Send back HTTP 400
+            return HttpResponse.badRequest();
         }
 
         if(limit > 100) {
             limit = 100;
         }
 
-        return tagLikeRepository.findTopTagsByCustomInterval(interval, limit);
+        List<PastIntervalAggregatedTagLikeDTO> tags = tagLikeRepository.findTopTagsByCustomInterval(interval, limit);
+
+        if (tags.isEmpty()) {
+            return HttpResponse.noContent();
+        }
+
+        return HttpResponse.ok(tags);
     }
 }
