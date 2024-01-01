@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Assertions;
 
 import jakarta.inject.Inject;
 
-@MicronautTest
-class TrendingTagServiceTest {
+@MicronautTest(application = TrendingTagApplication.class,environments = "no-streams")
+class TrendingTagApplicationTest {
 
     @Inject
     EmbeddedApplication<?> application;
