@@ -60,7 +60,7 @@ class AggregatedTagLikeRepositoryTest {
         assertEquals(15, topTagsByHourlyLikes.get(2).getHourlyLikes());
     }
 
-    @Test
+    @Test // FYI: This test is not deterministic because of the fact it is based on the hour window
     public void testFindTop10TagsOfPastHour() {
         List<CurrentHourAggregatedTagLikeDTO> topTagsByHourlyLikes = aggregatedTagLikeRepository.findTopTagsByHourlyLikes(10);
 

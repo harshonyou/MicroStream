@@ -46,7 +46,7 @@ class AggregatedTagLikeControllerTest {
         assertTrue(currentHourAggregatedTagLikeDTOList.size() <= 100);
     }
 
-    @Test
+    @Test // FYI: This test is not deterministic because of the fact it is based on the hour window
     public void testGetTop10TagsOfPastHour() {
         setUpDummyData(aggregatedTagLikeRepository);
 
