@@ -6,6 +6,8 @@
 * Orchestration using Docker using Compose (each Microservice in a container)
 * Automated tests
 * Scan the containers for vulnerabilities and resolve any detected issues
+* Validation of controller
+* Paging
 
 - CLI
 * Post video
