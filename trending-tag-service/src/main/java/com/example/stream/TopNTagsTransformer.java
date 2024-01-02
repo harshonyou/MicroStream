@@ -40,7 +40,7 @@ public class TopNTagsTransformer implements Transformer<Windowed<String>, Long, 
 
     @Override
     public KeyValue<String, Long> transform(Windowed<String> key, Long value) {
-        if (topNTags.size() > N) {
+        if (topNTags.size() >= N) {
             if (value > topNTags.peek().getValue()) {
                 topNTags.add(new AbstractMap.SimpleEntry<>(key.key(), value));
                 topNTags.poll();
