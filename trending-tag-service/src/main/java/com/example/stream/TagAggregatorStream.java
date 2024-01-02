@@ -5,6 +5,8 @@ import com.example.repository.AggregatedTagLikeRepository;
 import com.example.serde.VideoFeedbackEventDTOSerde;
 import io.micronaut.configuration.kafka.streams.ConfiguredStreamBuilder;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Property;
+import io.micronaut.context.annotation.Value;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
@@ -25,6 +27,9 @@ public class TagAggregatorStream {
     private AggregatedTagLikeRepository aggregatedTagLikeRepository;
     @Inject
     private VideoFeedbackEventDTOSerde tagsLikeEventDTOSerde;
+
+    @Property(name = "streams.aggregation.n")
+    private Integer aggregationN;
 
     @Singleton
     @Named("tag-aggregator-stream")
@@ -49,7 +54,7 @@ public class TagAggregatorStream {
                                 .withValueSerde(Serdes.Long()))
                 .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))
                 .toStream()
-                .transform(() -> new TopNTagsTransformer(100, Duration.ofSeconds(35), aggregatedTagLikeRepository));
+                .transform(() -> new TopNTagsTransformer(aggregationN, Duration.ofSeconds(35), aggregatedTagLikeRepository));
 
         return stream;
     }
