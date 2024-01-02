@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@MicronautTest(transactional = false, environments = "no-streams")
+@MicronautTest(environments = "no-streams")
 class TopNTagsTransformerTest {
 
     @Inject

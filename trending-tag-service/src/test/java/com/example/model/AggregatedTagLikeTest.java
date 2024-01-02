@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@MicronautTest(startApplication = false)
+@MicronautTest(startApplication = false, environments = "no-streams")
 class AggregatedTagLikeTest {
 
     @Test

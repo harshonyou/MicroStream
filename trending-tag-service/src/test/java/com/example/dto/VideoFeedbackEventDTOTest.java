@@ -8,7 +8,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@MicronautTest(startApplication = false)
+@MicronautTest(startApplication = false, environments = "no-streams")
 class VideoFeedbackEventDTOTest {
     @Test
     void testNoArgsConstructorAndSetters() {
