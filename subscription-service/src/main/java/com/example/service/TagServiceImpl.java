@@ -6,8 +6,6 @@ import com.example.model.Tag;
 import com.example.repository.TagRepository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.Optional;
 import java.util.Set;
