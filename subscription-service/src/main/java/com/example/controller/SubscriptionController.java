@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.service.SubscriptionService;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
@@ -16,16 +17,18 @@ public class SubscriptionController {
     }
 
     @Post("/users/{userId}/tags/{tagName}/subscribe")
-    public void subscribeUserToTag(
+    public HttpResponse<Void> subscribeUserToTag(
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "tagName") @NotEmpty String tagName) {
         subscriptionService.subscribeUserToTag(tagName, userId);
+        return HttpResponse.ok();
     }
 
     @Post("/users/{userId}/tags/{tagName}/unsubscribe")
-    public void unsubscribeUserFromTag(
+    public HttpResponse<Void> unsubscribeUserFromTag(
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "tagName") @NotEmpty String tagName) {
         subscriptionService.unsubscribeUserFromTag(tagName, userId);
+        return HttpResponse.ok();
     }
 }

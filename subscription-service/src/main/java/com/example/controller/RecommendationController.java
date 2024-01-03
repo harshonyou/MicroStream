@@ -1,12 +1,11 @@
 package com.example.controller;
 
 import com.example.dto.RecommendedVideoDTO;
-import com.example.repository.VideoRepository;
 import com.example.service.RecommendationService;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
-import io.micronaut.http.annotation.QueryValue;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
@@ -21,21 +20,35 @@ public class RecommendationController {
     }
 
     @Get("/users/{userId}/timeline")
-    public List<RecommendedVideoDTO> getTimeline(
+    public HttpResponse<Iterable<RecommendedVideoDTO>> getTimeline(
             @PathVariable(value = "userId") @NotEmpty String userId) {
-        return recommendationService.getUserTimeline(userId);
+        List<RecommendedVideoDTO> timeline = recommendationService.getUserTimeline(userId);
+        if(timeline.isEmpty())
+            return HttpResponse.noContent();
+
+        HttpResponse<Iterable<RecommendedVideoDTO>> response = HttpResponse.ok(timeline);
+        System.out.println(response.body());
+        return response;
     }
 
     @Get("/users/{userId}/videos/recommendations")
-    public List<RecommendedVideoDTO> getRecommendations(
+    public HttpResponse<Iterable<RecommendedVideoDTO>> getRecommendations(
             @PathVariable(value = "userId") @NotEmpty String userId) {
-        return recommendationService.getUserRecommendations(userId);
+        List<RecommendedVideoDTO> recommendations = recommendationService.getUserRecommendations(userId);
+        if(recommendations.isEmpty())
+            return HttpResponse.noContent();
+
+        return HttpResponse.ok(recommendations);
     }
 
     @Get("/users/{userId}/tags/{tagName}/videos/recommendations")
-    public List<RecommendedVideoDTO> getRecommendations(
+    public HttpResponse<Iterable<RecommendedVideoDTO>> getRecommendations(
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "tagName") @NotEmpty String tagName) {
-        return recommendationService.getUserRecommendations(userId, tagName);
+        List<RecommendedVideoDTO> recommendations = recommendationService.getUserRecommendations(userId, tagName);
+        if(recommendations.isEmpty())
+            return HttpResponse.noContent();
+
+        return HttpResponse.ok(recommendations);
     }
 }
