@@ -1,29 +1,17 @@
 package com.example;
 
-import com.example.model.Tag;
-import com.example.model.User;
-import com.example.model.Video;
-import com.example.repository.UserRepository;
-import com.example.repository.VideoRepository;
 import io.micronaut.runtime.Micronaut;
-import io.micronaut.runtime.event.annotation.EventListener;
-import io.micronaut.runtime.server.event.ServerStartupEvent;
-import io.micronaut.scheduling.annotation.Scheduled;
-import jakarta.inject.Inject;
 
-import java.util.Set;
-import java.util.UUID;
+public class SubscriptionApplication {
 
-public class Application {
-
-    @Inject
-    private VideoRepository videoRepository;
-
-    @Inject
-    private UserRepository userRepository;
+//    @Inject
+//    private VideoRepository videoRepository;
+//
+//    @Inject
+//    private UserRepository userRepository;
 
     public static void main(String[] args) {
-        Micronaut.run(Application.class, args);
+        Micronaut.run(SubscriptionApplication.class, args);
     }
 
     // On micronaut is ready event
