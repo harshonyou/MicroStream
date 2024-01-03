@@ -2,6 +2,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.micronaut.application") version "4.2.1"
     id("io.micronaut.aot") version "4.2.1"
+    id("jacoco")
 }
 
 version = "0.1"
@@ -22,6 +23,8 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("org.awaitility:awaitility:4.2.0")
+    testImplementation("org.mockito:mockito-core")
     testRuntimeOnly("org.neo4j.test:neo4j-harness")
 }
 
@@ -56,5 +59,15 @@ micronaut {
     }
 }
 
+test {
+    finalizedBy jacocoTestReport
+}
 
-
+jacocoTestReport {
+    dependsOn test
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['com/example/helper/**'])
+        }))
+    }
+}
