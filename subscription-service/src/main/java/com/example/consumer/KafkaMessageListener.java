@@ -1,11 +1,6 @@
 package com.example.consumer;
 
 import com.example.dto.*;
-import com.example.mapper.TagMapper;
-import com.example.model.Tag;
-import com.example.model.Video;
-import com.example.repository.UserRepository;
-import com.example.repository.VideoRepository;
 import com.example.service.TagService;
 import com.example.service.UserService;
 import com.example.service.VideoService;
@@ -14,9 +9,7 @@ import io.micronaut.configuration.kafka.annotation.KafkaListener;
 import io.micronaut.configuration.kafka.annotation.OffsetReset;
 import io.micronaut.configuration.kafka.annotation.Topic;
 import jakarta.inject.Inject;
-import org.neo4j.driver.Value;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @KafkaListener(groupId = "sm-server", offsetReset = OffsetReset.EARLIEST)
