@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
-import java.util.UUID;
 
 @Validated
 @Controller("/api/v1")
@@ -19,12 +18,11 @@ public class VideoTagController {
     @Inject
     private VideoTagService tagService;
 
-    @Get(value = "/videos/{videoId}/tags/")
-    public HttpResponse<Iterable<VideoTagDTO>> findTags(
-            @PathVariable(value = "videoId") @NotEmpty String videoId) {
-        List<VideoTagDTO> videoTagDTOList = tagService.search(UUID.fromString(videoId));
-
-        if(videoTagDTOList.isEmpty()) return HttpResponse.notFound();
-        return HttpResponse.ok(videoTagDTOList);
+    @Get(value = "/videos/tags/{tagName}/")
+    public HttpResponse<Iterable<VideoTagDTO>> findByTag(
+            @PathVariable(value = "tagName") @NotEmpty String tagName) {
+        List<VideoTagDTO> videos = tagService.searchVideos(tagName);
+        if(videos.isEmpty()) return HttpResponse.notFound();
+        return HttpResponse.ok(videos);
     }
 }

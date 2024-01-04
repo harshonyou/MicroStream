@@ -20,7 +20,7 @@ import static com.datastax.oss.driver.api.core.type.DataTypes.TIMEUUID;
 @Singleton
 public class CassandraVideoTagRepository implements VideoTagRepository {
     private PreparedStatement psInsertTag;
-    private PreparedStatement psSelectTagsByVideoId;
+    private PreparedStatement psSelectTag;
 
     private final CqlSession cqlSession;
 
@@ -33,45 +33,47 @@ public class CassandraVideoTagRepository implements VideoTagRepository {
     public void createTableTag() {
         cqlSession.execute(SchemaBuilder.createTable(TABLE_TAGS)
                 .ifNotExists()
-                .withPartitionKey(VIDEO_ID, TIMEUUID)
-                .withClusteringColumn(TAG, TEXT)
-                .withClusteringOrder(TAG, ClusteringOrder.ASC)
+                .withPartitionKey(TAG, TEXT)
+                .withClusteringColumn(VIDEO_ID, TIMEUUID)
+                .withClusteringOrder(VIDEO_ID, ClusteringOrder.DESC)
                 .build());
     }
 
     @Override
     public VideoTag save(VideoTag videoTag) {
         cqlSession.execute(psInsertTag.bind(
-                videoTag.getVideoId(),
-                videoTag.getTag()));
+                videoTag.getTag(),
+                videoTag.getVideoId()));
         return videoTag;
     }
 
-    public List<VideoTag> findTagsByVideoId(UUID videoId) {
-        return cqlSession.execute(psSelectTagsByVideoId.bind(videoId))
+    @Override
+    public List<VideoTag> findByTag(String tag) {
+        return cqlSession.execute(psSelectTag.bind(tag))
                 .all()
                 .stream()
                 .map(this::mapRowToVideoTag)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private VideoTag mapRowToVideoTag(Row row) {
         VideoTag videoTag = new VideoTag();
         videoTag.setTag(row.getString(TAG));
+        videoTag.setVideoId(row.getUuid(VIDEO_ID));
         return videoTag;
     }
 
     private void prepareStatements() {
         psInsertTag = cqlSession.prepare(
                 QueryBuilder.insertInto(TABLE_TAGS)
-                        .value(VIDEO_ID, QueryBuilder.bindMarker())
                         .value(TAG, QueryBuilder.bindMarker())
+                        .value(VIDEO_ID, QueryBuilder.bindMarker())
                         .build());
 
-        psSelectTagsByVideoId = cqlSession.prepare(
+        psSelectTag = cqlSession.prepare(
                 QueryBuilder.selectFrom(TABLE_TAGS)
-                        .column(TAG)
-                        .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())
+                        .all()
+                        .whereColumn(TAG).isEqualTo(QueryBuilder.bindMarker())
                         .build());
     }
 }

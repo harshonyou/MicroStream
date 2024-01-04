@@ -32,11 +32,11 @@ public class VideoTagServiceImpl implements VideoTagService {
     }
 
     @Override
-    public List<VideoTagDTO> search(UUID videoId) {
+    public List<VideoTagDTO> searchVideos(String tag) {
         return tagRepository
-                .findTagsByVideoId(videoId)
-                .stream()
-                .map(VideoTagMapper::fromEntity)
-                .toList();
+            .findByTag(tag)
+            .stream()
+            .map(VideoTagMapper::fromEntity)
+            .toList();
     }
 }

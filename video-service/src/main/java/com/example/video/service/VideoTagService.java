@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface VideoTagService {
     void tagVideo(Set<String> tags, UUID videoId); // TODO: not getting used?
 
-    List<VideoTagDTO> search(UUID videoId);
+    List<VideoTagDTO> searchVideos(String tag);
 }

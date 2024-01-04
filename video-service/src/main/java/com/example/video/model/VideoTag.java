@@ -18,10 +18,10 @@ import static com.example.video.repository.VideoTagRepository.*;
 public class VideoTag {
 
     @PartitionKey
-    @CqlName(VIDEO_ID)
-    private UUID videoId;
-
-    @ClusteringColumn
     @CqlName(TAG)
     private String tag;
+
+    @ClusteringColumn
+    @CqlName(VIDEO_ID)
+    private UUID videoId;
 }

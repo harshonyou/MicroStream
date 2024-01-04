@@ -84,9 +84,4 @@ public class VideoServiceImpl implements VideoService {
     public void removeAllPosts() {
         videoRepository.deleteAll();
     }
-
-//    @Scheduled(fixedDelay = "10s")
-//    public void sendFakeUpdate() {
-//        messagePublisher.sendFakeUpdate("Hello World!");
-//    }
 }

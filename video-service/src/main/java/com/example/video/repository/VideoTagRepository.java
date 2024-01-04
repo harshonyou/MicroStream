@@ -11,5 +11,5 @@ public interface VideoTagRepository {
     public static final String TAG = "tag";
     public static final String VIDEO_ID = "video_id";
     VideoTag save(VideoTag videoTag);
-    List<VideoTag> findTagsByVideoId(UUID videoId);
+    List<VideoTag> findByTag(String tag);
 }
