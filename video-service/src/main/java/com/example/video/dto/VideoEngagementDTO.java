@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @Serdeable
 @ToString
-public class VideoEngagementDTO { // TODO: Add @Serdeable annotation
+public class VideoEngagementDTO {
     private String userId;
     private UUID videoId;
     private Instant watchedTime;
