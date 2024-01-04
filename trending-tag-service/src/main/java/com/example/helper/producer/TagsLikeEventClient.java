@@ -7,7 +7,7 @@ import io.micronaut.configuration.kafka.annotation.Topic;
 
 @KafkaClient
 public interface TagsLikeEventClient {
-    @Topic("tags-like-event")
+    @Topic("video-engagement-events")
     void send(
             @KafkaKey String key,
             VideoFeedbackEventDTO tags

@@ -7,7 +7,7 @@ import io.micronaut.configuration.kafka.annotation.Topic;
 
 @KafkaListener(groupId = "trending-tag-service-group")
 public class TagsLikeEventListener {
-    @Topic("tags-like-event")
+    @Topic("video-engagement-events")
     void receive(@KafkaKey String id,
                  VideoFeedbackEventDTO tags) {
         System.out.println("LISTENING | " + "\t" +" Key: " + id + ", Value: " + tags);

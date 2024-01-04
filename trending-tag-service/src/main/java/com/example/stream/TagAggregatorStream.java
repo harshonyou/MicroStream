@@ -38,7 +38,7 @@ public class TagAggregatorStream {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, "0");
 
-        KStream<String, VideoFeedbackEventDTO> stream = builder.stream("tags-like-event", Consumed.with(Serdes.String(), tagsLikeEventDTOSerde));
+        KStream<String, VideoFeedbackEventDTO> stream = builder.stream("video-engagement-events", Consumed.with(Serdes.String(), tagsLikeEventDTOSerde));
 
         stream
                 .filter((tags, likeStatus) -> likeStatus.isLikeStatus() && likeStatus.getTags() != null)

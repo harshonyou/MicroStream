@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @Serdeable
-public class VideoFeedbackEventDTO { // Add tags
+public class VideoFeedbackEventDTO {
     private String userId;
     private UUID videoId;
     private Set<String> tags;
