@@ -7,6 +7,7 @@ import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.example.video.model.UserEngagement;
+import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 
 import java.time.Instant;
@@ -26,10 +27,11 @@ public class CassandraVideoEngagementRepository implements VideoEngagementReposi
 
     public CassandraVideoEngagementRepository(CqlSession cqlSession) {
         this.cqlSession = cqlSession;
+        createTableUserVideoWatch();
         prepareStatements();
     }
 
-    public static void createTableUserVideoWatch(CqlSession cqlSession) {
+    public void createTableUserVideoWatch() {
         cqlSession.execute(SchemaBuilder.createTable(TABLE_VIDEO_ENGAGEMENTS)
                 .ifNotExists()
                 .withPartitionKey(USER_ID, TEXT)

@@ -8,6 +8,7 @@ import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.example.video.model.Video;
+import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 
 import java.util.List;
@@ -29,10 +30,11 @@ public class CassandraVideoRepository implements VideoRepository {
 
     public CassandraVideoRepository(CqlSession cqlSession) {
         this.cqlSession = cqlSession;
+        createTableVideo();
         prepareStatements();
     }
 
-    public static void createTableVideo(CqlSession cqlSession) {
+    public void createTableVideo() {
         cqlSession.execute(SchemaBuilder.createTable(TABLE_VIDEOS)
                 .ifNotExists()
                 .withPartitionKey(USER_ID, TEXT)
