@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder;
+import com.datastax.oss.driver.api.core.type.DataTypes;
 import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
@@ -40,6 +41,7 @@ public class CassandraVideoRepository implements VideoRepository {
                 .withPartitionKey(USER_ID, TEXT)
                 .withClusteringColumn(VIDEO_ID, TIMEUUID)
                 .withColumn(VIDEO_TITLE, TEXT)
+                .withColumn(VIDEO_TAGS, DataTypes.setOf(TEXT))
                 .withClusteringOrder(VIDEO_ID, ClusteringOrder.DESC)
                 .build());
     }
@@ -51,7 +53,8 @@ public class CassandraVideoRepository implements VideoRepository {
             cqlSession.execute(psInsertVideo.bind(
                     video.getUserId(),
                     video.getVideoId(),
-                    video.getTitle()));
+                    video.getTitle(),
+                    video.getTags()));
             return video;
         }
 
@@ -60,7 +63,8 @@ public class CassandraVideoRepository implements VideoRepository {
             cqlSession.execute(psInsertVideo.bind(
                     video.getUserId(),
                     video.getVideoId(),
-                    video.getTitle()));
+                    video.getTitle(),
+                    video.getTags()));
             return video;
         }
 
@@ -71,7 +75,8 @@ public class CassandraVideoRepository implements VideoRepository {
         cqlSession.execute(psInsertVideo.bind(
                 toBeUpdated.getUserId(),
                 toBeUpdated.getVideoId(),
-                toBeUpdated.getTitle()));
+                toBeUpdated.getTitle(),
+                toBeUpdated.getTags()));
         return toBeUpdated;
     }
 
@@ -112,6 +117,7 @@ public class CassandraVideoRepository implements VideoRepository {
         video.setUserId(row.getString(USER_ID));
         video.setVideoId(row.getUuid(VIDEO_ID));
         video.setTitle(row.getString(VIDEO_TITLE));
+        video.setTags(row.getSet(VIDEO_TAGS, String.class));
         return video;
     }
 
@@ -121,6 +127,7 @@ public class CassandraVideoRepository implements VideoRepository {
                 .value(USER_ID, QueryBuilder.bindMarker())
                 .value(VIDEO_ID, QueryBuilder.bindMarker())
                 .value(VIDEO_TITLE, QueryBuilder.bindMarker())
+                .value(VIDEO_TAGS, QueryBuilder.bindMarker())
                 .build());
 
         psSelectVideo = cqlSession.prepare(

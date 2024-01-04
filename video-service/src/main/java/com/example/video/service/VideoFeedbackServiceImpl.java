@@ -33,15 +33,12 @@ public class VideoFeedbackServiceImpl implements VideoFeedbackService {
         Optional<VideoDTO> videoDTO = videoService.search(userId, videoId);
         if(videoDTO.isEmpty()) return Optional.empty();
 
-        List<VideoTagDTO> videoTags = tagService.search(videoId);
-        Set<String> tags = videoTags.stream().map(VideoTagDTO::getTag).collect(Collectors.toSet());
-
         eventClient.notifyOnLikeDislike(
                 userId,
                 new VideoFeedbackEventDTO(
                         userId,
                         videoId,
-                        tags,
+                        videoDTO.get().getTags(),
                         likeStatus
                 )
         );
