@@ -39,7 +39,7 @@ public class VideoController {
     }
 
     @Post(value = "/users/{userId}/videos/")
-    public HttpResponse<VideoDTO> create( // TODO: When creating a post based on the video ID, the tags does not work
+    public HttpResponse<VideoDTO> create( // TODO: Make Tag one word
             @PathVariable(value = "userId") @NotEmpty String userId,
             @Body @NotNull VideoDTO video) {
         if(video.getVideoId() != null) {
