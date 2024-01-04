@@ -21,35 +21,24 @@ import static com.example.video.mapper.VideoMapper.fromEntity;
 @Singleton
 public class VideoServiceImpl implements VideoService {
 
-    @Inject
-    private CqlSession cqlSession;
-    private VideoRepository videoRepository;
-    @Inject
-    private VideoTagService videoTagService;
-    @Inject
-    private VideoCreationEventClient eventClient;
+    private final VideoRepository videoRepository;
+    private final VideoTagService tagService;
+    private final VideoCreationEventClient eventClient;
 
-    @PostConstruct
-    public void init() {
-        videoRepository = new CassandraVideoRepository(cqlSession);
-    }
-
-//    public VideoServiceImpl(CqlSession cqlSession, MessagePublisher messagePublisher) {
-//        this.cqlSession = cqlSession;
-//        this.messagePublisher = messagePublisher;
-//        videoRepository = new CassandraVideoRepository(cqlSession);
-//    }
-
-    public VideoServiceImpl(VideoRepository videoRepository) {
+    public VideoServiceImpl(VideoTagService tagService, CassandraVideoRepository videoRepository, VideoCreationEventClient eventClient) {
+        this.tagService = tagService;
         this.videoRepository = videoRepository;
+        this.eventClient = eventClient;
     }
+
 
     @Override
-    public VideoDTO save(VideoDTO videoDto) {
+    public VideoDTO post(VideoDTO videoDto) {
         videoDto = fromEntity(videoRepository.save(fromDto(videoDto)), videoDto.getUserId());
 
         if(videoDto.getTags() != null) {
-            videoTagService.save(videoDto.getTags(), videoDto.getVideoId());
+            System.out.println(videoDto.getTags());
+            tagService.tagVideo(videoDto.getTags(), videoDto.getVideoId());
         }
 
         eventClient.notifyOnNewVideoPosted(
@@ -66,14 +55,14 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Optional<VideoDTO> findById(String userId, UUID videoId) {
+    public Optional<VideoDTO> search(String userId, UUID videoId) {
         Optional<Video> video = videoRepository.findById(userId, videoId);
         if(video.isEmpty()) return Optional.empty();
         return Optional.of(fromEntity(video.get(), userId));
     }
 
     @Override
-    public List<VideoDTO> findByUser(String userId) {
+    public List<VideoDTO> getUserPosts(String userId) {
         return videoRepository
                 .findByUser(userId)
                 .stream()
@@ -82,17 +71,17 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public void deleteById(String userId, UUID videoId) {
+    public void remove(String userId, UUID videoId) {
         videoRepository.deleteById(userId, videoId);
     }
 
     @Override
-    public void deleteByUser(String userId) {
+    public void removeUserPosts(String userId) {
         videoRepository.deleteByUser(userId);
     }
 
     @Override
-    public void deleteAll() {
+    public void removeAllPosts() {
         videoRepository.deleteAll();
     }
 

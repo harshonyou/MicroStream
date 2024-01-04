@@ -6,44 +6,35 @@ import com.example.video.mapper.VideoTagMapper;
 import com.example.video.model.VideoTag;
 import com.example.video.repository.CassandraVideoTagRepository;
 import com.example.video.repository.VideoTagRepository;
-import jakarta.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.example.video.mapper.VideoTagMapper.fromEntity;
-
-
 @Singleton
 public class VideoTagServiceImpl implements VideoTagService {
-    @Inject
-    private CqlSession cqlSession;
 
-    private VideoTagRepository videoTagRepository;
+    private final VideoTagRepository tagRepository;
 
-    @PostConstruct
-    public void init() {
-        videoTagRepository = new CassandraVideoTagRepository(cqlSession);
+    public VideoTagServiceImpl(CassandraVideoTagRepository tagRepository) {
+        this.tagRepository = tagRepository;
     }
 
     @Override
-    public void save(Set<String> tags, UUID videoId) {
+    public void tagVideo(Set<String> tags, UUID videoId) {
         for (String tag : tags) {
             VideoTag videoTag = new VideoTag();
-            videoTag.setTag(tag);
             videoTag.setVideoId(videoId);
-            videoTagRepository.save(videoTag);
+            videoTag.setTag(tag);
+            tagRepository.save(videoTag);
         }
     }
 
     @Override
-    public List<VideoTagDTO> findByTag(String tag) {
-        return videoTagRepository
-                .findByTag(tag)
+    public List<VideoTagDTO> search(UUID videoId) {
+        return tagRepository
+                .findTagsByVideoId(videoId)
                 .stream()
                 .map(VideoTagMapper::fromEntity)
                 .toList();

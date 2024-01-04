@@ -1,6 +1,7 @@
 package com.example.video.service;
 
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.example.video.dto.VideoDTO;
 import com.example.video.dto.VideoEngagementDTO;
 import com.example.video.dto.VideoEngagementEventDTO;
 import com.example.video.mapper.VideoEngagementMapper;
@@ -8,8 +9,6 @@ import com.example.video.model.UserEngagement;
 import com.example.video.producer.VideoEngagementEventClient;
 import com.example.video.repository.CassandraVideoEngagementRepository;
 import com.example.video.repository.VideoEngagementRepository;
-import jakarta.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.List;
@@ -21,22 +20,25 @@ import static com.example.video.mapper.VideoEngagementMapper.fromEntity;
 
 @Singleton
 public class VideoEngagementServiceImpl implements VideoEngagementService {
-    @Inject
-    private CqlSession cqlSession;
+    private final VideoService videoService;
 
-    private VideoEngagementRepository userVideoWatchRepository; // TODO: Add @Transactional annotation
+    private final VideoEngagementRepository engagementRepository; // TODO: Add @Transactional annotation
+    private final VideoEngagementEventClient eventClient;
 
-    @Inject
-    private VideoEngagementEventClient eventClient;
-
-    @PostConstruct
-    public void init() {
-        userVideoWatchRepository = new CassandraVideoEngagementRepository(cqlSession);
+    public VideoEngagementServiceImpl(VideoServiceImpl videoService,CassandraVideoEngagementRepository engagementRepository, VideoEngagementEventClient eventClient) {
+        this.engagementRepository = engagementRepository;
+        this.videoService = videoService;
+        this.eventClient = eventClient;
     }
 
     @Override
-    public VideoEngagementDTO save(VideoEngagementDTO videoEngagementDTO) {
-        videoEngagementDTO = fromEntity(userVideoWatchRepository.save(fromDto(videoEngagementDTO)));
+    public Optional<VideoEngagementDTO> markVideoWatched(VideoEngagementDTO videoEngagementDTO) {
+        Optional<VideoDTO> videoDTO = videoService.search(videoEngagementDTO.getUserId(), videoEngagementDTO.getVideoId());
+        if(videoDTO.isEmpty()) {
+            return Optional.empty();
+        }
+
+        videoEngagementDTO = fromEntity(engagementRepository.save(fromDto(videoEngagementDTO)));
 
         eventClient.notifyOnVideoWatched(
                 videoEngagementDTO.getUserId(),
@@ -47,19 +49,19 @@ public class VideoEngagementServiceImpl implements VideoEngagementService {
                 )
         );
 
-        return videoEngagementDTO;
+        return Optional.of(videoEngagementDTO);
     }
 
     @Override
-    public Optional<VideoEngagementDTO> findById(String userId, UUID videoId) {
-        Optional<UserEngagement> userVideoWatch = userVideoWatchRepository.findById(userId, videoId);
+    public Optional<VideoEngagementDTO> findWatchStatus(String userId, UUID videoId) {
+        Optional<UserEngagement> userVideoWatch = engagementRepository.findById(userId, videoId);
         if(userVideoWatch.isEmpty()) return Optional.empty();
         return Optional.of(fromEntity(userVideoWatch.get()));
     }
 
     @Override
-    public List<VideoEngagementDTO> findByUser(String userId) {
-        return userVideoWatchRepository
+    public List<VideoEngagementDTO> findWatchHistory(String userId) {
+        return engagementRepository
                 .findByUser(userId)
                 .stream()
                 .map(VideoEngagementMapper::fromEntity)
@@ -67,8 +69,8 @@ public class VideoEngagementServiceImpl implements VideoEngagementService {
     }
 
     @Override
-    public List<VideoEngagementDTO> findByVideo(UUID videoId) {
-        return userVideoWatchRepository
+    public List<VideoEngagementDTO> findWatchList(UUID videoId) {
+        return engagementRepository
                 .findByVideo(videoId)
                 .stream()
                 .map(VideoEngagementMapper::fromEntity)
