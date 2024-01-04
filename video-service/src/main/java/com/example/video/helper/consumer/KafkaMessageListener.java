@@ -1,4 +1,4 @@
-package com.example.video.consumer;
+package com.example.video.helper.consumer;
 
 import io.micronaut.configuration.kafka.annotation.KafkaListener;
 import io.micronaut.configuration.kafka.annotation.OffsetReset;
