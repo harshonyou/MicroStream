@@ -13,5 +13,4 @@ import java.util.UUID;
 @ToString
 public class VideoTagDTO {
     private String tag;
-    private UUID videoId;
 }
