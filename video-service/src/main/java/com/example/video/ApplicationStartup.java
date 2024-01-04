@@ -15,17 +15,26 @@ import org.slf4j.LoggerFactory;
 public class ApplicationStartup implements ApplicationEventListener<ServiceReadyEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationStartup.class);
 
-    @Inject
-    private CqlSession cqlSession;
+    private final CassandraVideoRepository videoRepository;
+
+    private final CassandraVideoEngagementRepository videoEngagementRepository;
+
+    private final CassandraVideoTagRepository videoTagRepository;
+
+    public ApplicationStartup(CqlSession cqlSession) {
+        this.videoRepository = new CassandraVideoRepository(cqlSession);
+        this.videoEngagementRepository = new CassandraVideoEngagementRepository(cqlSession);
+        this.videoTagRepository = new CassandraVideoTagRepository(cqlSession);
+    }
 
     @Override
     public void onApplicationEvent(ServiceReadyEvent event) {
         LOGGER.info("Startup Initialization");
-        CassandraVideoRepository.createTableVideo(cqlSession);
+        videoRepository.createTableVideo();
         LOGGER.info("+ Table VideoItems created if needed.");
-        CassandraVideoEngagementRepository.createTableUserVideoWatch(cqlSession);
+        videoEngagementRepository.createTableUserVideoWatch();
         LOGGER.info("+ Table UserVideoWatch created if needed.");
-        CassandraVideoTagRepository.createTableTag(cqlSession);
+        videoTagRepository.createTableTag();
         LOGGER.info("+ Table VideoByHashtag created if needed.");
         LOGGER.info("[OK]");
     }
