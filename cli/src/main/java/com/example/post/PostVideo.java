@@ -1,5 +1,10 @@
 package com.example.post;
 
+import com.example.api.VideoServiceHttpClient;
+import com.example.dto.VideoDTO;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
+import jakarta.inject.Inject;
 import picocli.CommandLine;
 
 import java.util.Set;
@@ -18,8 +23,29 @@ final public class PostVideo implements Runnable{
     @CommandLine.Option(names={"--verbose"}, description = "Verbose mode")
     private boolean verbose;
 
+    @Inject
+    VideoServiceHttpClient videoServiceClient;
+
     @Override
     public void run() {
-        System.out.println("Posting a video");
+        if(verbose) {
+            System.out.println("User ID: " + userId);
+            System.out.println("Title: " + title);
+            System.out.println("Tags: " + tags);
+        }
+
+        HttpResponse<VideoDTO> response = videoServiceClient.postVideo(
+                userId,
+                new VideoDTO(userId, null, title, tags)
+        );
+
+        if(response.getStatus() == HttpStatus.CREATED) {
+            System.out.println("Video posted successfully");
+            System.out.println(VideoDTO.formatVideoDTO(response.body()));
+        } else {
+            System.out.println("Failed to post video");
+        }
+
+        if(verbose) System.out.println(response.body());
     }
 }
