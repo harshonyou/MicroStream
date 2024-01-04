@@ -49,7 +49,7 @@ public class KafkaMessageListener {
 
     @Topic("video-feedback-events")
     public void handleVideoFeedbackEvents(@KafkaKey String key,
-                                          VideoFeedbackEventDTO event) {
+                                          VideoFeedbackEventDTO event) { // TODO: Add dislike feature
         videoService.likeVideo(event.getVideoId(), event.getUserId()); // TODO: Check like status and update the graph
     }
 }
