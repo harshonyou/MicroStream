@@ -18,25 +18,26 @@ import java.util.UUID;
 @Controller("/api/v1")
 public class VideoEngagementController {
     @Inject
-    private VideoEngagementService videoEngagementService;
+    private VideoEngagementService engagementService;
 
     @Post(value = "/users/{userId}/videos/{videoId}/watch")
-    public String watch(
+    public HttpResponse<VideoEngagementDTO> watch(
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "videoId") @NotEmpty String videoId) {
         VideoEngagementDTO uvw = new VideoEngagementDTO();
         uvw.setUserId(userId);
         uvw.setVideoId(UUID.fromString(videoId));
-        videoEngagementService.save(uvw);
-        return "OK";
+        Optional<VideoEngagementDTO> saved = engagementService.markVideoWatched(uvw);
+        if (saved.isEmpty()) return HttpResponse.notFound();
+        return HttpResponse.ok(saved.get());
     }
 
     @Get(value = "/users/{userId}/videos/{videoId}/watch")
-    public HttpResponse<String> getWatch(
+    public HttpResponse<VideoEngagementDTO> getWatch(
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "videoId") @NotEmpty String videoId) {
-        Optional<VideoEngagementDTO> uvw = videoEngagementService.findById(userId, UUID.fromString(videoId));
-        if (uvw.isEmpty()) return HttpResponse.notFound("Not Found");
-        return HttpResponse.ok("Found");
+        Optional<VideoEngagementDTO> uvw = engagementService.findWatchStatus(userId, UUID.fromString(videoId));
+        if (uvw.isEmpty()) return HttpResponse.notFound();
+        return HttpResponse.ok(uvw.get());
     }
 }
