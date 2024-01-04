@@ -26,9 +26,7 @@ public class RecommendationController {
         if(timeline.isEmpty())
             return HttpResponse.noContent();
 
-        HttpResponse<Iterable<RecommendedVideoDTO>> response = HttpResponse.ok(timeline);
-        System.out.println(response.body());
-        return response;
+        return HttpResponse.ok(timeline);
     }
 
     @Get("/users/{userId}/videos/recommendations")
