@@ -52,6 +52,7 @@ public class TopNTagsTransformer implements Transformer<Windowed<String>, Long, 
     }
 
     private void punctuate(long timestamp) {
+        // Punctuate is not called for a given window unless there is a new record for the very next window (i.e. the window hasn't closed yet)
         System.out.println("Punctuate called");
 
         PriorityQueue<Map.Entry<String, Long>> currentTopN = new PriorityQueue<>(topNTags);

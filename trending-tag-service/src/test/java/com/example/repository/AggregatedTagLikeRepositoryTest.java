@@ -36,7 +36,7 @@ class AggregatedTagLikeRepositoryTest {
 
     @Test
     public void testFindTopTagOfPastHour() {
-        List<CurrentHourAggregatedTagLikeDTO> topTagsByHourlyLikes = aggregatedTagLikeRepository.findTopTagsByHourlyLikes(1);
+        List<CurrentHourAggregatedTagLikeDTO> topTagsByHourlyLikes = aggregatedTagLikeRepository.findTopTagsOfCurrentHourWindow(1);
 
         assertEquals(1, topTagsByHourlyLikes.size());
 
@@ -46,7 +46,7 @@ class AggregatedTagLikeRepositoryTest {
 
     @Test
     public void testFindTop3TagsOfPastHour() {
-        List<CurrentHourAggregatedTagLikeDTO> topTagsByHourlyLikes = aggregatedTagLikeRepository.findTopTagsByHourlyLikes(3);
+        List<CurrentHourAggregatedTagLikeDTO> topTagsByHourlyLikes = aggregatedTagLikeRepository.findTopTagsOfCurrentHourWindow(3);
 
         assertEquals(3, topTagsByHourlyLikes.size());
 
@@ -62,7 +62,7 @@ class AggregatedTagLikeRepositoryTest {
 
     @Test // FYI: This test is not deterministic because of the fact it is based on the hour window
     public void testFindTop10TagsOfPastHour() {
-        List<CurrentHourAggregatedTagLikeDTO> topTagsByHourlyLikes = aggregatedTagLikeRepository.findTopTagsByHourlyLikes(10);
+        List<CurrentHourAggregatedTagLikeDTO> topTagsByHourlyLikes = aggregatedTagLikeRepository.findTopTagsOfCurrentHourWindow(10);
 
         assertEquals(10, topTagsByHourlyLikes.size());
 

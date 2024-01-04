@@ -1,7 +1,6 @@
 package com.example.controller;
 
 import com.example.dto.PastIntervalAggregatedTagLikeDTO;
-import com.example.model.AggregatedTagLike;
 import com.example.dto.CurrentHourAggregatedTagLikeDTO;
 import com.example.repository.AggregatedTagLikeRepository;
 import io.micronaut.http.HttpResponse;
@@ -19,13 +18,13 @@ public class AggregatedTagLikeController {
     AggregatedTagLikeRepository tagLikeRepository;
 
     @Get("/hashtags/top/current")
-    public HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> getTopHashtags(
+    public HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> getCurrentTopHashtags(
             @QueryValue(value = "limit") Integer limit) {
         if(limit > 100) {
             limit = 100;
         }
 
-        List<CurrentHourAggregatedTagLikeDTO> tags = tagLikeRepository.findTopTagsByHourlyLikes(limit);
+        List<CurrentHourAggregatedTagLikeDTO> tags = tagLikeRepository.findTopTagsOfCurrentHourWindow(limit);
 
         if (tags.isEmpty()) {
             return HttpResponse.noContent();
@@ -35,7 +34,7 @@ public class AggregatedTagLikeController {
     }
 
     @Get("/hashtags/top/past")
-    public HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> getTopHashtags(
+    public HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> getPastTopHashtags(
             @QueryValue(value = "interval") @NotEmpty String interval,
             @QueryValue(value = "limit") Integer limit) {
         if(!isValidDuration(interval)) {

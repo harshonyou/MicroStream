@@ -31,7 +31,7 @@ class AggregatedTagLikeControllerTest {
 
     @Test
     public void testGetTopTagsOfPastHourWithEmptyList() {
-        HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getTopHashtags(10);
+        HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getCurrentTopHashtags(10);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
     }
 
@@ -39,7 +39,7 @@ class AggregatedTagLikeControllerTest {
     public void testGetTopTagsOfPastHourWithHighLimit() {
         setUpDummyData(aggregatedTagLikeRepository);
 
-        HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getTopHashtags(101);
+        HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getCurrentTopHashtags(101);
         assertEquals(HttpStatus.OK, response.getStatus());
 
         List<CurrentHourAggregatedTagLikeDTO> currentHourAggregatedTagLikeDTOList = (List<CurrentHourAggregatedTagLikeDTO>) response.body();
@@ -50,7 +50,7 @@ class AggregatedTagLikeControllerTest {
     public void testGetTop10TagsOfPastHour() {
         setUpDummyData(aggregatedTagLikeRepository);
 
-        HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getTopHashtags(10);
+        HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getCurrentTopHashtags(10);
         assertEquals(HttpStatus.OK, response.getStatus());
 
         List<CurrentHourAggregatedTagLikeDTO> currentHourAggregatedTagLikeDTOList = (List<CurrentHourAggregatedTagLikeDTO>) response.body();
@@ -89,13 +89,13 @@ class AggregatedTagLikeControllerTest {
 
     @Test
     public void testFindTopTagOfCustomIntervalWithEmptyList() {
-        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getTopHashtags("1d1h1m", 1);
+        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getPastTopHashtags("1d1h1m", 1);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
     }
 
     @Test
     public void testFindTopTagOfCustomIntervalWithWrongInterval() {
-        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getTopHashtags("123xyz", 1);
+        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getPastTopHashtags("123xyz", 1);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatus());
     }
 
@@ -103,7 +103,7 @@ class AggregatedTagLikeControllerTest {
     public void testFindTopTagOfCustomIntervalWithHighLimit() {
         setUpDummyData(aggregatedTagLikeRepository);
 
-        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getTopHashtags("1d1h1m", 101);
+        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getPastTopHashtags("1d1h1m", 101);
         assertEquals(HttpStatus.OK, response.getStatus());
 
         List<PastIntervalAggregatedTagLikeDTO> pastIntervalAggregatedTagLikeDTOList = (List<PastIntervalAggregatedTagLikeDTO>) response.body();
@@ -114,7 +114,7 @@ class AggregatedTagLikeControllerTest {
     public void testFindTopTagOfPast10Minutes() {
         setUpDummyData(aggregatedTagLikeRepository);
 
-        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getTopHashtags("10m", 1);
+        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getPastTopHashtags("10m", 1);
         assertEquals(HttpStatus.OK, response.getStatus());
 
         List<PastIntervalAggregatedTagLikeDTO> pastIntervalAggregatedTagLikeDTOList = (List<PastIntervalAggregatedTagLikeDTO>) response.body();
@@ -127,7 +127,7 @@ class AggregatedTagLikeControllerTest {
     public void testFindTopTagOfPastDay() {
         setUpDummyData(aggregatedTagLikeRepository);
 
-        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getTopHashtags("1d", 1);
+        HttpResponse<Iterable<PastIntervalAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getPastTopHashtags("1d", 1);
         assertEquals(HttpStatus.OK, response.getStatus());
 
         List<PastIntervalAggregatedTagLikeDTO> pastIntervalAggregatedTagLikeDTOList = (List<PastIntervalAggregatedTagLikeDTO>) response.body();

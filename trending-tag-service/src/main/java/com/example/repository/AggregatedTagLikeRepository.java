@@ -29,7 +29,7 @@ public interface AggregatedTagLikeRepository extends CrudRepository<AggregatedTa
                     "ORDER BY hourly_likes DESC " +
                     "LIMIT :limit",
             nativeQuery = true)
-    List<CurrentHourAggregatedTagLikeDTO> findTopTagsByHourlyLikes(Integer limit);
+    List<CurrentHourAggregatedTagLikeDTO> findTopTagsOfCurrentHourWindow(Integer limit);
 
     @Query(value = "WITH current_interval_aggregated AS ( " +
                     "    SELECT tag, " +

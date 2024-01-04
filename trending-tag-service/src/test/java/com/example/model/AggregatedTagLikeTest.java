@@ -27,7 +27,6 @@ class AggregatedTagLikeTest {
         assertEquals(now, tagLike.getMinuteInterval());
     }
 
-
     @Test
     public void testNullValues() {
         AggregatedTagLike tagLike = new AggregatedTagLike(null, null, null);
