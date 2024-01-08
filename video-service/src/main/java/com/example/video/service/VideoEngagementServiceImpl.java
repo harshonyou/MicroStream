@@ -1,6 +1,5 @@
 package com.example.video.service;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.video.dto.VideoDTO;
 import com.example.video.dto.VideoEngagementDTO;
 import com.example.video.dto.VideoEngagementEventDTO;
@@ -33,7 +32,7 @@ public class VideoEngagementServiceImpl implements VideoEngagementService {
 
     @Override
     public Optional<VideoEngagementDTO> markVideoWatched(VideoEngagementDTO videoEngagementDTO) {
-        Optional<VideoDTO> videoDTO = videoService.search(videoEngagementDTO.getUserId(), videoEngagementDTO.getVideoId());
+        Optional<VideoDTO> videoDTO = videoService.search(videoEngagementDTO.getVideoId());
         if(videoDTO.isEmpty()) {
             return Optional.empty();
         }
@@ -63,15 +62,6 @@ public class VideoEngagementServiceImpl implements VideoEngagementService {
     public List<VideoEngagementDTO> findWatchHistory(String userId) {
         return engagementRepository
                 .findByUser(userId)
-                .stream()
-                .map(VideoEngagementMapper::fromEntity)
-                .toList();
-    }
-
-    @Override
-    public List<VideoEngagementDTO> findWatchList(UUID videoId) {
-        return engagementRepository
-                .findByVideo(videoId)
                 .stream()
                 .map(VideoEngagementMapper::fromEntity)
                 .toList();

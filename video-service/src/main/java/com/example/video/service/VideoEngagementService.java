@@ -1,7 +1,6 @@
 package com.example.video.service;
 
 import com.example.video.dto.VideoEngagementDTO;
-import com.example.video.util.ForTesting;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +12,4 @@ public interface VideoEngagementService {
     Optional<VideoEngagementDTO> findWatchStatus(String userId, UUID videoId);
 
     List<VideoEngagementDTO> findWatchHistory(String userId); // TODO: Make them iterable
-
-    List<VideoEngagementDTO> findWatchList(UUID videoId);
 }

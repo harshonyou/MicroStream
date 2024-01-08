@@ -1,6 +1,5 @@
 package com.example.video.service;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.video.dto.VideoTagDTO;
 import com.example.video.mapper.VideoTagMapper;
 import com.example.video.model.VideoTag;
