@@ -7,7 +7,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.validation.Validated;
-import jakarta.inject.Inject;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -16,8 +15,11 @@ import java.util.UUID;
 @Controller("/api/v1")
 public class VideoFeedbackController {
 
-    @Inject
-    private VideoFeedbackService feedbackService;
+    private final VideoFeedbackService feedbackService;
+
+    public VideoFeedbackController(VideoFeedbackService feedbackService) {
+        this.feedbackService = feedbackService;
+    }
 
     @Post(value = "/users/{userId}/videos/{videoId}/like")
     public HttpResponse<VideoFeedbackDTO> like(

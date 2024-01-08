@@ -7,7 +7,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.validation.Validated;
-import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
@@ -15,8 +14,11 @@ import java.util.List;
 @Validated
 @Controller("/api/v1")
 public class VideoTagController {
-    @Inject
-    private VideoTagService tagService;
+    private final VideoTagService tagService;
+
+    public VideoTagController(VideoTagService tagService) {
+        this.tagService = tagService;
+    }
 
     @Get(value = "/videos/tags/{tagName}/")
     public HttpResponse<Iterable<VideoTagDTO>> findByTag(

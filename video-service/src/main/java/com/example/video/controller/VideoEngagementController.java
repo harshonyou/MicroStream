@@ -8,7 +8,6 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.validation.Validated;
-import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.Optional;
@@ -17,8 +16,11 @@ import java.util.UUID;
 @Validated
 @Controller("/api/v1")
 public class VideoEngagementController {
-    @Inject
-    private VideoEngagementService engagementService;
+    private final VideoEngagementService engagementService;
+
+    public VideoEngagementController(VideoEngagementService engagementService) {
+        this.engagementService = engagementService;
+    }
 
     @Post(value = "/users/{userId}/videos/{videoId}/watch")
     public HttpResponse<VideoEngagementDTO> watch(

@@ -6,7 +6,6 @@ import com.example.video.util.ForTesting;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.validation.Validated;
-import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -18,8 +17,11 @@ import java.util.UUID;
 @Controller("/api/v1")
 public class VideoController {
 
-    @Inject
-    private VideoService videoService;
+    private final VideoService videoService;
+
+    public VideoController(VideoService videoService) {
+        this.videoService = videoService;
+    }
 
     @Get(value = "/users/{userId}/videos/")
     public HttpResponse<Iterable<VideoDTO>> findAllByUser(
@@ -33,7 +35,7 @@ public class VideoController {
     public HttpResponse<VideoDTO> findById(
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "videoId") @NotEmpty String videoId) {
-        Optional<VideoDTO> e = videoService.search(userId, UUID.fromString(videoId));
+        Optional<VideoDTO> e = videoService.fetch(userId, UUID.fromString(videoId));
         if (e.isEmpty()) return HttpResponse.notFound();
         return HttpResponse.ok(e.get());
     }
@@ -43,7 +45,7 @@ public class VideoController {
             @PathVariable(value = "userId") @NotEmpty String userId,
             @Body @NotNull VideoDTO video) {
         if(video.getVideoId() != null) {
-            Optional<VideoDTO> e = videoService.search(userId, video.getVideoId());
+            Optional<VideoDTO> e = videoService.fetch(userId, video.getVideoId());
             if (e.isPresent()) return HttpResponse.badRequest();
         }
 
@@ -58,7 +60,7 @@ public class VideoController {
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "videoId") @NotEmpty String videoId,
             @Body @NotNull VideoDTO video) {
-        Optional<VideoDTO> e = videoService.search(userId, UUID.fromString(videoId));
+        Optional<VideoDTO> e = videoService.fetch(userId, UUID.fromString(videoId));
         if (e.isEmpty()) return HttpResponse.notFound();
         // TODO: Maybe also update tags? from the tag DB
         video.setUserId(userId);
@@ -80,7 +82,7 @@ public class VideoController {
     public HttpResponse<Void> deleteById(
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "videoId") @NotEmpty String videoId) {
-        Optional<VideoDTO> e = videoService.search(userId, UUID.fromString(videoId));
+        Optional<VideoDTO> e = videoService.fetch(userId, UUID.fromString(videoId));
         if (e.isEmpty()) return HttpResponse.notFound();
         videoService.remove(userId, UUID.fromString(videoId));
         return HttpResponse.noContent();
