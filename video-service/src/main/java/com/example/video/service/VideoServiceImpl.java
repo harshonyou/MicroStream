@@ -1,14 +1,11 @@
 package com.example.video.service;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.video.dto.VideoCreationEventDTO;
 import com.example.video.dto.VideoDTO;
 import com.example.video.model.Video;
 import com.example.video.producer.VideoCreationEventClient;
 import com.example.video.repository.CassandraVideoRepository;
 import com.example.video.repository.VideoRepository;
-import jakarta.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.List;
@@ -55,7 +52,14 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Optional<VideoDTO> search(String userId, UUID videoId) {
+    public Optional<VideoDTO> search(UUID videoId) {
+        Optional<Video> video = videoRepository.findByVideoId(videoId);
+        if(video.isEmpty()) return Optional.empty();
+        return Optional.of(fromEntity(video.get(), video.get().getUserId()));
+    }
+
+    @Override
+    public Optional<VideoDTO> fetch(String userId, UUID videoId) {
         Optional<Video> video = videoRepository.findById(userId, videoId);
         if(video.isEmpty()) return Optional.empty();
         return Optional.of(fromEntity(video.get(), userId));

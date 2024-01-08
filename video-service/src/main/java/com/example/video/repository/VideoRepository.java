@@ -15,6 +15,7 @@ public interface VideoRepository {
     Video save(Video video);
     Optional<Video> findById(String userId, UUID videoId);
     List<Video> findByUser(String userId);
+    Optional<Video> findByVideoId(UUID videoId);
     void deleteById(String userId, UUID videoId);
     void deleteByUser(String userId);
     void deleteAll();

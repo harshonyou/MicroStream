@@ -9,7 +9,6 @@ import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.example.video.model.Video;
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 
 import java.util.List;
@@ -18,12 +17,13 @@ import java.util.UUID;
 
 import static com.datastax.oss.driver.api.core.type.DataTypes.*;
 
-
 @Singleton
 public class CassandraVideoRepository implements VideoRepository {
     private PreparedStatement psInsertVideo;
     private PreparedStatement psSelectVideo;
     private PreparedStatement psSelectUserVideo;
+    private PreparedStatement psSelectByVideoId;
+
     private PreparedStatement psDeleteVideo;
     private PreparedStatement psDeleteUserVideo;
 
@@ -68,16 +68,19 @@ public class CassandraVideoRepository implements VideoRepository {
             return video;
         }
 
-        Video toBeUpdated = optionalVideo.get();
-        if(video.getTitle() != null) {
-            toBeUpdated.setTitle(video.getTitle());
-        }
-        cqlSession.execute(psInsertVideo.bind(
-                toBeUpdated.getUserId(),
-                toBeUpdated.getVideoId(),
-                toBeUpdated.getTitle(),
-                toBeUpdated.getTags()));
-        return toBeUpdated;
+        return optionalVideo.get();
+
+//        Do not update the video if it already exists
+//        Video toBeUpdated = optionalVideo.get();
+//        if(video.getTitle() != null) {
+//            toBeUpdated.setTitle(video.getTitle());
+//        }
+//        cqlSession.execute(psInsertVideo.bind(
+//                toBeUpdated.getUserId(),
+//                toBeUpdated.getVideoId(),
+//                toBeUpdated.getTitle(),
+//                toBeUpdated.getTags()));
+//        return toBeUpdated;
     }
 
     @Override
@@ -95,6 +98,11 @@ public class CassandraVideoRepository implements VideoRepository {
                 .all().stream()
                 .map(this::mapRowAsVideo)
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    public Optional<Video> findByVideoId(UUID videoId) {
+        Row row = cqlSession.execute(psSelectByVideoId.bind(videoId)).one();
+        return (row != null) ? Optional.of(mapRowAsVideo(row)) : Optional.empty();
     }
 
     @Override
@@ -142,6 +150,18 @@ public class CassandraVideoRepository implements VideoRepository {
                 .all()
                 .whereColumn(USER_ID).isEqualTo(QueryBuilder.bindMarker())
                 .build());
+
+//        psSelectByVideoId = cqlSession.prepare(
+//                QueryBuilder.selectFrom(TABLE_VIDEOS)
+//                        .all()
+//                        .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())
+//                        .build());
+        psSelectByVideoId = cqlSession.prepare(
+                QueryBuilder.selectFrom(TABLE_VIDEOS)
+                        .all()
+                        .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())
+                        .allowFiltering() // Add ALLOW FILTERING here
+                        .build());
 
         psDeleteVideo = cqlSession.prepare(
                 QueryBuilder.deleteFrom(TABLE_VIDEOS)

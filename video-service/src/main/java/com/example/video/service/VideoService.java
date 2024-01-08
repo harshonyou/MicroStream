@@ -8,7 +8,8 @@ import java.util.UUID;
 
 public interface VideoService {
     VideoDTO post(VideoDTO videoDto);
-    Optional<VideoDTO> search(String userId, UUID videoId);
+    Optional<VideoDTO> search(UUID videoId);
+    Optional<VideoDTO> fetch(String userId, UUID videoId);
     List<VideoDTO> getUserPosts(String userId);
     void remove(String userId, UUID videoId);
     void removeUserPosts(String userId);
