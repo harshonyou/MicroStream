@@ -45,5 +45,13 @@ class VideoEngagementEventDTOTest {
         assertNull(defaultDTO.getVideoId());
         assertNull(defaultDTO.getWatchedTime());
     }
+
+    @Test
+    public void testNoArgConstructor() {
+        VideoEngagementEventDTO noArgDTO = new VideoEngagementEventDTO();
+        assertNull(noArgDTO.getUserId());
+        assertNull(noArgDTO.getVideoId());
+        assertNull(noArgDTO.getWatchedTime());
+    }
 }
 

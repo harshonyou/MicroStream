@@ -61,4 +61,13 @@ class VideoFeedbackEventDTOTest {
         assertNull(defaultDTO.getTags());
         assertFalse(defaultDTO.isLikeStatus());
     }
+
+    @Test
+    public void testNoArgConstructor() {
+        VideoFeedbackEventDTO noArgDTO = new VideoFeedbackEventDTO();
+        assertNull(noArgDTO.getUserId());
+        assertNull(noArgDTO.getVideoId());
+        assertNull(noArgDTO.getTags());
+        assertFalse(noArgDTO.isLikeStatus());
+    }
 }
