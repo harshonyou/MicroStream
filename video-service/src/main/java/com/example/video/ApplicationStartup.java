@@ -6,7 +6,6 @@ import com.example.video.repository.CassandraVideoTagRepository;
 import com.example.video.repository.CassandraVideoRepository;
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.discovery.event.ServiceReadyEvent;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
