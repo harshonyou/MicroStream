@@ -2,6 +2,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.micronaut.application") version "4.2.0"
     id("io.micronaut.aot") version "4.2.0"
+    id("jacoco")
 }
 
 version = "0.1"
@@ -26,6 +27,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("org.mockito:mockito-core")
 
     implementation ("com.datastax.oss:java-driver-core:$casandraDriverVersion")
     implementation ("com.datastax.oss:java-driver-mapper-processor:$casandraDriverVersion")
@@ -34,7 +36,7 @@ dependencies {
 
 
 application {
-    mainClass.set("com.example.Application")
+    mainClass.set("com.example.VideoApplication")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("17")
@@ -63,5 +65,17 @@ micronaut {
     }
 }
 
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['com/example/video/helper/**', '**/*Generated*.class'])
+        }))
+    }
+}
 
 
