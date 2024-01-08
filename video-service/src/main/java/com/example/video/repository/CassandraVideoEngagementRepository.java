@@ -7,7 +7,6 @@ import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.example.video.model.UserEngagement;
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 
 import java.time.Instant;
@@ -20,7 +19,6 @@ import static com.datastax.oss.driver.api.core.type.DataTypes.*;
 public class CassandraVideoEngagementRepository implements VideoEngagementRepository {
     private PreparedStatement psInsertUserVideoWatch;
     private PreparedStatement psSelectUserVideoWatch;
-    private PreparedStatement psSelectVideoWatch;
     private PreparedStatement psSelectVideoWatchByUser;
 
     private final CqlSession cqlSession;
@@ -65,20 +63,15 @@ public class CassandraVideoEngagementRepository implements VideoEngagementReposi
     }
 
     @Override
-    public List<UserEngagement> findByVideo(java.util.UUID videoId) {
-        return cqlSession.execute(psSelectVideoWatch.bind(videoId))
-                .all()
-                .stream()
-                .map(this::mapRowToUserVideoWatch)
-                .toList();
-    }
-
-    @Override
     public Optional<UserEngagement> findById(String userId, java.util.UUID videoId) {
         Row row = cqlSession.execute(psSelectUserVideoWatch.bind(userId, videoId)).one();
         return (row != null) ?
                 Optional.of(mapRowToUserVideoWatch(row)) :
                 Optional.empty();
+    }
+
+    public void deleteAll() {
+        cqlSession.execute(QueryBuilder.truncate(TABLE_VIDEO_ENGAGEMENTS).build());
     }
 
     private UserEngagement mapRowToUserVideoWatch(Row row) {
@@ -88,6 +81,7 @@ public class CassandraVideoEngagementRepository implements VideoEngagementReposi
         userVideoWatch.setWatchedTime(row.getInstant(WATCHED_TIME));
         return userVideoWatch;
     }
+
     private void prepareStatements() {
         psInsertUserVideoWatch = cqlSession.prepare(
                 QueryBuilder.insertInto(TABLE_VIDEO_ENGAGEMENTS)
@@ -102,12 +96,6 @@ public class CassandraVideoEngagementRepository implements VideoEngagementReposi
                         .whereColumn(USER_ID).isEqualTo(QueryBuilder.bindMarker())
                         .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())
                         .build());
-
-//        psSelectVideoWatch = cqlSession.prepare(
-//                QueryBuilder.selectFrom(TABLE_WATCHED_VIDEOS)
-//                        .all()
-//                        .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())
-//                        .build());
 
         psSelectVideoWatchByUser = cqlSession.prepare(
                 QueryBuilder.selectFrom(TABLE_VIDEO_ENGAGEMENTS)

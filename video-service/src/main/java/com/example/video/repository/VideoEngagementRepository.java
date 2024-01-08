@@ -15,5 +15,4 @@ public interface VideoEngagementRepository {
     UserEngagement save(UserEngagement userEngagement);
     Optional<UserEngagement> findById(String userId, UUID videoId);
     List<UserEngagement> findByUser(String userId);
-    List<UserEngagement> findByVideo(UUID videoId);
 }

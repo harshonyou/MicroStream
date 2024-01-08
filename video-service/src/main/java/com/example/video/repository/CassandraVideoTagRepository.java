@@ -7,12 +7,9 @@ import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder;
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.example.video.model.VideoTag;
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.datastax.oss.driver.api.core.type.DataTypes.TEXT;
 import static com.datastax.oss.driver.api.core.type.DataTypes.TIMEUUID;
@@ -54,6 +51,10 @@ public class CassandraVideoTagRepository implements VideoTagRepository {
                 .stream()
                 .map(this::mapRowToVideoTag)
                 .toList();
+    }
+
+    public void deleteAll() {
+        cqlSession.execute(QueryBuilder.truncate(TABLE_TAGS).build());
     }
 
     private VideoTag mapRowToVideoTag(Row row) {

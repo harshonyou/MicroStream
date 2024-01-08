@@ -4,7 +4,6 @@ package com.example.video.repository;
 import com.example.video.model.VideoTag;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface VideoTagRepository {
     public static final String TABLE_TAGS = "tags";
