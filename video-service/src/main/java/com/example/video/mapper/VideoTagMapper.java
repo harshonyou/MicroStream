@@ -3,8 +3,6 @@ package com.example.video.mapper;
 import com.example.video.dto.VideoTagDTO;
 import com.example.video.model.VideoTag;
 
-import java.util.UUID;
-
 public class VideoTagMapper {
     public static VideoTag fromDto(VideoTagDTO dto) {
         VideoTag v = new VideoTag();
