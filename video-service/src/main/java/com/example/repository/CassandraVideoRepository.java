@@ -31,11 +31,11 @@ public class CassandraVideoRepository implements VideoRepository {
 
     public CassandraVideoRepository(CqlSession cqlSession) {
         this.cqlSession = cqlSession;
-        createTableVideo();
+//        createTableVideo(cqlSession);
         prepareStatements();
     }
 
-    public void createTableVideo() {
+    public static void createTableVideo(CqlSession cqlSession) {
         cqlSession.execute(SchemaBuilder.createTable(TABLE_VIDEOS)
                 .ifNotExists()
                 .withPartitionKey(USER_ID, TEXT)

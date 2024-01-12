@@ -25,11 +25,11 @@ public class CassandraVideoEngagementRepository implements VideoEngagementReposi
 
     public CassandraVideoEngagementRepository(CqlSession cqlSession) {
         this.cqlSession = cqlSession;
-        createTableUserVideoWatch();
+//        createTableUserVideoWatch(cqlSession);
         prepareStatements();
     }
 
-    public void createTableUserVideoWatch() {
+    public static void createTableUserVideoWatch(CqlSession cqlSession) {
         cqlSession.execute(SchemaBuilder.createTable(TABLE_VIDEO_ENGAGEMENTS)
                 .ifNotExists()
                 .withPartitionKey(USER_ID, TEXT)

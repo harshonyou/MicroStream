@@ -1,9 +1,7 @@
 package com.example;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.example.repository.CassandraVideoEngagementRepository;
-import com.example.repository.CassandraVideoTagRepository;
-import com.example.repository.CassandraVideoRepository;
+import com.example.repository.*;
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.discovery.event.ServiceReadyEvent;
 import jakarta.inject.Singleton;
@@ -14,26 +12,19 @@ import org.slf4j.LoggerFactory;
 public class ApplicationStartup implements ApplicationEventListener<ServiceReadyEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationStartup.class);
 
-    private final CassandraVideoRepository videoRepository;
-
-    private final CassandraVideoEngagementRepository videoEngagementRepository;
-
-    private final CassandraVideoTagRepository videoTagRepository;
+    private final CqlSession cqlSession;
 
     public ApplicationStartup(CqlSession cqlSession) {
-        this.videoRepository = new CassandraVideoRepository(cqlSession);
-        this.videoEngagementRepository = new CassandraVideoEngagementRepository(cqlSession);
-        this.videoTagRepository = new CassandraVideoTagRepository(cqlSession);
+        this.cqlSession = cqlSession;
     }
 
-    @Override
     public void onApplicationEvent(ServiceReadyEvent event) {
         LOGGER.info("Startup Initialization");
-        videoRepository.createTableVideo();
+        CassandraVideoRepository.createTableVideo(cqlSession);
         LOGGER.info("+ Table VideoItems created if needed.");
-        videoEngagementRepository.createTableUserVideoWatch();
+        CassandraVideoEngagementRepository.createTableUserVideoWatch(cqlSession);
         LOGGER.info("+ Table UserVideoWatch created if needed.");
-        videoTagRepository.createTableTag();
+        CassandraVideoTagRepository.createTableTag(cqlSession);
         LOGGER.info("+ Table VideoByHashtag created if needed.");
         LOGGER.info("[OK]");
     }

@@ -23,11 +23,11 @@ public class CassandraVideoTagRepository implements VideoTagRepository {
 
     public CassandraVideoTagRepository(CqlSession cqlSession) {
         this.cqlSession = cqlSession;
-        createTableTag();
+//        createTableTag(cqlSession);
         prepareStatements();
     }
 
-    public void createTableTag() {
+    public static void createTableTag(CqlSession cqlSession) {
         cqlSession.execute(SchemaBuilder.createTable(TABLE_TAGS)
                 .ifNotExists()
                 .withPartitionKey(TAG, TEXT)
