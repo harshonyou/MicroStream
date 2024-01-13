@@ -3,6 +3,7 @@ version: '3'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
+    restart: unless-stopped
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -16,6 +17,7 @@ services:
 
   kafka-0:
     image: confluentinc/cp-kafka:latest
+    restart: unless-stopped
     container_name: kafka-0
     depends_on:
       - zookeeper
@@ -35,6 +37,7 @@ services:
 
   kafka-1:
     image: confluentinc/cp-kafka:latest
+    restart: unless-stopped
     container_name: kafka-1
     depends_on:
       - zookeeper
@@ -54,6 +57,7 @@ services:
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
+    restart: unless-stopped
     container_name: kafka-2
     depends_on:
       - zookeeper
@@ -95,6 +99,7 @@ services:
 
   kafka_ui:
     image: provectuslabs/kafka-ui:latest
+    restart: unless-stopped
     depends_on:
       - zookeeper
       - kafka-0
@@ -112,6 +117,7 @@ services:
 
   cassandra:
     image: cassandra:latest
+    restart: unless-stopped
     container_name: cassandra
     ports:
       - "9042:9042"
@@ -142,6 +148,7 @@ services:
 
   postgres:
     image: postgres:latest
+    restart: unless-stopped
     container_name: postgres
     ports:
       - "5432:5432"
@@ -176,6 +183,7 @@ services:
 
   neo4j:
     image: neo4j:latest
+    restart: unless-stopped
     container_name: neo4j
     ports:
       - "7474:7474"
@@ -210,6 +218,7 @@ services:
 
   video-service:
     image: video-service:0.1
+    restart: unless-stopped
     container_name: video-service
     ports:
       - "8282:8282"
@@ -231,6 +240,7 @@ services:
 
   trending-tag-service:
     image: trending-tag-service:0.1
+    restart: unless-stopped
     container_name: trending-tag-service
     ports:
       - "8286:8286"
@@ -255,6 +265,7 @@ services:
 
   subscription-service:
     image: subscription-service:0.1
+    restart: unless-stopped
     container_name: subscription-service
     ports:
       - "8585:8585"
