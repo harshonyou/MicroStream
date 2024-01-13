@@ -1,0 +1,110 @@
+version: '3'
+
+services:
+  zookeeper-test:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-test
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    volumes:
+      - zookeeper_test_data:/var/lib/zookeeper/data
+    networks:
+      - kafka_test_network
+
+  kafka-test:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-test
+    depends_on:
+      - zookeeper-test
+    ports:
+      - 29090:29090
+      - 9090:9090
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-test:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-test:9090,PLAINTEXT_HOST://localhost:29090
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_test_data:/var/lib/kafka/data
+    networks:
+      - kafka_test_network
+
+  kafka-test-init:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-test-init
+    depends_on:
+      - kafka-test
+    command: >
+      /bin/bash -c "
+        echo 'Waiting for Kafka to start...' &&
+        until kafka-topics --bootstrap-server kafka-test:9090 --list;
+        do
+          sleep 2;
+        done &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-test:9090 --partitions 1 --replication-factor 1 --topic video-creation-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-test:9090 --partitions 1 --replication-factor 1 --topic video-engagement-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-test:9090 --partitions 1 --replication-factor 1 --topic video-feedback-events
+      "
+    networks:
+      - kafka_test_network
+
+  kafka-test-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - zookeeper-test
+      - kafka-test
+    ports:
+      - 8085:8085
+      - 8181:8080
+    environment:
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper-test:2181
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-test:9090
+    networks:
+      - kafka_test_network
+
+  cassandra-test:
+    image: cassandra:latest
+    container_name: cassandra-test
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=micronautCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+    volumes:
+      - cassandra_test_data:/var/lib/cassandra
+    networks:
+      - cassandra_test_network
+
+  cassandra-test-init:
+    image: cassandra:latest
+    container_name: cassandra-test-init
+    depends_on:
+      - cassandra-test
+    command: >
+      /bin/bash -c "
+        until cqlsh cassandra-test -e 'describe keyspaces';
+        do
+          echo 'Waiting for Cassandra to be up...'
+          sleep 2
+        done &&
+        cqlsh cassandra-test -e \"CREATE KEYSPACE IF NOT EXISTS micronaut WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};\""
+    networks:
+      - cassandra_test_network
+
+networks:
+  kafka_test_network:
+    driver: bridge
+  cassandra_test_network:
+    driver: bridge
+
+volumes:
+  zookeeper_test_data:
+  kafka_test_data:
+  cassandra_test_data:
