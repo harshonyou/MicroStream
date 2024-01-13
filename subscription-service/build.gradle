@@ -3,6 +3,7 @@ plugins {
     id("io.micronaut.application") version "4.2.1"
     id("io.micronaut.aot") version "4.2.1"
     id("jacoco")
+    id("com.google.cloud.tools.jib") version "3.1.4"
 }
 
 version = "0.1"
@@ -30,7 +31,7 @@ dependencies {
 
 
 application {
-    mainClass.set("com.example.Application")
+    mainClass.set("com.example.SubscriptionApplication")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("17")
@@ -71,3 +72,11 @@ jacocoTestReport {
         }))
     }
 }
+
+jib {
+    from {
+//        image = 'eclipse-temurin:17-jre-focal'
+        image = 'eclipse-temurin:17-jdk-alpine'
+    }
+}
+
