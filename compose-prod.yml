@@ -1,0 +1,295 @@
+version: '3'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - kafka_network
+
+  kafka-0:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-0
+    depends_on:
+      - zookeeper
+    ports:
+      - 29090:29090
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-0:9090,PLAINTEXT_HOST://localhost:29090
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_0_data:/var/lib/kafka/data
+    networks:
+      - kafka_network
+
+  kafka-1:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-1
+    depends_on:
+      - zookeeper
+    ports:
+      - 29091:29091
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9091,PLAINTEXT_HOST://localhost:29091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_1_data:/var/lib/kafka/data
+    networks:
+      - kafka_network
+
+  kafka-2:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-2
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_2_data:/var/lib/kafka/data
+    networks:
+      - kafka_network
+
+  kafka-init:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-init
+    depends_on:
+      - kafka-0
+      - kafka-1
+      - kafka-2
+    command: >
+      /bin/bash -c "
+        echo 'Waiting for Kafka to start...' &&
+        until kafka-topics --bootstrap-server kafka-0:9090 --list;
+        do
+          sleep 2;
+        done &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-0:9090 --partitions 6 --replication-factor 3 --topic video-creation-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-0:9090 --partitions 6 --replication-factor 3 --topic video-engagement-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-0:9090 --partitions 6 --replication-factor 3 --topic video-feedback-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-0:9090 --partitions 6 --replication-factor 3 --topic tag-engagement-events
+      "
+    networks:
+      - kafka_network
+
+  kafka_ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - zookeeper
+      - kafka-0
+      - kafka-1
+      - kafka-2
+    ports:
+      - 8085:8085
+      - 8181:8080
+    environment:
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
+    networks:
+      - kafka_network
+
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=micronautCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    networks:
+      - cassandra_network
+
+  cassandra-init:
+    image: cassandra:latest
+    container_name: cassandra-init
+    depends_on:
+      - cassandra
+    command: >
+      /bin/bash -c "
+        until cqlsh cassandra -e 'describe keyspaces';
+        do
+          echo 'Waiting for Cassandra to be up...'
+          sleep 2
+        done &&
+        cqlsh cassandra -e \"CREATE KEYSPACE IF NOT EXISTS micronaut WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};\""
+    networks:
+      - cassandra_network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: &postgres_user postgres
+      POSTGRES_PASSWORD: &postgres_password postgres
+      POSTGRES_DB: &postgres_db postgres
+    networks:
+      - postgres_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  postgres-init:
+    image: postgres:latest
+    container_name: postgres-init
+    depends_on:
+      - postgres
+    command: >
+      /bin/bash -c "
+        until PGPASSWORD=$$POSTGRES_PASSWORD psql -h postgres -U $$POSTGRES_USER -d $$POSTGRES_DB -c 'SELECT 1';
+        do
+          echo 'Waiting for PostgreSQL to be up...'
+          sleep 2
+        done
+      "
+    environment:
+      POSTGRES_USER: *postgres_user
+      POSTGRES_PASSWORD: *postgres_password
+      POSTGRES_DB: *postgres_db
+    networks:
+      - postgres_network
+
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      USERNAME: &neo4j_user neo4j
+      PASSWORD: &neo4j_password testpassword
+      NEO4J_AUTH: neo4j/testpassword
+    volumes:
+      - neo4j_data:/var/lib/neo4j/data
+    networks:
+      - neo4j_network
+
+  neo4j-init:
+    image: neo4j:latest
+    container_name: neo4j-init
+    depends_on:
+      - neo4j
+    command:  >
+      /bin/bash -c "
+        echo 'Waiting for Neo4j to start...' &&
+        until cypher-shell -u $$USERNAME -p $$PASSWORD -a bolt://neo4j:7687; 
+        do 
+          sleep 2; 
+        done
+      "
+    environment:
+      USERNAME: *neo4j_user
+      PASSWORD: *neo4j_password
+    networks:
+      - neo4j_network
+
+  video-service:
+    image: video-service:0.1
+    container_name: video-service
+    ports:
+      - "8282:8282"
+    environment:
+      PORT: 8282
+      DB_HOST: cassandra
+      DB_PORT: 9042
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
+      CASSANDRA_MIGRATION: true
+      MICRONAUT_ENVIRONMENTS: prod
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      cassandra-init:
+        condition: service_completed_successfully
+    networks:
+      - kafka_network
+      - cassandra_network
+
+  trending-tag-service:
+    image: trending-tag-service:0.1
+    container_name: trending-tag-service
+    ports:
+      - "8286:8286"
+    environment:
+      PORT: 8286
+      DB: *postgres_db
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: *postgres_user
+      DB_PASSWORD: *postgres_password
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
+      FLYWAY_ENABLED: true
+      MICRONAUT_ENVIRONMENTS: prod
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      postgres-init:
+        condition: service_completed_successfully
+    networks:
+      - kafka_network
+      - postgres_network
+
+  subscription-service:
+    image: subscription-service:0.1
+    container_name: subscription-service
+    ports:
+      - "8585:8585"
+    environment:
+      PORT: 8585
+      NEO4J_HOST: neo4j
+      NEO4J_PORT: 7687
+      NEO4J_USERNAME: *neo4j_user
+      NEO4J_PASSWORD: *neo4j_password
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
+      MICRONAUT_ENVIRONMENTS: prod
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      neo4j-init:
+        condition: service_completed_successfully
+    networks:
+      - kafka_network
+      - neo4j_network
+
+networks:
+  kafka_network:
+    driver: bridge
+  cassandra_network:
+    driver: bridge
+  postgres_network:
+    driver: bridge
+  neo4j_network:
+    driver: bridge
+
+volumes:
+  zookeeper_data:
+  kafka_0_data:
+  kafka_1_data:
+  kafka_2_data:
+  cassandra_data:
+  postgres_data:
+  neo4j_data:
