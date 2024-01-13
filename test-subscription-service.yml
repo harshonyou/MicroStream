@@ -1,0 +1,95 @@
+version: '3'
+
+services:
+  zookeeper-test:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-test
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    volumes:
+      - zookeeper_test_data:/var/lib/zookeeper/data
+    networks:
+      - kafka_test_network
+
+  kafka-test:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-test
+    depends_on:
+      - zookeeper-test
+    ports:
+      - 29090:29090
+      - 9090:9090
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-test:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-test:9090,PLAINTEXT_HOST://localhost:29090
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_test_data:/var/lib/kafka/data
+    networks:
+      - kafka_test_network
+
+  kafka-test-init:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka-test-init
+    depends_on:
+      - kafka-test
+    command: >
+      /bin/bash -c "
+        echo 'Waiting for Kafka to start...' &&
+        until kafka-topics --bootstrap-server kafka-test:9090 --list;
+        do
+          sleep 2;
+        done &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-test:9090 --partitions 1 --replication-factor 1 --topic video-creation-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-test:9090 --partitions 1 --replication-factor 1 --topic video-engagement-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-test:9090 --partitions 1 --replication-factor 1 --topic video-feedback-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka-test:9090 --partitions 1 --replication-factor 1 --topic tag-engagement-events
+      "
+    networks:
+      - kafka_test_network
+
+  kafka-test-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-test-ui
+    depends_on:
+      - zookeeper-test
+      - kafka-test
+    ports:
+      - 8085:8085
+      - 8181:8080
+    environment:
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper-test:2181
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-test:9090
+    networks:
+      - kafka_test_network
+
+  neo4j-test:
+    image: neo4j:latest
+    container_name: neo4j-test
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/testpassword
+    volumes:
+      - neo4j_test_data:/var/lib/neo4j/data
+    networks:
+      - neo4j_test_network
+
+networks:
+  kafka_test_network:
+    driver: bridge
+  neo4j_test_network:
+    driver: bridge
+
+volumes:
+  zookeeper_test_data:
+  kafka_test_data:
+  neo4j_test_data:
