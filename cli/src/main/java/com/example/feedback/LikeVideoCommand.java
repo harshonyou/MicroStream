@@ -10,7 +10,7 @@ import picocli.CommandLine;
 import java.util.UUID;
 
 @CommandLine.Command(name = "like-video", description = "Like a video by video id")
-public class LikeVideo implements Runnable {
+public class LikeVideoCommand implements Runnable {
     @CommandLine.Option(names = {"-u", "--userid"}, description = "User ID")
     private String userId;
 

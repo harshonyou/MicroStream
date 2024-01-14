@@ -10,7 +10,7 @@ import picocli.CommandLine;
 import java.util.Set;
 
 @CommandLine.Command(name="post", description = "Post a video", mixinStandardHelpOptions = true)
-final public class PostVideo implements Runnable{
+final public class PostVideoCommand implements Runnable{
     @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;
 

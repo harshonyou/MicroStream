@@ -1,7 +1,7 @@
-package com.example.feedback;
+package com.example.engagement;
 
 import com.example.api.VideoServiceHttpClient;
-import com.example.dto.VideoFeedbackDTO;
+import com.example.dto.VideoEngagementDTO;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
@@ -9,12 +9,12 @@ import picocli.CommandLine;
 
 import java.util.UUID;
 
-@CommandLine.Command(name = "dislike-video", description = "Dislike a video by video id")
-public class DislikeVideo implements Runnable{
-    @CommandLine.Option(names = {"-u", "--userid"}, description = "User ID")
+@CommandLine.Command(name = "watch-video", description = "Watch a video by video id")
+public class WatchVideoCommand implements Runnable {
+    @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;
 
-    @CommandLine.Option(names = {"-v", "--video"}, description = "Video ID")
+    @CommandLine.Option(names = {"-v", "--video"}, description = "Video ID", required = true)
     private String videoId;
 
     @CommandLine.Option(names = {"--verbose"}, description = "Verbose mode")
@@ -23,22 +23,23 @@ public class DislikeVideo implements Runnable{
     @Inject
     VideoServiceHttpClient videoServiceClient;
 
+    @Override
     public void run() {
         if (verbose) {
             System.out.println("User ID: " + userId);
             System.out.println("Video ID: " + videoId);
         }
 
-        HttpResponse<VideoFeedbackDTO> response = videoServiceClient.dislikeVideo(
+        HttpResponse<VideoEngagementDTO> response = videoServiceClient.watchVideo(
                 userId,
                 UUID.fromString(videoId)
         );
 
         if(response.getStatus() == HttpStatus.OK) {
-            System.out.println("Video disliked successfully");
-            System.out.println(VideoFeedbackDTO.formatVideoFeedbackDTO(response.body()));
+            System.out.println("Video watched successfully");
+            System.out.println(VideoEngagementDTO.formatVideoEngagementDTO(response.body()));
         } else {
-            System.out.println("Failed to dislike video");
+            System.out.println("Failed to watch video");
         }
 
         if(verbose) System.out.println(response.body());

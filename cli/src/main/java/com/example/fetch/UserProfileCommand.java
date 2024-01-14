@@ -10,7 +10,7 @@ import picocli.CommandLine;
 import java.util.List;
 
 @CommandLine.Command(name = "user-profile", description = "Get all the videos posted by a user")
-public class UserProfile implements Runnable {
+public class UserProfileCommand implements Runnable {
     @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;
 

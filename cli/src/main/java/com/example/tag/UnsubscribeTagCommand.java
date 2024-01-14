@@ -7,7 +7,7 @@ import jakarta.inject.Inject;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "unsubscribe", description = "Unsubscribe a tag")
-public class UnsubscribeTag implements Runnable {
+public class UnsubscribeTagCommand implements Runnable {
     @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;
 

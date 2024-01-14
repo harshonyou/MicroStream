@@ -10,16 +10,13 @@ import picocli.CommandLine;
 import java.util.List;
 
 @CommandLine.Command(
-        name = "suggest-videos",
-        description = "Get all the recommended videos based on all the subscribed tag or specific tag if mentioned",
+        name = "timeline",
+        description = "Get user timeline (recommended videos) based on the algorithm",
         mixinStandardHelpOptions = true
 )
-public class SuggestedVideos implements Runnable {
+public class UserTimelineCommand implements Runnable {
     @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;
-
-    @CommandLine.Option(names = {"-t", "--tag"}, description = "Tag name")
-    private String tagName;
 
     @CommandLine.Option(names = {"--verbose"}, description = "Verbose mode")
     private boolean verbose;
@@ -31,18 +28,9 @@ public class SuggestedVideos implements Runnable {
     public void run() {
         if (verbose) {
             System.out.println("User ID: " + userId);
-            System.out.println("Tag name: " + tagName);
         }
 
-        HttpResponse<List<RecommendedVideoDTO>> response;
-
-        if (tagName == null) {
-            System.out.println("Getting recommendations for user " + userId + "...");
-            response = subscriptionServiceClient.getRecommendations(userId);
-        } else {
-            System.out.println("Getting recommendations for user " + userId + " and tag '" + tagName + "'...");
-            response = subscriptionServiceClient.getRecommendations(userId, tagName);
-        }
+        HttpResponse<List<RecommendedVideoDTO>> response = subscriptionServiceClient.getTimeline(userId);
 
         if(response.getStatus() == HttpStatus.NO_CONTENT) {
             System.out.println("No recommendations found");

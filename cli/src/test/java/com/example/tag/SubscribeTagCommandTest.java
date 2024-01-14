@@ -1,6 +1,6 @@
-package com.example.feedback;
+package com.example.tag;
 
-import com.example.CliCommand;
+import com.example.Cli;
 import io.micronaut.configuration.picocli.PicocliRunner;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.Environment;
@@ -9,9 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class DislikeVideoTest {
+class SubscribeTagCommandTest {
     @Test
     public void testWithCommandLineOption() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -19,8 +17,8 @@ class DislikeVideoTest {
         System.setOut(new PrintStream(baos));
 
         try (ApplicationContext ctx = ApplicationContext.run(Environment.CLI, Environment.TEST)) {
-            String[] args = new String[]{"dislike-video", "-u", "123", "-v", "cfcd04f0-9f1a-11ee-995e-fffdb2b698b7", "--verbose"};
-            PicocliRunner.run(CliCommand.class, ctx, args);
+            String[] args = new String[]{"subscribe", "-u", "123", "-t", "tag1", "--verbose"};
+            PicocliRunner.run(Cli.class, ctx, args);
             out.println(baos);
             // cli
         }

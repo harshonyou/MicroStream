@@ -13,7 +13,7 @@ import java.util.List;
         name = "past-top",
         description = "Get the past top trending tags"
 )
-public class PastTopTag implements Runnable {
+public class PastTopTagCommand implements Runnable {
     @CommandLine.Option(
             names = {"-i", "--interval"},
             description = "Interval of time in past to query (m for minute, h for hour, d for day)",

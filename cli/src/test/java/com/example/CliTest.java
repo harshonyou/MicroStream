@@ -1,17 +1,18 @@
-package com.example.trend;
+package com.example;
 
-import com.example.CliCommand;
 import io.micronaut.configuration.picocli.PicocliRunner;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.Environment;
-import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
-class PastTopTagTest {
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class CliTest {
+
     @Test
     public void testWithCommandLineOption() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -19,10 +20,16 @@ class PastTopTagTest {
         System.setOut(new PrintStream(baos));
 
         try (ApplicationContext ctx = ApplicationContext.run(Environment.CLI, Environment.TEST)) {
-            String[] args = new String[]{"past-top", "-i", "1h", "-l", "10", "--verbose"};
-            PicocliRunner.run(CliCommand.class, ctx, args);
+            String[] args = new String[]{"-v"};
+            PicocliRunner.run(Cli.class, ctx, args);
             out.println(baos);
             // cli
+            assertTrue(baos.toString().contains("Hi!"));
         }
     }
 }
+
+// posting video
+// like/dislike video
+// show current trending hashtag
+// list next video to watch for the subscriptions

@@ -5,7 +5,6 @@ package com.example.trend;
 
 import com.example.api.TrendingTagServiceHttpClient;
 import com.example.dto.CurrentHourAggregatedTagLikeDTO;
-import com.example.dto.VideoDTO;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
@@ -17,7 +16,7 @@ import java.util.List;
         name = "current-top",
         description = "Get the current hour window [from 0th minute to 59th minute] top trending tags"
 )
-public class CurrentTopTag implements Runnable {
+public class CurrentTopTagCommand implements Runnable {
     @CommandLine.Option(
             names = {"-l", "--limit"},
             description = "Limit of tags to return",

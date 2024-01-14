@@ -7,7 +7,7 @@ import jakarta.inject.Inject;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "subscribe", description = "Subscribe a tag")
-public class SubscribeTag implements Runnable {
+public class SubscribeTagCommand implements Runnable {
     @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;
 
