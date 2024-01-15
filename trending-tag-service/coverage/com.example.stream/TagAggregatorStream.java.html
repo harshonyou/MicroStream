@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TagAggregatorStream.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">trending-tag-service</a> &gt; <a href="index.source.html" class="el_package">com.example.stream</a> &gt; <span class="el_source">TagAggregatorStream.java</span></div><h1>TagAggregatorStream.java</h1><pre class="source lang-java linenums">package com.example.stream;
+
+import com.example.dto.VideoFeedbackEventDTO;
+import com.example.repository.AggregatedTagLikeRepository;
+import com.example.serde.VideoFeedbackEventDTOSerde;
+import io.micronaut.configuration.kafka.streams.ConfiguredStreamBuilder;
+import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Property;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.WindowStore;
+
+import java.time.Duration;
+import java.util.Properties;
+
+@Factory
+<span class="fc" id="L23">public class TagAggregatorStream {</span>
+
+    @Inject
+    private AggregatedTagLikeRepository aggregatedTagLikeRepository;
+    @Inject
+    private VideoFeedbackEventDTOSerde tagsLikeEventDTOSerde;
+
+    @Property(name = &quot;streams.aggregation.n&quot;)
+    private Integer aggregationN;
+
+    @Singleton
+    @Named(&quot;tag-aggregator-stream&quot;)
+    public KStream&lt;String, VideoFeedbackEventDTO&gt; tagAggregatorStream(ConfiguredStreamBuilder builder) {
+<span class="fc" id="L36">        Properties props = new Properties();</span>
+<span class="fc" id="L37">        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, &quot;earliest&quot;);</span>
+<span class="fc" id="L38">        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, &quot;0&quot;);</span>
+
+        // Creating a Kafka Stream from the 'video-feedback-events' topic
+<span class="fc" id="L41">        KStream&lt;String, VideoFeedbackEventDTO&gt; stream = builder.stream(&quot;video-feedback-events&quot;, Consumed.with(Serdes.String(), tagsLikeEventDTOSerde));</span>
+
+<span class="fc" id="L43">        stream</span>
+                // Filter events where the like status is true and tags are not null
+<span class="pc bpc" id="L45" title="1 of 4 branches missed.">                .filter((tags, likeStatus) -&gt; likeStatus.isLikeStatus() &amp;&amp; likeStatus.getTags() != null)</span>
+                // Flatten the list of tags to individual tags
+<span class="fc" id="L47">                .flatMapValues(VideoFeedbackEventDTO::getTags)</span>
+                // Convert all tags to lowercase
+<span class="fc" id="L49">                .mapValues(tag -&gt; tag.toLowerCase())</span>
+                // Group by tag name
+<span class="fc" id="L51">                .groupBy((tags, tag) -&gt; tag, Grouped.with(Serdes.String(), Serdes.String()))</span>
+                // Create a time window of 1 minute with a 10-second grace period
+<span class="fc" id="L53">                .windowedBy(TimeWindows.of(Duration.ofMinutes(1)).grace(Duration.ofSeconds(10)))</span>
+                // Aggregate the count of each tag in the given time window
+<span class="fc" id="L55">                .aggregate(</span>
+<span class="fc" id="L56">                        () -&gt; 0L,</span>
+<span class="fc" id="L57">                        (key, tag, count) -&gt; count + 1,</span>
+<span class="fc" id="L58">                        Materialized.&lt;String, Long, WindowStore&lt;Bytes, byte[]&gt;&gt;as(&quot;aggregated-tags&quot;)</span>
+<span class="fc" id="L59">                                .withKeySerde(Serdes.String())</span>
+<span class="fc" id="L60">                                .withValueSerde(Serdes.Long()))</span>
+                // Suppress intermediate results and emit final results per window
+<span class="fc" id="L62">                .suppress(Suppressed.untilWindowCloses(Suppressed.BufferConfig.unbounded()))</span>
+                // Convert aggregated results to a stream
+<span class="fc" id="L64">                .toStream()</span>
+                // Transform the stream to maintain only the top N tags
+<span class="fc" id="L66">                .transform(() -&gt; new TopNTagsTransformer(aggregationN, Duration.ofSeconds(35), aggregatedTagLikeRepository));</span>
+
+<span class="fc" id="L68">        return stream;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

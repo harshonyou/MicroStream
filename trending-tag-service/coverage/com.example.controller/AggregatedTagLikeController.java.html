@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AggregatedTagLikeController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">trending-tag-service</a> &gt; <a href="index.source.html" class="el_package">com.example.controller</a> &gt; <span class="el_source">AggregatedTagLikeController.java</span></div><h1>AggregatedTagLikeController.java</h1><pre class="source lang-java linenums">package com.example.controller;
+
+import com.example.dto.PastIntervalAggregatedTagLikeDTO;
+import com.example.dto.CurrentHourAggregatedTagLikeDTO;
+import com.example.repository.AggregatedTagLikeRepository;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.*;
+import io.micronaut.validation.Validated;
+import jakarta.inject.Inject;
+import jakarta.validation.constraints.NotEmpty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import static com.example.validator.DurationValidator.isValidDuration;
+
+@Validated
+@Controller(&quot;/api/v1&quot;)
+<span class="fc" id="L20">public class AggregatedTagLikeController {</span>
+
+<span class="fc" id="L22">    private static final Logger LOGGER = LoggerFactory.getLogger(AggregatedTagLikeController.class);</span>
+
+    @Inject
+    AggregatedTagLikeRepository tagLikeRepository;
+
+    // Endpoint to get top hashtags of the current hour
+    @Get(&quot;/hashtags/top/current&quot;)
+    public HttpResponse&lt;Iterable&lt;CurrentHourAggregatedTagLikeDTO&gt;&gt; getCurrentTopHashtags(
+            @QueryValue(value = &quot;limit&quot;) Integer limit) {
+<span class="fc" id="L31">        LOGGER.info(&quot;Fetching current top hashtags with limit: {}&quot;, limit);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if(limit &gt; 100) {</span>
+<span class="fc" id="L33">            limit = 100;</span>
+        }
+
+<span class="fc" id="L36">        List&lt;CurrentHourAggregatedTagLikeDTO&gt; tags = tagLikeRepository.findTopTagsOfCurrentHourWindow(limit);</span>
+
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (tags.isEmpty()) {</span>
+<span class="fc" id="L39">            LOGGER.info(&quot;No top hashtags found for the current hour&quot;);</span>
+<span class="fc" id="L40">            return HttpResponse.noContent();</span>
+        }
+
+<span class="fc" id="L43">        return HttpResponse.ok(tags);</span>
+    }
+
+    @Get(&quot;/hashtags/top/past&quot;)
+    public HttpResponse&lt;Iterable&lt;PastIntervalAggregatedTagLikeDTO&gt;&gt; getPastTopHashtags(
+            @QueryValue(value = &quot;interval&quot;) @NotEmpty String interval,
+            @QueryValue(value = &quot;limit&quot;) Integer limit) {
+<span class="fc" id="L50">        LOGGER.info(&quot;Fetching past top hashtags for interval: {} with limit: {}&quot;, interval, limit);</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if(!isValidDuration(interval)) {</span>
+<span class="fc" id="L52">            LOGGER.warn(&quot;Invalid interval: {}&quot;, interval);</span>
+<span class="fc" id="L53">            return HttpResponse.badRequest();</span>
+        }
+
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if(limit &gt; 100) {</span>
+<span class="fc" id="L57">            limit = 100;</span>
+        }
+
+<span class="fc" id="L60">        List&lt;PastIntervalAggregatedTagLikeDTO&gt; tags = tagLikeRepository.findTopTagsByCustomInterval(interval, limit);</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (tags.isEmpty()) {</span>
+<span class="fc" id="L63">            LOGGER.info(&quot;No top hashtags found for past interval: {}&quot;, interval);</span>
+<span class="fc" id="L64">            return HttpResponse.noContent();</span>
+        }
+
+<span class="fc" id="L67">        return HttpResponse.ok(tags);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

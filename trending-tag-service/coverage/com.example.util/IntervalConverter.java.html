@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IntervalConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">trending-tag-service</a> &gt; <a href="index.source.html" class="el_package">com.example.util</a> &gt; <span class="el_source">IntervalConverter.java</span></div><h1>IntervalConverter.java</h1><pre class="source lang-java linenums">package com.example.util;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+<span class="fc" id="L6">public class IntervalConverter {</span>
+    public static String convertToPostgresInterval(String duration) {
+        // Regular expression to match the components of the duration
+<span class="fc" id="L9">        Pattern pattern = Pattern.compile(&quot;(\\d+)([dhm])&quot;);</span>
+<span class="fc" id="L10">        Matcher matcher = pattern.matcher(duration);</span>
+
+<span class="fc" id="L12">        StringBuilder intervalBuilder = new StringBuilder();</span>
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        while (matcher.find()) {</span>
+<span class="fc" id="L14">            int number = Integer.parseInt(matcher.group(1));</span>
+<span class="fc" id="L15">            String unit = matcher.group(2);</span>
+
+<span class="pc bpc" id="L17" title="1 of 4 branches missed.">            switch (unit) {</span>
+<span class="fc" id="L18">                case &quot;d&quot; -&gt; intervalBuilder.append(number).append(&quot; day &quot;);</span>
+<span class="fc" id="L19">                case &quot;h&quot; -&gt; intervalBuilder.append(number).append(&quot; hour &quot;);</span>
+<span class="fc" id="L20">                case &quot;m&quot; -&gt; intervalBuilder.append(number).append(&quot; minute &quot;);</span>
+            }
+<span class="fc" id="L22">        }</span>
+
+<span class="fc" id="L24">        return intervalBuilder.toString().trim();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

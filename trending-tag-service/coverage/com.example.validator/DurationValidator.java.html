@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DurationValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">trending-tag-service</a> &gt; <a href="index.source.html" class="el_package">com.example.validator</a> &gt; <span class="el_source">DurationValidator.java</span></div><h1>DurationValidator.java</h1><pre class="source lang-java linenums">package com.example.validator;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+<span class="fc" id="L5">public class DurationValidator {</span>
+
+    // Regex pattern to match duration strings in the format of number followed by a 'd', 'h', or 'm'.
+<span class="fc" id="L8">    private static final Pattern DURATION_PATTERN = Pattern.compile(&quot;(\\d+)([dhm])&quot;);</span>
+
+    public static boolean isValidDuration(String duration) {
+<span class="fc bfc" id="L11" title="All 4 branches covered.">        if (duration == null || duration.trim().isEmpty()) {</span>
+<span class="fc" id="L12">            return false;</span>
+        }
+
+<span class="fc" id="L15">        Matcher matcher = DURATION_PATTERN.matcher(duration);</span>
+<span class="fc" id="L16">        int lastIndex = 0;</span>
+<span class="fc" id="L17">        char lastUnit = '0';</span>
+
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        while (matcher.find()) {</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">            if (matcher.start() != lastIndex) {</span>
+<span class="fc" id="L21">                return false;</span>
+            }
+
+<span class="fc" id="L24">            lastIndex = matcher.end();</span>
+
+<span class="fc" id="L26">            int value = Integer.parseInt(matcher.group(1));</span>
+<span class="fc" id="L27">            char currentUnit = matcher.group(2).charAt(0);</span>
+
+<span class="fc bfc" id="L29" title="All 4 branches covered.">            if (!isValidValueForUnit(value, currentUnit) || currentUnit &lt;= lastUnit) {</span>
+<span class="fc" id="L30">                return false;</span>
+            }
+
+<span class="fc" id="L33">            lastUnit = currentUnit;</span>
+<span class="fc" id="L34">        }</span>
+
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        return lastIndex == duration.length();</span>
+    }
+
+
+    private static boolean isValidValueForUnit(int value, char unit) {
+<span class="fc" id="L41">        int maxDays = 365, maxHours = 23, maxMinutes = 59;</span>
+
+<span class="pc bpc" id="L43" title="1 of 4 branches missed.">        return switch (unit) {</span>
+<span class="pc bpc" id="L44" title="2 of 4 branches missed.">            case 'd' -&gt; value &gt;= 0 &amp;&amp; value &lt;= maxDays;</span>
+<span class="pc bpc" id="L45" title="1 of 4 branches missed.">            case 'h' -&gt; value &gt;= 0 &amp;&amp; value &lt;= maxHours;</span>
+<span class="pc bpc" id="L46" title="1 of 4 branches missed.">            case 'm' -&gt; value &gt;= 0 &amp;&amp; value &lt;= maxMinutes;</span>
+<span class="nc" id="L47">            default -&gt; false;</span>
+        };
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
