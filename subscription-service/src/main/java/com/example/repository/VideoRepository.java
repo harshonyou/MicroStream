@@ -13,6 +13,10 @@ public interface VideoRepository {
 
     void likeVideo(UUID videoId, String userId);
 
+    boolean isLiked(UUID videoId, String userId);
+
+    void dislikeVideo(UUID videoId, String userId);
+
     void incrementVideoViews(UUID videoId);
 
     void watchVideo(UUID videoId, String userId);

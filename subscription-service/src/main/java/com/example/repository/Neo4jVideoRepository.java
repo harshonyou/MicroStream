@@ -17,12 +17,14 @@ public class Neo4jVideoRepository implements VideoRepository {
         this.driver = driver;
     }
 
+    @Override
     public void postVideo(String userId, Video video, Set<Tag> tags) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> postVideo(tx, userId, video, tags));
         }
     }
-    public Void postVideo(Transaction tx, String userId, Video video, Set<Tag> tags) { // TODO: Split this into multiple repo
+
+    public Void postVideo(Transaction tx, String userId, Video video, Set<Tag> tags) {
         String createVideoQuery =   """
                                     CREATE (v:Video {id: $id, title: $title, views: $views})
                                     """;
@@ -51,6 +53,7 @@ public class Neo4jVideoRepository implements VideoRepository {
         return null;
     }
 
+    @Override
     public void likeVideo(UUID videoId, String userId) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> likeVideo(tx, videoId, userId));
@@ -69,6 +72,50 @@ public class Neo4jVideoRepository implements VideoRepository {
         return null;
     }
 
+    @Override
+    public boolean isLiked(UUID videoId, String userId) {
+        try (Session session = driver.session()) {
+            return session.readTransaction(tx -> likeExists(tx, videoId, userId));
+        }
+    }
+
+    private boolean likeExists(Transaction tx, UUID videoId, String userId) {
+        String query =  """
+                    MATCH (u:User {id: $userId})-[:LIKES]->(v:Video {id: $videoId})
+                    RETURN EXISTS( (u)-[:LIKES]->(v) ) AS likeExists
+                    """;
+
+        var result = tx.run(query, org.neo4j.driver.Values.parameters(
+                "userId", userId,
+                "videoId", videoId.toString()));
+
+        if (result.hasNext()) {
+            return result.next().get("likeExists").asBoolean();
+        }
+
+        return false;
+    }
+
+    @Override
+    public void dislikeVideo(UUID videoId, String userId) {
+        try (Session session = driver.session()) {
+            session.writeTransaction(tx -> removeLike(tx, videoId, userId));
+        }
+    }
+
+    private Void removeLike(Transaction tx, UUID videoId, String userId) {
+        String query =  """
+                    MATCH (u:User {id: $userId})-[r:LIKES]->(v:Video {id: $videoId})
+                    DELETE r
+                    """;
+
+        tx.run(query, org.neo4j.driver.Values.parameters(
+                "userId", userId,
+                "videoId", videoId.toString()));
+        return null;
+    }
+
+    @Override
     public void incrementVideoViews(UUID videoId) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> incrementVideoViews(tx, videoId));
@@ -86,6 +133,7 @@ public class Neo4jVideoRepository implements VideoRepository {
         return null;
     }
 
+    @Override
     public void watchVideo(UUID videoId, String userId) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> watchVideo(tx, videoId, userId));
@@ -104,6 +152,7 @@ public class Neo4jVideoRepository implements VideoRepository {
         return null;
     }
 
+    @Override
     public List<RecommendedVideoDTO> getUserTimeline(String userId) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> getUserTimeline(tx, userId));
@@ -130,6 +179,7 @@ public class Neo4jVideoRepository implements VideoRepository {
         return getVideoRecommendationDTOS(result);
     }
 
+    @Override
     public List<RecommendedVideoDTO> getUserRecommendations(String userId) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> getUserRecommendations(tx, userId));
@@ -150,6 +200,7 @@ public class Neo4jVideoRepository implements VideoRepository {
         return getVideoRecommendationDTOS(result);
     }
 
+    @Override
     public List<RecommendedVideoDTO> getUserRecommendationsByTag(String userId, String tagName) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> getUserRecommendationsByTag(tx, userId, tagName));

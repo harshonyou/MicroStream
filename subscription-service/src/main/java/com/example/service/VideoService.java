@@ -12,7 +12,9 @@ public interface VideoService {
 
     void postVideo(String userId, VideoDTO video, Set<TagDTO> tags);
 
-    void likeVideo(UUID videoId, String userId); // TODO: Add dislike feature
+    void likeVideo(UUID videoId, String userId);
+
+    void dislikeVideo(UUID videoId, String userId);
 
     void watchVideo(UUID videoId, String userId);
 }
