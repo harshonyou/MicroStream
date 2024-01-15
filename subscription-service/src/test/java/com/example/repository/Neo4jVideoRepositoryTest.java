@@ -59,6 +59,53 @@ class Neo4jVideoRepositoryTest {
     }
 
     @Test
+    public void testLikeVideo() {
+        UUID videoId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        String videoName = "video-name";
+        Long videoViews = 0L;
+        String userId = "user-id";
+        String userName = "user-name";
+        Set<Tag> tags = Set.of(new Tag("tag-name"));
+        neo4jUserRepository.addUser(new User(userId, userName));
+        neo4jTagRepository.addTag(tags.iterator().next());
+        neo4jVideoRepository.postVideo(userId, new Video(videoId, videoName, videoViews), tags);
+        neo4jVideoRepository.likeVideo(videoId, userId);
+
+        Optional<Video> video = neo4jVideoRepository.findById(videoId);
+        assertTrue(video.isPresent());
+        assertEquals(videoId, video.get().getId());
+        assertEquals(videoName, video.get().getTitle());
+        assertEquals(videoViews, video.get().getViews());
+
+        boolean isLiked = neo4jVideoRepository.isLiked(videoId, userId);
+        assertTrue(isLiked);
+    }
+
+    @Test
+    public void testDislikeVideo() {
+        UUID videoId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        String videoName = "video-name";
+        Long videoViews = 0L;
+        String userId = "user-id";
+        String userName = "user-name";
+        Set<Tag> tags = Set.of(new Tag("tag-name"));
+        neo4jUserRepository.addUser(new User(userId, userName));
+        neo4jTagRepository.addTag(tags.iterator().next());
+        neo4jVideoRepository.postVideo(userId, new Video(videoId, videoName, videoViews), tags);
+        neo4jVideoRepository.likeVideo(videoId, userId);
+        neo4jVideoRepository.dislikeVideo(videoId, userId);
+
+        Optional<Video> video = neo4jVideoRepository.findById(videoId);
+        assertTrue(video.isPresent());
+        assertEquals(videoId, video.get().getId());
+        assertEquals(videoName, video.get().getTitle());
+        assertEquals(videoViews, video.get().getViews());
+
+        boolean isLiked = neo4jVideoRepository.isLiked(videoId, userId);
+        assertFalse(isLiked);
+    }
+
+    @Test
     public void testWatchVideo() {
         UUID videoId = UUID.fromString("00000000-0000-0000-0000-000000000000");
         String videoName = "video-name";

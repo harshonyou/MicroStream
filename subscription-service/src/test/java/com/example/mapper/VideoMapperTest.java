@@ -9,6 +9,13 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class VideoMapperTest {
+
+    @Test
+    public void testClassExists() {
+        VideoMapper videoMapper = new VideoMapper();
+        assertNotNull(videoMapper, "VideoMapper class should exist");
+    }
+
     @Test
     public void testFromDTO() {
         UUID videoId = UUID.randomUUID();

@@ -9,13 +9,14 @@ import org.neo4j.driver.Transaction;
 import java.util.Optional;
 
 @Singleton
-public class Neo4jUserRepository implements UserRepository { // TODO: Have an interface
+public class Neo4jUserRepository implements UserRepository {
     private final Driver driver;
 
     Neo4jUserRepository(Driver driver) {
         this.driver = driver;
     }
 
+    @Override
     public Optional<User> findById(String userId) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> findById(tx, userId));
@@ -39,6 +40,7 @@ public class Neo4jUserRepository implements UserRepository { // TODO: Have an in
         }
     }
 
+    @Override
     public void addUser(User user) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> createUser(tx, user));

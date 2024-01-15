@@ -165,6 +165,15 @@ class KafkaMessageListenerTest {
                 )
         );
 
+        videoFeedbackEventClient.send(
+                userId2,
+                new VideoFeedbackEventDTO(
+                        userId1,
+                        videoId1,
+                        false
+                )
+        );
+
         Awaitility.await().atMost(2, TimeUnit.MINUTES)
                 .until(() -> !videoRepository.getUserTimeline(userId2).isEmpty());
 

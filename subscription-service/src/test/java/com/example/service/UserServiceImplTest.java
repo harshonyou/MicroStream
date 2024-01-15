@@ -42,4 +42,17 @@ class UserServiceImplTest {
         assertEquals(userId, user.get().getId());
         assertEquals(userName, user.get().getName());
     }
+
+    @Test
+    public void testAddExistingUser() {
+        String userId = "user-id";
+        String userName = "user-name";
+        userService.addUser(userId, userName);
+        userService.addUser(userId, userName);
+
+        Optional<UserDTO> user = userService.findById(userId);
+        assertTrue(user.isPresent());
+        assertEquals(userId, user.get().getId());
+        assertEquals(userName, user.get().getName());
+    }
 }

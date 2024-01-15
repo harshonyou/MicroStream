@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserMapperTest {
+
+    @Test
+    public void testClassExists() {
+        UserMapper userMapper = new UserMapper();
+        assertNotNull(userMapper, "UserMapper class should exist");
+    }
+
     @Test
     public void testFromDTO() {
         UserDTO userDTO = new UserDTO("123", "John Doe");

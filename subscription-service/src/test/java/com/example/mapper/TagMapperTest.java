@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TagMapperTest {
+
+    @Test
+    public void testClassExists() {
+        TagMapper tagMapper = new TagMapper();
+        assertNotNull(tagMapper, "TagMapper class should exist");
+    }
+    
     @Test
     public void testFromDTO() {
         TagDTO tagDTO = new TagDTO("TestTag");

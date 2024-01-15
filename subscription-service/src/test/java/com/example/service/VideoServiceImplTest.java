@@ -90,10 +90,6 @@ class VideoServiceImplTest {
 
     @Test
     public void testLikeVideo() {
-        MockitoAnnotations.openMocks(this);
-
-        VideoServiceImpl mockService = new VideoServiceImpl(mockVideoRepository);
-
         UUID videoId = UUID.fromString("00000000-0000-0000-0000-000000000000");
         String videoName = "video-name";
         Long videoViews = 0L;
@@ -102,10 +98,40 @@ class VideoServiceImplTest {
         Set<TagDTO> tags = Set.of(new TagDTO("tag-name"));
         userRepository.addUser(new User(userId, userName));
         tagRepository.addTag(TagMapper.fromDTO(tags.iterator().next()));
-        mockService.postVideo(userId, new VideoDTO(videoId, videoName, videoViews), tags);
-        mockService.likeVideo(videoId, userId);
+        videoService.postVideo(userId, new VideoDTO(videoId, videoName, videoViews), tags);
+        videoService.likeVideo(videoId, userId);
 
-        verify(mockVideoRepository).postVideo(eq(userId), any(Video.class), any(Set.class));
-        verify(mockVideoRepository).likeVideo(eq(videoId), eq(userId));
+        Optional<Video> video = videoRepository.findById(videoId);
+        assertTrue(video.isPresent());
+        assertEquals(videoId, video.get().getId());
+        assertEquals(videoName, video.get().getTitle());
+        assertEquals(videoViews, video.get().getViews());
+
+        boolean isLiked = videoRepository.isLiked(videoId, userId);
+        assertTrue(isLiked);
+    }
+
+    @Test
+    public void testDislikeVideo() {
+        UUID videoId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        String videoName = "video-name";
+        Long videoViews = 0L;
+        String userId = "user-id";
+        String userName = "user-name";
+        Set<TagDTO> tags = Set.of(new TagDTO("tag-name"));
+        userRepository.addUser(new User(userId, userName));
+        tagRepository.addTag(TagMapper.fromDTO(tags.iterator().next()));
+        videoService.postVideo(userId, new VideoDTO(videoId, videoName, videoViews), tags);
+        videoService.likeVideo(videoId, userId);
+        videoService.dislikeVideo(videoId, userId);
+
+        Optional<Video> video = videoRepository.findById(videoId);
+        assertTrue(video.isPresent());
+        assertEquals(videoId, video.get().getId());
+        assertEquals(videoName, video.get().getTitle());
+        assertEquals(videoViews, video.get().getViews());
+
+        boolean isLiked = videoRepository.isLiked(videoId, userId);
+        assertFalse(isLiked);
     }
 }

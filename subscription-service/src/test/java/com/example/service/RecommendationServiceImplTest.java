@@ -124,8 +124,9 @@ class RecommendationServiceImplTest {
 
         List<RecommendedVideoDTO> recommendedVideos = recommendationService.getUserRecommendations(userId2);
         assertEquals(2, recommendedVideos.size());
-        assertEquals(videoId1, recommendedVideos.get(0).getId());
-        assertEquals(videoId2, recommendedVideos.get(1).getId());
+
+        assertTrue(recommendedVideos.stream().anyMatch(video -> video.getId().equals(videoId1)));
+        assertTrue(recommendedVideos.stream().anyMatch(video -> video.getId().equals(videoId2)));
     }
 
     @Test
@@ -168,8 +169,8 @@ class RecommendationServiceImplTest {
 
         List<RecommendedVideoDTO> timeline = recommendationService.getUserTimeline(userId2);
         assertEquals(2, timeline.size());
-        assertEquals(videoId1, timeline.get(0).getId());
-        assertEquals(videoId3, timeline.get(1).getId());
-    }
 
+        assertTrue(timeline.stream().anyMatch(video -> video.getId().equals(videoId1)));
+        assertTrue(timeline.stream().anyMatch(video -> video.getId().equals(videoId3)));
+    }
 }

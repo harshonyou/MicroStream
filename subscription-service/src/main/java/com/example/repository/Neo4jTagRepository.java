@@ -17,6 +17,7 @@ public class Neo4jTagRepository implements TagRepository {
         this.driver = driver;
     }
 
+    @Override
     public Optional<Tag> findByTagName(String tagName) {
         try (Session session = driver.session()) {
             return session.readTransaction(tx -> findByTagName(tx, tagName));
@@ -39,6 +40,7 @@ public class Neo4jTagRepository implements TagRepository {
         }
     }
 
+    @Override
     public void addTag(Tag tag) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> addTag(tx, tag));
@@ -55,6 +57,7 @@ public class Neo4jTagRepository implements TagRepository {
         return null;
     }
 
+    @Override
     public void associateUserWithTag(String tagName, String userId) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> associateUserWithTag(tx, tagName, userId));
@@ -73,6 +76,7 @@ public class Neo4jTagRepository implements TagRepository {
         return null;
     }
 
+    @Override
     public void disassociateUserFromTag(String tagName, String userId) {
         try (Session session = driver.session()) {
             session.writeTransaction(tx -> disassociateUserFromTag(tx, tagName, userId));
