@@ -186,7 +186,7 @@ class VideoControllerTest {
         HttpResponse<Void> response = videoController.deleteById(userId, videoId);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
-    }
+    }   
 
     @Test
     public void testDeleteAllByUser() {

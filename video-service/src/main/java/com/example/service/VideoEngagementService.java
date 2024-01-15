@@ -11,5 +11,5 @@ public interface VideoEngagementService {
 
     Optional<VideoEngagementDTO> findWatchStatus(String userId, UUID videoId);
 
-    List<VideoEngagementDTO> findWatchHistory(String userId); // TODO: Make them iterable
+    List<VideoEngagementDTO> findWatchHistory(String userId);
 }

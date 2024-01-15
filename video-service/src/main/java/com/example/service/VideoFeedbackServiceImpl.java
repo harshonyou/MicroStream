@@ -6,12 +6,17 @@ import com.example.producer.VideoFeedbackEventClient;
 import com.example.dto.VideoFeedbackEventDTO;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Singleton
 public class VideoFeedbackServiceImpl implements VideoFeedbackService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoFeedbackServiceImpl.class);
+
     private final VideoService videoService;
     private final VideoFeedbackEventClient eventClient;
 
@@ -23,10 +28,16 @@ public class VideoFeedbackServiceImpl implements VideoFeedbackService {
         this.eventClient = eventClient;
     }
 
+    // Submits feedback (like/dislike) for a video
     @Override
     public Optional<VideoFeedbackDTO> submitFeedback(String userId, UUID videoId, boolean likeStatus) {
+        LOGGER.info("Submitting feedback for video ID: {} by user ID: {}", videoId, userId);
         Optional<VideoDTO> videoDTO = videoService.search(videoId);
-        if(videoDTO.isEmpty()) return Optional.empty();
+
+        if(videoDTO.isEmpty()) {
+            LOGGER.info("Video ID: {} not found", videoId);
+            return Optional.empty();
+        }
 
         eventClient.notifyOnLikeDislike(
                 userId,

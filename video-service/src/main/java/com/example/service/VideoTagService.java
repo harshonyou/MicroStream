@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface VideoTagService {
-    void tagVideo(Set<String> tags, UUID videoId); // TODO: not getting used?
+    void tagVideo(Set<String> tags, UUID videoId);
 
     List<VideoTagDTO> searchVideos(String tag);
 }

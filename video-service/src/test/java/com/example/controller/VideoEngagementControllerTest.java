@@ -26,7 +26,7 @@ class VideoEngagementControllerTest {
     VideoEngagementController videoEngagementController;
 
     @BeforeEach
-    public void setUp() { // TODO: Delete from repo
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
         videoEngagementController = new VideoEngagementController(mockVideoEngagementService);
     }

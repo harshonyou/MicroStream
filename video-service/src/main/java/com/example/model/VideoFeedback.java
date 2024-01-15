@@ -12,5 +12,5 @@ import java.util.UUID;
 public class VideoFeedback {
     private String userId;
     private UUID videoId;
-    private boolean likeStatus; // TODO: change to enum
+    private boolean likeStatus;
 }
