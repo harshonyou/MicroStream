@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationStartup.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example</a> &gt; <span class="el_source">ApplicationStartup.java</span></div><h1>ApplicationStartup.java</h1><pre class="source lang-java linenums">package com.example;
+
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.example.repository.*;
+import io.micronaut.context.annotation.Property;
+import io.micronaut.context.event.ApplicationEventListener;
+import io.micronaut.discovery.event.ServiceReadyEvent;
+import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Singleton
+public class ApplicationStartup implements ApplicationEventListener&lt;ServiceReadyEvent&gt; {
+<span class="fc" id="L14">    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationStartup.class);</span>
+
+    private final CqlSession cqlSession;
+    private final boolean migration;
+
+    public ApplicationStartup(
+            CqlSession cqlSession,
+<span class="fc" id="L21">            @Property(name = &quot;cassandra.migration&quot;) boolean migration) {</span>
+<span class="fc" id="L22">        this.cqlSession = cqlSession;</span>
+<span class="fc" id="L23">        this.migration = migration;</span>
+<span class="fc" id="L24">    }</span>
+
+    public void onApplicationEvent(ServiceReadyEvent event) {
+<span class="fc" id="L27">        LOGGER.info(&quot;Startup Initialization&quot;);</span>
+
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if(migration) {</span>
+<span class="fc" id="L30">            CassandraVideoRepository.createTableVideo(cqlSession);</span>
+<span class="fc" id="L31">            LOGGER.info(&quot;+ Table VideoItems created if needed.&quot;);</span>
+<span class="fc" id="L32">            CassandraVideoEngagementRepository.createTableUserVideoWatch(cqlSession);</span>
+<span class="fc" id="L33">            LOGGER.info(&quot;+ Table UserVideoWatch created if needed.&quot;);</span>
+<span class="fc" id="L34">            CassandraVideoTagRepository.createTableTag(cqlSession);</span>
+<span class="fc" id="L35">            LOGGER.info(&quot;+ Table VideoByHashtag created if needed.&quot;);</span>
+        } else {
+<span class="nc" id="L37">            LOGGER.info(&quot;+ Skipping table creation.&quot;);</span>
+        }
+
+<span class="fc" id="L40">        LOGGER.info(&quot;[OK]&quot;);</span>
+<span class="fc" id="L41">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

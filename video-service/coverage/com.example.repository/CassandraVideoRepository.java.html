@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CassandraVideoRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example.repository</a> &gt; <span class="el_source">CassandraVideoRepository.java</span></div><h1>CassandraVideoRepository.java</h1><pre class="source lang-java linenums">package com.example.repository;
+
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
+import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder;
+import com.datastax.oss.driver.api.core.type.DataTypes;
+import com.datastax.oss.driver.api.core.uuid.Uuids;
+import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
+import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
+import com.example.model.Video;
+import jakarta.inject.Singleton;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.datastax.oss.driver.api.core.type.DataTypes.*;
+
+@Singleton
+public class CassandraVideoRepository implements VideoRepository {
+    private PreparedStatement psInsertVideo;
+    private PreparedStatement psSelectVideo;
+    private PreparedStatement psSelectUserVideo;
+    private PreparedStatement psSelectByVideoId;
+
+    private PreparedStatement psDeleteVideo;
+    private PreparedStatement psDeleteUserVideo;
+
+    private final CqlSession cqlSession;
+
+<span class="fc" id="L32">    public CassandraVideoRepository(CqlSession cqlSession) {</span>
+<span class="fc" id="L33">        this.cqlSession = cqlSession;</span>
+//        createTableVideo(cqlSession);
+<span class="fc" id="L35">        prepareStatements();</span>
+<span class="fc" id="L36">    }</span>
+
+    public static void createTableVideo(CqlSession cqlSession) {
+<span class="fc" id="L39">        cqlSession.execute(SchemaBuilder.createTable(TABLE_VIDEOS)</span>
+<span class="fc" id="L40">                .ifNotExists()</span>
+<span class="fc" id="L41">                .withPartitionKey(USER_ID, TEXT)</span>
+<span class="fc" id="L42">                .withClusteringColumn(VIDEO_ID, TIMEUUID)</span>
+<span class="fc" id="L43">                .withColumn(VIDEO_TITLE, TEXT)</span>
+<span class="fc" id="L44">                .withColumn(VIDEO_TAGS, DataTypes.setOf(TEXT))</span>
+<span class="fc" id="L45">                .withClusteringOrder(VIDEO_ID, ClusteringOrder.DESC)</span>
+<span class="fc" id="L46">                .build());</span>
+<span class="fc" id="L47">    }</span>
+
+    @Override
+    public Video save(Video video) {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if(video.getVideoId() == null) {</span>
+<span class="fc" id="L52">            video.setVideoId(Uuids.timeBased());</span>
+<span class="fc" id="L53">            cqlSession.execute(psInsertVideo.bind(</span>
+<span class="fc" id="L54">                    video.getUserId(),</span>
+<span class="fc" id="L55">                    video.getVideoId(),</span>
+<span class="fc" id="L56">                    video.getTitle(),</span>
+<span class="fc" id="L57">                    video.getTags()));</span>
+<span class="fc" id="L58">            return video;</span>
+        }
+
+<span class="fc" id="L61">        Optional&lt;Video&gt; optionalVideo = findById(video.getUserId(), video.getVideoId());</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if(optionalVideo.isEmpty()) {</span>
+<span class="fc" id="L63">            cqlSession.execute(psInsertVideo.bind(</span>
+<span class="fc" id="L64">                    video.getUserId(),</span>
+<span class="fc" id="L65">                    video.getVideoId(),</span>
+<span class="fc" id="L66">                    video.getTitle(),</span>
+<span class="fc" id="L67">                    video.getTags()));</span>
+<span class="fc" id="L68">            return video;</span>
+        }
+
+<span class="fc" id="L71">        return optionalVideo.get();</span>
+
+//        Do not update the video if it already exists
+//        Video toBeUpdated = optionalVideo.get();
+//        if(video.getTitle() != null) {
+//            toBeUpdated.setTitle(video.getTitle());
+//        }
+//        cqlSession.execute(psInsertVideo.bind(
+//                toBeUpdated.getUserId(),
+//                toBeUpdated.getVideoId(),
+//                toBeUpdated.getTitle(),
+//                toBeUpdated.getTags()));
+//        return toBeUpdated;
+    }
+
+    @Override
+    public Optional&lt;Video&gt; findById(String userId, UUID videoId) {
+<span class="fc" id="L88">        Row row = cqlSession.execute(psSelectVideo.bind(userId, videoId)).one();</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        return (row != null) ?</span>
+<span class="fc" id="L90">                Optional.of(mapRowAsVideo(row)) :</span>
+<span class="fc" id="L91">                Optional.empty();</span>
+    }
+
+
+    @Override
+    public List&lt;Video&gt; findByUser(String userId) {
+<span class="fc" id="L97">        return cqlSession.execute(psSelectUserVideo.bind(userId))</span>
+<span class="fc" id="L98">                .all().stream()</span>
+<span class="fc" id="L99">                .map(this::mapRowAsVideo)</span>
+<span class="fc" id="L100">                .collect(java.util.stream.Collectors.toList());</span>
+    }
+
+    public Optional&lt;Video&gt; findByVideoId(UUID videoId) {
+<span class="fc" id="L104">        Row row = cqlSession.execute(psSelectByVideoId.bind(videoId)).one();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        return (row != null) ? Optional.of(mapRowAsVideo(row)) : Optional.empty();</span>
+    }
+
+    @Override
+    public void deleteById(String userId, UUID videoId) {
+<span class="fc" id="L110">        cqlSession.execute(psDeleteVideo.bind(userId, videoId));</span>
+<span class="fc" id="L111">    }</span>
+
+    @Override
+    public void deleteByUser(String userId) {
+<span class="fc" id="L115">        cqlSession.execute(psDeleteUserVideo.bind(userId));</span>
+<span class="fc" id="L116">    }</span>
+
+    @Override
+    public void deleteAll() {
+<span class="fc" id="L120">        cqlSession.execute(QueryBuilder.truncate(TABLE_VIDEOS).build());</span>
+<span class="fc" id="L121">    }</span>
+
+    private Video mapRowAsVideo(Row row) {
+<span class="fc" id="L124">        Video video = new Video();</span>
+<span class="fc" id="L125">        video.setUserId(row.getString(USER_ID));</span>
+<span class="fc" id="L126">        video.setVideoId(row.getUuid(VIDEO_ID));</span>
+<span class="fc" id="L127">        video.setTitle(row.getString(VIDEO_TITLE));</span>
+<span class="fc" id="L128">        video.setTags(row.getSet(VIDEO_TAGS, String.class));</span>
+<span class="fc" id="L129">        return video;</span>
+    }
+
+    private void prepareStatements() {
+<span class="fc" id="L133">        psInsertVideo = cqlSession.prepare(</span>
+<span class="fc" id="L134">                QueryBuilder.insertInto(TABLE_VIDEOS)</span>
+<span class="fc" id="L135">                .value(USER_ID, QueryBuilder.bindMarker())</span>
+<span class="fc" id="L136">                .value(VIDEO_ID, QueryBuilder.bindMarker())</span>
+<span class="fc" id="L137">                .value(VIDEO_TITLE, QueryBuilder.bindMarker())</span>
+<span class="fc" id="L138">                .value(VIDEO_TAGS, QueryBuilder.bindMarker())</span>
+<span class="fc" id="L139">                .build());</span>
+
+<span class="fc" id="L141">        psSelectVideo = cqlSession.prepare(</span>
+<span class="fc" id="L142">                QueryBuilder.selectFrom(TABLE_VIDEOS)</span>
+<span class="fc" id="L143">                .all()</span>
+<span class="fc" id="L144">                .whereColumn(USER_ID).isEqualTo(QueryBuilder.bindMarker())</span>
+<span class="fc" id="L145">                .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())</span>
+<span class="fc" id="L146">                .build());</span>
+
+<span class="fc" id="L148">        psSelectUserVideo = cqlSession.prepare(</span>
+<span class="fc" id="L149">                QueryBuilder.selectFrom(TABLE_VIDEOS)</span>
+<span class="fc" id="L150">                .all()</span>
+<span class="fc" id="L151">                .whereColumn(USER_ID).isEqualTo(QueryBuilder.bindMarker())</span>
+<span class="fc" id="L152">                .build());</span>
+
+//        psSelectByVideoId = cqlSession.prepare(
+//                QueryBuilder.selectFrom(TABLE_VIDEOS)
+//                        .all()
+//                        .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())
+//                        .build());
+<span class="fc" id="L159">        psSelectByVideoId = cqlSession.prepare(</span>
+<span class="fc" id="L160">                QueryBuilder.selectFrom(TABLE_VIDEOS)</span>
+<span class="fc" id="L161">                        .all()</span>
+<span class="fc" id="L162">                        .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())</span>
+<span class="fc" id="L163">                        .allowFiltering() // Add ALLOW FILTERING here</span>
+<span class="fc" id="L164">                        .build());</span>
+
+<span class="fc" id="L166">        psDeleteVideo = cqlSession.prepare(</span>
+<span class="fc" id="L167">                QueryBuilder.deleteFrom(TABLE_VIDEOS)</span>
+<span class="fc" id="L168">                .whereColumn(USER_ID).isEqualTo(QueryBuilder.bindMarker())</span>
+<span class="fc" id="L169">                .whereColumn(VIDEO_ID).isEqualTo(QueryBuilder.bindMarker())</span>
+<span class="fc" id="L170">                .build());</span>
+
+<span class="fc" id="L172">        psDeleteUserVideo = cqlSession.prepare(</span>
+<span class="fc" id="L173">                QueryBuilder.deleteFrom(TABLE_VIDEOS)</span>
+<span class="fc" id="L174">                .whereColumn(USER_ID).isEqualTo(QueryBuilder.bindMarker())</span>
+<span class="fc" id="L175">                .build());</span>
+<span class="fc" id="L176">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

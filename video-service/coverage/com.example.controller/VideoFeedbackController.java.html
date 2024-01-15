@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VideoFeedbackController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example.controller</a> &gt; <span class="el_source">VideoFeedbackController.java</span></div><h1>VideoFeedbackController.java</h1><pre class="source lang-java linenums">package com.example.controller;
+
+import com.example.dto.VideoFeedbackDTO;
+import com.example.service.VideoFeedbackService;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.validation.Validated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Validated
+@Controller(&quot;/api/v1&quot;)
+public class VideoFeedbackController {
+<span class="fc" id="L19">    private static final Logger LOGGER = LoggerFactory.getLogger(VideoFeedbackController.class);</span>
+
+    private final VideoFeedbackService feedbackService;
+
+<span class="fc" id="L23">    public VideoFeedbackController(VideoFeedbackService feedbackService) {</span>
+<span class="fc" id="L24">        this.feedbackService = feedbackService;</span>
+<span class="fc" id="L25">    }</span>
+
+    // Endpoint for liking a video
+    @Post(value = &quot;/users/{userId}/videos/{videoId}/like&quot;)
+    public HttpResponse&lt;VideoFeedbackDTO&gt; like(
+            @PathVariable(value = &quot;userId&quot;) String userId,
+            @PathVariable(value = &quot;videoId&quot;) String videoId) {
+<span class="fc" id="L32">        LOGGER.info(&quot;User ID: {} liking video ID: {}&quot;, userId, videoId);</span>
+<span class="fc" id="L33">        Optional&lt;VideoFeedbackDTO&gt; saved = feedbackService.submitFeedback(userId, UUID.fromString(videoId), true);</span>
+
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (saved.isEmpty()) {</span>
+<span class="fc" id="L36">            LOGGER.info(&quot;Video ID: {} not found for like operation&quot;, videoId);</span>
+<span class="fc" id="L37">            return HttpResponse.notFound();</span>
+        }
+
+<span class="fc" id="L40">        return HttpResponse.ok(saved.get());</span>
+    }
+
+    // Endpoint for disliking a video
+    @Post(value = &quot;/users/{userId}/videos/{videoId}/dislike&quot;)
+    public HttpResponse&lt;VideoFeedbackDTO&gt; dislike(
+            @PathVariable(value = &quot;userId&quot;) String userId,
+            @PathVariable(value = &quot;videoId&quot;) String videoId) {
+<span class="fc" id="L48">        LOGGER.info(&quot;User ID: {} disliking video ID: {}&quot;, userId, videoId);</span>
+<span class="fc" id="L49">        Optional&lt;VideoFeedbackDTO&gt; saved = feedbackService.submitFeedback(userId, UUID.fromString(videoId), false);</span>
+
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (saved.isEmpty()) {</span>
+<span class="fc" id="L52">            LOGGER.info(&quot;Video ID: {} not found for dislike operation&quot;, videoId);</span>
+<span class="fc" id="L53">            return HttpResponse.notFound();</span>
+        }
+
+<span class="fc" id="L56">        return HttpResponse.ok(saved.get());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

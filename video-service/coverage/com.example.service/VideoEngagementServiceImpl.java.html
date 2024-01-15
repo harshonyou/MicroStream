@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VideoEngagementServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example.service</a> &gt; <span class="el_source">VideoEngagementServiceImpl.java</span></div><h1>VideoEngagementServiceImpl.java</h1><pre class="source lang-java linenums">package com.example.service;
+
+import com.example.dto.VideoDTO;
+import com.example.producer.VideoEngagementEventClient;
+import com.example.dto.VideoEngagementDTO;
+import com.example.dto.VideoEngagementEventDTO;
+import com.example.mapper.VideoEngagementMapper;
+import com.example.model.UserEngagement;
+import com.example.repository.CassandraVideoEngagementRepository;
+import com.example.repository.VideoEngagementRepository;
+import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.example.mapper.VideoEngagementMapper.fromDto;
+import static com.example.mapper.VideoEngagementMapper.fromEntity;
+
+@Singleton
+public class VideoEngagementServiceImpl implements VideoEngagementService {
+
+<span class="fc" id="L25">    private static final Logger LOGGER = LoggerFactory.getLogger(VideoEngagementServiceImpl.class);</span>
+
+    private final VideoService videoService;
+
+    private final VideoEngagementRepository engagementRepository;
+    private final VideoEngagementEventClient eventClient;
+
+<span class="fc" id="L32">    public VideoEngagementServiceImpl(VideoServiceImpl videoService,CassandraVideoEngagementRepository engagementRepository, VideoEngagementEventClient eventClient) {</span>
+<span class="fc" id="L33">        this.engagementRepository = engagementRepository;</span>
+<span class="fc" id="L34">        this.videoService = videoService;</span>
+<span class="fc" id="L35">        this.eventClient = eventClient;</span>
+<span class="fc" id="L36">    }</span>
+
+    // Marks a video as watched and notifies via event client
+    @Override
+    public Optional&lt;VideoEngagementDTO&gt; markVideoWatched(VideoEngagementDTO videoEngagementDTO) {
+<span class="fc" id="L41">        LOGGER.info(&quot;Marking video ID: {} as watched by user ID: {}&quot;, videoEngagementDTO.getVideoId(), videoEngagementDTO.getUserId());</span>
+<span class="fc" id="L42">        Optional&lt;VideoDTO&gt; videoDTO = videoService.search(videoEngagementDTO.getVideoId());</span>
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if(videoDTO.isEmpty()) {</span>
+<span class="fc" id="L45">            LOGGER.info(&quot;Video ID: {} not found&quot;, videoEngagementDTO.getVideoId());</span>
+<span class="fc" id="L46">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L49">        videoEngagementDTO = fromEntity(engagementRepository.save(fromDto(videoEngagementDTO)));</span>
+
+<span class="fc" id="L51">        eventClient.notifyOnVideoWatched(</span>
+<span class="fc" id="L52">                videoEngagementDTO.getUserId(),</span>
+                new VideoEngagementEventDTO(
+<span class="fc" id="L54">                        videoEngagementDTO.getUserId(),</span>
+<span class="fc" id="L55">                        videoEngagementDTO.getVideoId(),</span>
+<span class="fc" id="L56">                        videoEngagementDTO.getWatchedTime()</span>
+                )
+        );
+
+<span class="fc" id="L60">        return Optional.of(videoEngagementDTO);</span>
+    }
+
+    // Finds the watch status of a video for a user
+    @Override
+    public Optional&lt;VideoEngagementDTO&gt; findWatchStatus(String userId, UUID videoId) {
+<span class="fc" id="L66">        LOGGER.info(&quot;Fetching watch status for video ID: {} and user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L67">        Optional&lt;UserEngagement&gt; userVideoWatch = engagementRepository.findById(userId, videoId);</span>
+
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if(userVideoWatch.isEmpty()) {</span>
+<span class="fc" id="L70">            LOGGER.info(&quot;Watch status not found for video ID: {} and user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L71">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L74">        return Optional.of(fromEntity(userVideoWatch.get()));</span>
+    }
+
+    // Finds the watch history for a user
+    @Override
+    public List&lt;VideoEngagementDTO&gt; findWatchHistory(String userId) {
+<span class="fc" id="L80">        LOGGER.info(&quot;Fetching watch history for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L81">        return engagementRepository</span>
+<span class="fc" id="L82">                .findByUser(userId)</span>
+<span class="fc" id="L83">                .stream()</span>
+<span class="fc" id="L84">                .map(VideoEngagementMapper::fromEntity)</span>
+<span class="fc" id="L85">                .toList();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VideoTagController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example.controller</a> &gt; <span class="el_source">VideoTagController.java</span></div><h1>VideoTagController.java</h1><pre class="source lang-java linenums">package com.example.controller;
+
+import com.example.dto.VideoTagDTO;
+import com.example.service.VideoTagService;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.validation.Validated;
+import jakarta.validation.constraints.NotEmpty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+@Validated
+@Controller(&quot;/api/v1&quot;)
+public class VideoTagController {
+
+<span class="fc" id="L20">    private static final Logger LOGGER = LoggerFactory.getLogger(VideoTagController.class);</span>
+
+    private final VideoTagService tagService;
+
+<span class="fc" id="L24">    public VideoTagController(VideoTagService tagService) {</span>
+<span class="fc" id="L25">        this.tagService = tagService;</span>
+<span class="fc" id="L26">    }</span>
+
+    // Endpoint to find videos by a specific tag
+    @Get(value = &quot;/videos/tags/{tagName}/&quot;)
+    public HttpResponse&lt;Iterable&lt;VideoTagDTO&gt;&gt; findByTag(
+            @PathVariable(value = &quot;tagName&quot;) @NotEmpty String tagName) {
+<span class="fc" id="L32">        LOGGER.info(&quot;Fetching videos for tag: {}&quot;, tagName);</span>
+<span class="fc" id="L33">        List&lt;VideoTagDTO&gt; videos = tagService.searchVideos(tagName);</span>
+
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if(videos.isEmpty()) {</span>
+<span class="fc" id="L36">            LOGGER.info(&quot;No videos found for tag: {}&quot;, tagName);</span>
+<span class="fc" id="L37">            return HttpResponse.notFound();</span>
+        }
+
+<span class="fc" id="L40">        return HttpResponse.ok(videos);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

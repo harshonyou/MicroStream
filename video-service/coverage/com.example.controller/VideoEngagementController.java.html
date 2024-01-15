@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VideoEngagementController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example.controller</a> &gt; <span class="el_source">VideoEngagementController.java</span></div><h1>VideoEngagementController.java</h1><pre class="source lang-java linenums">package com.example.controller;
+
+import com.example.dto.VideoEngagementDTO;
+import com.example.service.VideoEngagementService;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.validation.Validated;
+import jakarta.validation.constraints.NotEmpty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Validated
+@Controller(&quot;/api/v1&quot;)
+public class VideoEngagementController {
+
+<span class="fc" id="L22">    private static final Logger LOGGER = LoggerFactory.getLogger(VideoEngagementController.class);</span>
+
+    private final VideoEngagementService engagementService;
+
+<span class="fc" id="L26">    public VideoEngagementController(VideoEngagementService engagementService) {</span>
+<span class="fc" id="L27">        this.engagementService = engagementService;</span>
+<span class="fc" id="L28">    }</span>
+
+    // Endpoint to mark a video as watched by a user
+    @Post(value = &quot;/users/{userId}/videos/{videoId}/watch&quot;)
+    public HttpResponse&lt;VideoEngagementDTO&gt; watch(
+            @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId,
+            @PathVariable(value = &quot;videoId&quot;) @NotEmpty String videoId) {
+<span class="fc" id="L35">        LOGGER.info(&quot;Marking video ID: {} as watched by user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L36">        VideoEngagementDTO uvw = new VideoEngagementDTO();</span>
+<span class="fc" id="L37">        uvw.setUserId(userId);</span>
+<span class="fc" id="L38">        uvw.setVideoId(UUID.fromString(videoId));</span>
+<span class="fc" id="L39">        Optional&lt;VideoEngagementDTO&gt; saved = engagementService.markVideoWatched(uvw);</span>
+
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (saved.isEmpty()) {</span>
+<span class="fc" id="L42">            LOGGER.info(&quot;Video ID: {} not found for user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L43">            return HttpResponse.notFound();</span>
+        }
+
+<span class="fc" id="L46">        return HttpResponse.ok(saved.get());</span>
+    }
+
+    // Endpoint to get watch status of a video for a user
+    @Get(value = &quot;/users/{userId}/videos/{videoId}/watch&quot;)
+    public HttpResponse&lt;VideoEngagementDTO&gt; getWatch(
+            @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId,
+            @PathVariable(value = &quot;videoId&quot;) @NotEmpty String videoId) {
+<span class="fc" id="L54">        LOGGER.info(&quot;Fetching watch status for video ID: {} and user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L55">        Optional&lt;VideoEngagementDTO&gt; uvw = engagementService.findWatchStatus(userId, UUID.fromString(videoId));</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (uvw.isEmpty()) {</span>
+<span class="fc" id="L58">            LOGGER.info(&quot;Watch status not found for video ID: {} and user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L59">            return HttpResponse.notFound();</span>
+        }
+
+<span class="fc" id="L62">        return HttpResponse.ok(uvw.get());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

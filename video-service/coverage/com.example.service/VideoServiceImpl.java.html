@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VideoServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example.service</a> &gt; <span class="el_source">VideoServiceImpl.java</span></div><h1>VideoServiceImpl.java</h1><pre class="source lang-java linenums">package com.example.service;
+
+import com.example.dto.VideoCreationEventDTO;
+import com.example.dto.VideoDTO;
+import com.example.model.Video;
+import com.example.producer.VideoCreationEventClient;
+import com.example.repository.CassandraVideoRepository;
+import com.example.repository.VideoRepository;
+import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.example.mapper.VideoMapper.fromDto;
+import static com.example.mapper.VideoMapper.fromEntity;
+
+@Singleton
+public class VideoServiceImpl implements VideoService {
+
+<span class="fc" id="L23">    private static final Logger LOGGER = LoggerFactory.getLogger(VideoServiceImpl.class);</span>
+
+    private final VideoRepository videoRepository;
+    private final VideoTagService tagService;
+    private final VideoCreationEventClient eventClient;
+
+<span class="fc" id="L29">    public VideoServiceImpl(VideoTagService tagService, CassandraVideoRepository videoRepository, VideoCreationEventClient eventClient) {</span>
+<span class="fc" id="L30">        this.tagService = tagService;</span>
+<span class="fc" id="L31">        this.videoRepository = videoRepository;</span>
+<span class="fc" id="L32">        this.eventClient = eventClient;</span>
+<span class="fc" id="L33">    }</span>
+
+    // Posts a new video and triggers event
+    @Override
+    public VideoDTO post(VideoDTO videoDto) {
+<span class="fc" id="L38">        LOGGER.info(&quot;Posting video: {}&quot;, videoDto);</span>
+<span class="fc" id="L39">        videoDto = fromEntity(videoRepository.save(fromDto(videoDto)), videoDto.getUserId());</span>
+
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if(videoDto.getTags() != null) {</span>
+<span class="fc" id="L42">            tagService.tagVideo(videoDto.getTags(), videoDto.getVideoId());</span>
+        }
+
+<span class="fc" id="L45">        eventClient.notifyOnNewVideoPosted(</span>
+<span class="fc" id="L46">                videoDto.getUserId(),</span>
+                new VideoCreationEventDTO(
+<span class="fc" id="L48">                        videoDto.getUserId(),</span>
+<span class="fc" id="L49">                        videoDto.getVideoId(),</span>
+<span class="fc" id="L50">                        videoDto.getTitle(),</span>
+<span class="fc" id="L51">                        videoDto.getTags()</span>
+                )
+        );
+
+<span class="fc" id="L55">        return videoDto;</span>
+    }
+
+    // Searches for a specific video by ID
+    @Override
+    public Optional&lt;VideoDTO&gt; search(UUID videoId) {
+<span class="fc" id="L61">        LOGGER.info(&quot;Searching for video with ID: {}&quot;, videoId);</span>
+<span class="fc" id="L62">        Optional&lt;Video&gt; video = videoRepository.findByVideoId(videoId);</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if(video.isEmpty()) {</span>
+<span class="fc" id="L65">            LOGGER.info(&quot;Video with ID: {} not found&quot;, videoId);</span>
+<span class="fc" id="L66">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L69">        return Optional.of(fromEntity(video.get(), video.get().getUserId()));</span>
+    }
+
+    // Fetches a specific video by user ID and video ID
+    @Override
+    public Optional&lt;VideoDTO&gt; fetch(String userId, UUID videoId) {
+<span class="fc" id="L75">        LOGGER.info(&quot;Fetching video with ID: {} for user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L76">        Optional&lt;Video&gt; video = videoRepository.findById(userId, videoId);</span>
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if(video.isEmpty()) {</span>
+<span class="fc" id="L79">            LOGGER.info(&quot;Video with ID: {} not found for user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L80">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L83">        return Optional.of(fromEntity(video.get(), userId));</span>
+    }
+
+    // Retrieves all posts by a specific user
+    @Override
+    public List&lt;VideoDTO&gt; getUserPosts(String userId) {
+<span class="fc" id="L89">        LOGGER.info(&quot;Retrieving all posts for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L90">        return videoRepository</span>
+<span class="fc" id="L91">                .findByUser(userId)</span>
+<span class="fc" id="L92">                .stream()</span>
+<span class="fc" id="L93">                .map(video -&gt; fromEntity(video, userId))</span>
+<span class="fc" id="L94">                .toList();</span>
+    }
+
+    // Removes a specific video by user ID and video ID
+    @Override
+    public void remove(String userId, UUID videoId) {
+<span class="fc" id="L100">        LOGGER.info(&quot;Removing video with ID: {} for user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L101">        videoRepository.deleteById(userId, videoId);</span>
+<span class="fc" id="L102">    }</span>
+
+    // Removes all posts by a specific user
+    @Override
+    public void removeUserPosts(String userId) {
+<span class="fc" id="L107">        LOGGER.info(&quot;Removing all posts for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L108">        videoRepository.deleteByUser(userId);</span>
+<span class="fc" id="L109">    }</span>
+
+    // Removes all video posts from the repository
+    @Override
+    public void removeAllPosts() {
+<span class="fc" id="L114">        LOGGER.info(&quot;Removing all video posts&quot;);</span>
+<span class="fc" id="L115">        videoRepository.deleteAll();</span>
+<span class="fc" id="L116">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

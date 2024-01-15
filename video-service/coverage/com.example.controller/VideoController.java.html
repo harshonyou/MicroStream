@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VideoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example.controller</a> &gt; <span class="el_source">VideoController.java</span></div><h1>VideoController.java</h1><pre class="source lang-java linenums">package com.example.controller;
+
+import com.example.dto.VideoDTO;
+import com.example.service.VideoService;
+import com.example.util.ForTesting;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.*;
+import io.micronaut.validation.Validated;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Validated
+@Controller(&quot;/api/v1&quot;)
+public class VideoController {
+
+<span class="fc" id="L22">    private static final Logger LOGGER = LoggerFactory.getLogger(VideoController.class);</span>
+
+    private final VideoService videoService;
+
+<span class="fc" id="L26">    public VideoController(VideoService videoService) {</span>
+<span class="fc" id="L27">        this.videoService = videoService;</span>
+<span class="fc" id="L28">    }</span>
+
+    // Endpoint to find all videos by a user
+    @Get(value = &quot;/users/{userId}/videos/&quot;)
+    public HttpResponse&lt;Iterable&lt;VideoDTO&gt;&gt; findAllByUser(
+            @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId) {
+<span class="fc" id="L34">        LOGGER.info(&quot;Fetching all videos for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L35">        List&lt;VideoDTO&gt; videos = videoService.getUserPosts(userId);</span>
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if(videos.isEmpty()) {</span>
+<span class="fc" id="L38">            LOGGER.info(&quot;No videos found for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L39">            return HttpResponse.notFound();</span>
+        }
+
+<span class="fc" id="L42">        return HttpResponse.ok(videos);</span>
+    }
+
+    // Endpoint to find a specific video by ID
+    @Get(value = &quot;/users/{userId}/videos/{videoId}&quot;)
+    public HttpResponse&lt;VideoDTO&gt; findById(
+            @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId,
+            @PathVariable(value = &quot;videoId&quot;) @NotEmpty String videoId) {
+<span class="fc" id="L50">        LOGGER.info(&quot;Fetching video with ID: {} for user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L51">        Optional&lt;VideoDTO&gt; e = videoService.fetch(userId, UUID.fromString(videoId));</span>
+
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (e.isEmpty()) {</span>
+<span class="fc" id="L54">            LOGGER.info(&quot;Video with ID: {} not found for user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L55">            return HttpResponse.notFound();</span>
+        }
+
+<span class="fc" id="L58">        return HttpResponse.ok(e.get());</span>
+    }
+
+    // Endpoint to create a new video
+    @Post(value = &quot;/users/{userId}/videos/&quot;)
+    public HttpResponse&lt;VideoDTO&gt; create(
+            @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId,
+            @Body @NotNull VideoDTO video) {
+<span class="fc" id="L66">        LOGGER.info(&quot;Creating new video for user ID: {}&quot;, userId);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if(video.getVideoId() != null) {</span>
+<span class="fc" id="L68">            Optional&lt;VideoDTO&gt; e = videoService.fetch(userId, video.getVideoId());</span>
+
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            if (e.isPresent()) {</span>
+<span class="fc" id="L71">                LOGGER.info(&quot;Video with ID: {} already exists for user ID: {}&quot;, video.getVideoId(), userId);</span>
+<span class="fc" id="L72">                return HttpResponse.badRequest();</span>
+            }
+        }
+
+<span class="fc" id="L76">        video.setUserId(userId);</span>
+<span class="fc" id="L77">        video = videoService.post(video);</span>
+<span class="fc" id="L78">        return HttpResponse.created(video);</span>
+    }
+
+    // Deprecated endpoint to update a video
+    @Deprecated
+    @Patch(value = &quot;/users/{userId}/videos/{videoId}&quot;)
+    public HttpResponse&lt;VideoDTO&gt; update(
+            @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId,
+            @PathVariable(value = &quot;videoId&quot;) @NotEmpty String videoId,
+            @Body @NotNull VideoDTO video) {
+<span class="fc" id="L88">        LOGGER.info(&quot;Updating video with ID: {} for user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L89">        Optional&lt;VideoDTO&gt; e = videoService.fetch(userId, UUID.fromString(videoId));</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (e.isEmpty()) return HttpResponse.notFound();</span>
+<span class="fc" id="L91">        video.setUserId(userId);</span>
+<span class="fc" id="L92">        video.setVideoId(UUID.fromString(videoId));</span>
+<span class="fc" id="L93">        video = videoService.post(video);</span>
+<span class="fc" id="L94">        return HttpResponse.ok(video);</span>
+    }
+
+    // Endpoint to delete all videos by a user (for testing)
+    @ForTesting
+    @Delete(value = &quot;/users/{userId}/videos/&quot;)
+    public HttpResponse&lt;Void&gt; deleteAllByUser(
+            @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId) {
+<span class="fc" id="L102">        LOGGER.info(&quot;Deleting all videos for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L103">        videoService.removeUserPosts(userId);</span>
+<span class="fc" id="L104">        return HttpResponse.noContent();</span>
+    }
+
+    // Endpoint to delete a specific video by ID (for testing)
+    @ForTesting
+    @Delete(value = &quot;/users/{userId}/videos/{videoId}&quot;)
+    public HttpResponse&lt;Void&gt; deleteById(
+            @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId,
+            @PathVariable(value = &quot;videoId&quot;) @NotEmpty String videoId) {
+<span class="fc" id="L113">        LOGGER.info(&quot;Deleting video with ID: {} for user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L114">        Optional&lt;VideoDTO&gt; e = videoService.fetch(userId, UUID.fromString(videoId));</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (e.isEmpty()) return HttpResponse.notFound();</span>
+<span class="fc" id="L116">        videoService.remove(userId, UUID.fromString(videoId));</span>
+<span class="fc" id="L117">        return HttpResponse.noContent();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

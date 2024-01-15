@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VideoFeedbackServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">video-service</a> &gt; <a href="index.source.html" class="el_package">com.example.service</a> &gt; <span class="el_source">VideoFeedbackServiceImpl.java</span></div><h1>VideoFeedbackServiceImpl.java</h1><pre class="source lang-java linenums">package com.example.service;
+
+import com.example.dto.VideoDTO;
+import com.example.dto.VideoFeedbackDTO;
+import com.example.producer.VideoFeedbackEventClient;
+import com.example.dto.VideoFeedbackEventDTO;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Singleton
+public class VideoFeedbackServiceImpl implements VideoFeedbackService {
+
+<span class="fc" id="L18">    private static final Logger LOGGER = LoggerFactory.getLogger(VideoFeedbackServiceImpl.class);</span>
+
+    private final VideoService videoService;
+    private final VideoFeedbackEventClient eventClient;
+
+    @Inject
+    private VideoTagService tagService;
+
+<span class="fc" id="L26">    public VideoFeedbackServiceImpl(VideoServiceImpl videoService, VideoFeedbackEventClient eventClient) {</span>
+<span class="fc" id="L27">        this.videoService = videoService;</span>
+<span class="fc" id="L28">        this.eventClient = eventClient;</span>
+<span class="fc" id="L29">    }</span>
+
+    // Submits feedback (like/dislike) for a video
+    @Override
+    public Optional&lt;VideoFeedbackDTO&gt; submitFeedback(String userId, UUID videoId, boolean likeStatus) {
+<span class="fc" id="L34">        LOGGER.info(&quot;Submitting feedback for video ID: {} by user ID: {}&quot;, videoId, userId);</span>
+<span class="fc" id="L35">        Optional&lt;VideoDTO&gt; videoDTO = videoService.search(videoId);</span>
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if(videoDTO.isEmpty()) {</span>
+<span class="fc" id="L38">            LOGGER.info(&quot;Video ID: {} not found&quot;, videoId);</span>
+<span class="fc" id="L39">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L42">        eventClient.notifyOnLikeDislike(</span>
+                userId,
+                new VideoFeedbackEventDTO(
+                        userId,
+                        videoId,
+<span class="fc" id="L47">                        videoDTO.get().getTags(),</span>
+                        likeStatus
+                )
+        );
+
+<span class="fc" id="L52">        return Optional.of(new VideoFeedbackDTO(userId, videoId, likeStatus));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
