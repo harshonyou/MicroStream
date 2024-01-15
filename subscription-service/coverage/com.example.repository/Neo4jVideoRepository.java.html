@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Neo4jVideoRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">subscription-service</a> &gt; <a href="index.source.html" class="el_package">com.example.repository</a> &gt; <span class="el_source">Neo4jVideoRepository.java</span></div><h1>Neo4jVideoRepository.java</h1><pre class="source lang-java linenums">package com.example.repository;
+
+import com.example.dto.RecommendedVideoDTO;
+import com.example.model.Tag;
+import com.example.model.User;
+import com.example.model.Video;
+import jakarta.inject.Singleton;
+import org.neo4j.driver.*;
+
+import java.util.*;
+
+@Singleton
+public class Neo4jVideoRepository implements VideoRepository {
+    private final Driver driver;
+
+<span class="fc" id="L16">    Neo4jVideoRepository(Driver driver) {</span>
+<span class="fc" id="L17">        this.driver = driver;</span>
+<span class="fc" id="L18">    }</span>
+
+    @Override
+    public void postVideo(String userId, Video video, Set&lt;Tag&gt; tags) {
+<span class="fc" id="L22">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L23">            session.writeTransaction(tx -&gt; postVideo(tx, userId, video, tags));</span>
+        }
+<span class="fc" id="L25">    }</span>
+
+    public Void postVideo(Transaction tx, String userId, Video video, Set&lt;Tag&gt; tags) {
+<span class="fc" id="L28">        String createVideoQuery =   &quot;&quot;&quot;</span>
+                                    CREATE (v:Video {id: $id, title: $title, views: $views})
+                                    &quot;&quot;&quot;;
+<span class="fc" id="L31">        tx.run(createVideoQuery, org.neo4j.driver.Values.parameters(</span>
+<span class="fc" id="L32">                &quot;id&quot;, video.getId().toString(),</span>
+<span class="fc" id="L33">                &quot;title&quot;, video.getTitle(),</span>
+<span class="fc" id="L34">                &quot;views&quot;, video.getViews()));</span>
+
+<span class="fc" id="L36">        String relateUserToVideoQuery =     &quot;&quot;&quot;</span>
+                                            MATCH (u:User {id: $userId}), (v:Video {id: $videoId})
+                                            CREATE (u)-[:POSTS]-&gt;(v)
+                                            &quot;&quot;&quot;;
+<span class="fc" id="L40">        tx.run(relateUserToVideoQuery, org.neo4j.driver.Values.parameters(</span>
+                &quot;userId&quot;, userId,
+<span class="fc" id="L42">                &quot;videoId&quot;, video.getId().toString()));</span>
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        for (Tag tag : tags) {</span>
+<span class="fc" id="L45">            String relateVideoToTagQuery =  &quot;&quot;&quot;</span>
+                                            MATCH (v:Video {id: $videoId}), (t:Tag {name: $tagName})
+                                            MERGE (v)-[:CONTAINS]-&gt;(t)
+                                            &quot;&quot;&quot;;
+<span class="fc" id="L49">            tx.run(relateVideoToTagQuery, org.neo4j.driver.Values.parameters(</span>
+<span class="fc" id="L50">                    &quot;videoId&quot;, video.getId().toString(),</span>
+<span class="fc" id="L51">                    &quot;tagName&quot;, tag.getName()));</span>
+<span class="fc" id="L52">        }</span>
+<span class="fc" id="L53">        return null;</span>
+    }
+
+    @Override
+    public void likeVideo(UUID videoId, String userId) {
+<span class="fc" id="L58">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L59">            session.writeTransaction(tx -&gt; likeVideo(tx, videoId, userId));</span>
+        }
+<span class="fc" id="L61">    }</span>
+
+    private Void likeVideo(Transaction tx, UUID videoId, String userId) {
+<span class="fc" id="L64">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (u:User {id: $userId}), (v:Video {id: $videoId})
+                        MERGE (u)-[:LIKES]-&gt;(v)
+                        &quot;&quot;&quot;;
+
+<span class="fc" id="L69">        tx.run(query, org.neo4j.driver.Values.parameters(</span>
+                &quot;userId&quot;, userId,
+<span class="fc" id="L71">                &quot;videoId&quot;, videoId.toString()));</span>
+<span class="fc" id="L72">        return null;</span>
+    }
+
+    @Override
+    public boolean isLiked(UUID videoId, String userId) {
+<span class="fc" id="L77">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L78">            return session.readTransaction(tx -&gt; likeExists(tx, videoId, userId));</span>
+        }
+    }
+
+    private boolean likeExists(Transaction tx, UUID videoId, String userId) {
+<span class="fc" id="L83">        String query =  &quot;&quot;&quot;</span>
+                    MATCH (u:User {id: $userId})-[:LIKES]-&gt;(v:Video {id: $videoId})
+                    RETURN EXISTS( (u)-[:LIKES]-&gt;(v) ) AS likeExists
+                    &quot;&quot;&quot;;
+
+<span class="fc" id="L88">        var result = tx.run(query, org.neo4j.driver.Values.parameters(</span>
+                &quot;userId&quot;, userId,
+<span class="fc" id="L90">                &quot;videoId&quot;, videoId.toString()));</span>
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (result.hasNext()) {</span>
+<span class="fc" id="L93">            return result.next().get(&quot;likeExists&quot;).asBoolean();</span>
+        }
+
+<span class="fc" id="L96">        return false;</span>
+    }
+
+    @Override
+    public void dislikeVideo(UUID videoId, String userId) {
+<span class="fc" id="L101">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L102">            session.writeTransaction(tx -&gt; removeLike(tx, videoId, userId));</span>
+        }
+<span class="fc" id="L104">    }</span>
+
+    private Void removeLike(Transaction tx, UUID videoId, String userId) {
+<span class="fc" id="L107">        String query =  &quot;&quot;&quot;</span>
+                    MATCH (u:User {id: $userId})-[r:LIKES]-&gt;(v:Video {id: $videoId})
+                    DELETE r
+                    &quot;&quot;&quot;;
+
+<span class="fc" id="L112">        tx.run(query, org.neo4j.driver.Values.parameters(</span>
+                &quot;userId&quot;, userId,
+<span class="fc" id="L114">                &quot;videoId&quot;, videoId.toString()));</span>
+<span class="fc" id="L115">        return null;</span>
+    }
+
+    @Override
+    public void incrementVideoViews(UUID videoId) {
+<span class="fc" id="L120">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L121">            session.writeTransaction(tx -&gt; incrementVideoViews(tx, videoId));</span>
+        }
+<span class="fc" id="L123">    }</span>
+
+    private Void incrementVideoViews(Transaction tx, UUID videoId) {
+<span class="fc" id="L126">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (v:Video {id: $videoId})
+                        SET v.views = coalesce(v.views, 0) + 1
+                        &quot;&quot;&quot;;
+
+<span class="fc" id="L131">        tx.run(query, org.neo4j.driver.Values.parameters(</span>
+<span class="fc" id="L132">                &quot;videoId&quot;, videoId.toString()));</span>
+<span class="fc" id="L133">        return null;</span>
+    }
+
+    @Override
+    public void watchVideo(UUID videoId, String userId) {
+<span class="fc" id="L138">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L139">            session.writeTransaction(tx -&gt; watchVideo(tx, videoId, userId));</span>
+        }
+<span class="fc" id="L141">    }</span>
+
+    private Void watchVideo(Transaction tx, UUID videoId, String userId) {
+<span class="fc" id="L144">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (u:User {id: $userId}), (v:Video {id: $videoId})
+                        MERGE (u)-[:WATCHES]-&gt;(v)
+                        &quot;&quot;&quot;;
+
+<span class="fc" id="L149">        tx.run(query, org.neo4j.driver.Values.parameters(</span>
+                &quot;userId&quot;, userId,
+<span class="fc" id="L151">                &quot;videoId&quot;, videoId.toString()));</span>
+<span class="fc" id="L152">        return null;</span>
+    }
+
+    @Override
+    public List&lt;RecommendedVideoDTO&gt; getUserTimeline(String userId) {
+<span class="fc" id="L157">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L158">            return session.readTransaction(tx -&gt; getUserTimeline(tx, userId));</span>
+        }
+    }
+
+    private List&lt;RecommendedVideoDTO&gt; getUserTimeline(Transaction tx, String userId) {
+<span class="fc" id="L163">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (user:User {id: $userId})-[:SUBSCRIBES_TO]-&gt;(subscribedTag:Tag)
+                        WITH user, COLLECT(subscribedTag) AS subscribedTags
+                        OPTIONAL MATCH (user)-[:LIKES]-&gt;(:Video)-[:CONTAINS]-&gt;(likedTag:Tag)
+                        WITH user, subscribedTags, COLLECT(likedTag) AS likedTags
+                        WITH user, REDUCE(output = [], t IN (subscribedTags + likedTags) | output + t) AS allTags
+                        UNWIND allTags AS tag
+                        MATCH (tag)&lt;-[:CONTAINS]-(recommendedVideo:Video)
+                        WHERE NOT (user)-[:LIKES|WATCHES]-&gt;(recommendedVideo)
+                        WITH recommendedVideo, recommendedVideo.id AS Id, COLLECT(DISTINCT tag.name) AS Tags, recommendedVideo.views AS Views
+                        RETURN recommendedVideo.title AS RecommendedVideo, Id, Tags, Views
+                        ORDER BY SIZE(Tags) DESC, Views DESC
+                        LIMIT 10;
+                        &quot;&quot;&quot;;
+
+<span class="fc" id="L178">        var result = tx.run(query, org.neo4j.driver.Values.parameters(&quot;userId&quot;, userId));</span>
+<span class="fc" id="L179">        return getVideoRecommendationDTOS(result);</span>
+    }
+
+    @Override
+    public List&lt;RecommendedVideoDTO&gt; getUserRecommendations(String userId) {
+<span class="fc" id="L184">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L185">            return session.readTransaction(tx -&gt; getUserRecommendations(tx, userId));</span>
+        }
+    }
+
+    private List&lt;RecommendedVideoDTO&gt; getUserRecommendations(Transaction tx, String userId) {
+<span class="fc" id="L190">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (user:User {id: $userId})-[:SUBSCRIBES_TO]-&gt;(tag:Tag)&lt;-[:CONTAINS]-(recommendedVideo:Video)
+                        WHERE NOT (user)-[:LIKES|:WATCHES]-&gt;(recommendedVideo)
+                        WITH recommendedVideo, recommendedVideo.id AS Id, COLLECT(tag.name) AS Tags, recommendedVideo.views AS Views
+                        RETURN recommendedVideo.title AS RecommendedVideo, Id, Tags, Views
+                        ORDER BY SIZE(Tags) DESC, Views DESC
+                        LIMIT 10;
+                        &quot;&quot;&quot;;
+
+<span class="fc" id="L199">        var result = tx.run(query, org.neo4j.driver.Values.parameters(&quot;userId&quot;, userId));</span>
+<span class="fc" id="L200">        return getVideoRecommendationDTOS(result);</span>
+    }
+
+    @Override
+    public List&lt;RecommendedVideoDTO&gt; getUserRecommendationsByTag(String userId, String tagName) {
+<span class="fc" id="L205">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L206">            return session.readTransaction(tx -&gt; getUserRecommendationsByTag(tx, userId, tagName));</span>
+        }
+    }
+
+    private List&lt;RecommendedVideoDTO&gt; getUserRecommendationsByTag(Transaction tx, String userId, String tagName) {
+<span class="fc" id="L211">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (user:User {id: $userId})-[:LIKES|WATCHES]-&gt;(watchedVideo:Video)
+                        WITH COLLECT(watchedVideo) AS watchedVideos
+                        MATCH (tag:Tag {name: $tagName})&lt;-[:CONTAINS]-(recommendedVideo:Video)
+                        WHERE NONE(watchedVideo IN watchedVideos WHERE watchedVideo = recommendedVideo)
+                        WITH recommendedVideo, recommendedVideo.id AS Id, COLLECT(tag.name) AS Tags, recommendedVideo.views AS Views
+                        RETURN recommendedVideo.title AS RecommendedVideo, Id, Tags, Views
+                        ORDER BY Views DESC
+                        LIMIT 10;
+                        &quot;&quot;&quot;;
+
+<span class="fc" id="L222">        var result = tx.run(query, org.neo4j.driver.Values.parameters(&quot;userId&quot;, userId, &quot;tagName&quot;, tagName));</span>
+<span class="fc" id="L223">        return getVideoRecommendationDTOS(result);</span>
+    }
+
+    private List&lt;RecommendedVideoDTO&gt; getVideoRecommendationDTOS(Result result) {
+<span class="fc" id="L227">        List&lt;RecommendedVideoDTO&gt; recommendedVideos = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        while (result.hasNext()) {</span>
+<span class="fc" id="L230">            var record = result.next();</span>
+
+<span class="fc" id="L232">            UUID id = UUID.fromString(record.get(&quot;Id&quot;).asString());</span>
+<span class="fc" id="L233">            String title = record.get(&quot;RecommendedVideo&quot;).asString();</span>
+<span class="fc" id="L234">            Set&lt;String&gt; affinityTags = new HashSet&lt;&gt;(record.get(&quot;Tags&quot;).asList(Value::asString));</span>
+<span class="fc" id="L235">            long views = record.get(&quot;Views&quot;).asLong();</span>
+
+<span class="fc" id="L237">            recommendedVideos.add(new RecommendedVideoDTO(id, title, affinityTags, views));</span>
+<span class="fc" id="L238">        }</span>
+
+<span class="fc" id="L240">        return recommendedVideos;</span>
+    }
+
+    public Optional&lt;Video&gt; findById(UUID videoId) {
+<span class="fc" id="L244">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L245">            return session.readTransaction(tx -&gt; findById(tx, videoId));</span>
+        }
+    }
+
+    private Optional&lt;Video&gt; findById(Transaction tx, UUID videoId) {
+<span class="fc" id="L250">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (v:Video {id: $videoId})
+                        RETURN v
+                        &quot;&quot;&quot;;
+
+<span class="fc" id="L255">        var result = tx.run(query, org.neo4j.driver.Values.parameters(&quot;videoId&quot;, videoId.toString()));</span>
+
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        if (result.hasNext()) {</span>
+<span class="fc" id="L258">            var record = result.single();</span>
+<span class="fc" id="L259">            String title = record.get(&quot;v&quot;).get(&quot;title&quot;).asString();</span>
+<span class="fc" id="L260">            Long videoViews = record.get(&quot;v&quot;).get(&quot;views&quot;).asLong();</span>
+
+<span class="fc" id="L262">            return Optional.of(new Video(videoId, title, videoViews));</span>
+        } else {
+<span class="fc" id="L264">            return Optional.empty();</span>
+        }
+    }
+
+    public void deleteAll() {
+<span class="fc" id="L269">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L270">            session.writeTransaction(this::deleteAllVideos);</span>
+        }
+<span class="fc" id="L272">    }</span>
+
+    private Void deleteAllVideos(Transaction tx) {
+<span class="fc" id="L275">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (v:Video)
+                        DETACH DELETE v
+                        &quot;&quot;&quot;;
+<span class="fc" id="L279">        tx.run(query);</span>
+<span class="fc" id="L280">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

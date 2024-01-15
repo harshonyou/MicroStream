@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Neo4jUserRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">subscription-service</a> &gt; <a href="index.source.html" class="el_package">com.example.repository</a> &gt; <span class="el_source">Neo4jUserRepository.java</span></div><h1>Neo4jUserRepository.java</h1><pre class="source lang-java linenums">package com.example.repository;
+
+import com.example.model.User;
+import jakarta.inject.Singleton;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Transaction;
+
+import java.util.Optional;
+
+@Singleton
+public class Neo4jUserRepository implements UserRepository {
+    private final Driver driver;
+
+<span class="fc" id="L15">    Neo4jUserRepository(Driver driver) {</span>
+<span class="fc" id="L16">        this.driver = driver;</span>
+<span class="fc" id="L17">    }</span>
+
+    @Override
+    public Optional&lt;User&gt; findById(String userId) {
+<span class="fc" id="L21">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L22">            return session.readTransaction(tx -&gt; findById(tx, userId));</span>
+        }
+    }
+
+    private Optional&lt;User&gt; findById(Transaction tx, String userId) {
+<span class="fc" id="L27">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (u:User {id: $userId})
+                        RETURN u
+                        &quot;&quot;&quot;;
+
+<span class="fc" id="L32">        var result = tx.run(query, org.neo4j.driver.Values.parameters(&quot;userId&quot;, userId));</span>
+
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (result.hasNext()) {</span>
+<span class="fc" id="L35">            var record = result.single();</span>
+<span class="fc" id="L36">            String userName = record.get(&quot;u&quot;).get(&quot;name&quot;).asString();</span>
+<span class="fc" id="L37">            return Optional.of(new User(userId, userName));</span>
+        } else {
+<span class="fc" id="L39">            return Optional.empty();</span>
+        }
+    }
+
+    @Override
+    public void addUser(User user) {
+<span class="fc" id="L45">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L46">            session.writeTransaction(tx -&gt; createUser(tx, user));</span>
+        }
+<span class="fc" id="L48">    }</span>
+
+    private Void createUser(Transaction tx, User user) {
+<span class="fc" id="L51">        String query =  &quot;&quot;&quot;</span>
+                        CREATE (u:User {id: $userId, name: $name})
+                        &quot;&quot;&quot;;
+<span class="fc" id="L54">        tx.run(query, org.neo4j.driver.Values.parameters(</span>
+<span class="fc" id="L55">                &quot;userId&quot;, user.getId(),</span>
+<span class="fc" id="L56">                &quot;name&quot;, user.getName()));</span>
+
+<span class="fc" id="L58">        return null;</span>
+    }
+
+    public void deleteAll() {
+<span class="fc" id="L62">        try (Session session = driver.session()) {</span>
+<span class="fc" id="L63">            session.writeTransaction(this::deleteAllUsers);</span>
+        }
+<span class="fc" id="L65">    }</span>
+
+    private Void deleteAllUsers(Transaction tx) {
+<span class="fc" id="L68">        String query =  &quot;&quot;&quot;</span>
+                        MATCH (u:User)
+                        DETACH DELETE u
+                        &quot;&quot;&quot;;
+<span class="fc" id="L72">        tx.run(query);</span>
+<span class="fc" id="L73">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

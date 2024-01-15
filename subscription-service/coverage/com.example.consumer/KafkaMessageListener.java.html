@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KafkaMessageListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">subscription-service</a> &gt; <a href="index.source.html" class="el_package">com.example.consumer</a> &gt; <span class="el_source">KafkaMessageListener.java</span></div><h1>KafkaMessageListener.java</h1><pre class="source lang-java linenums">package com.example.consumer;
+
+import com.example.dto.*;
+import com.example.service.TagService;
+import com.example.service.UserService;
+import com.example.service.VideoService;
+import io.micronaut.configuration.kafka.annotation.KafkaKey;
+import io.micronaut.configuration.kafka.annotation.KafkaListener;
+import io.micronaut.configuration.kafka.annotation.OffsetReset;
+import io.micronaut.configuration.kafka.annotation.Topic;
+import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Set;
+
+@KafkaListener(groupId = &quot;sm-server&quot;, offsetReset = OffsetReset.EARLIEST)
+<span class="fc" id="L18">public class KafkaMessageListener {</span>
+<span class="fc" id="L19">    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaMessageListener.class);</span>
+
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private VideoService videoService;
+
+    @Inject
+    private TagService tagService;
+
+
+    // Handles the creation of new videos
+    @Topic(&quot;video-creation-events&quot;)
+    public void handleVideoCreationEvents(@KafkaKey String key,
+            VideoCreationEventDTO event) {
+<span class="fc" id="L35">        LOGGER.info(&quot;Handling video creation event for video ID: {}&quot;, event.getVideoId());</span>
+<span class="fc" id="L36">        userService.addUser(event.getUserId(), event.getUserId());</span>
+<span class="fc" id="L37">        tagService.addTags(event.getTags());</span>
+
+<span class="fc" id="L39">        VideoDTO video = new VideoDTO();</span>
+<span class="fc" id="L40">        video.setId(event.getVideoId());</span>
+<span class="fc" id="L41">        video.setTitle(event.getTitle());</span>
+<span class="fc" id="L42">        video.setViews(0L);</span>
+
+<span class="fc" id="L44">        Set&lt;TagDTO&gt; tags = event.getTags().stream().map(TagDTO::new).collect(java.util.stream.Collectors.toSet());</span>
+
+<span class="fc" id="L46">        videoService.postVideo(event.getUserId(), video, tags);</span>
+<span class="fc" id="L47">    }</span>
+
+    // Handles engagement events like views
+    @Topic(&quot;video-engagement-events&quot;)
+    public void handleVideoEngagementEvents(@KafkaKey String key,
+                                            VideoEngagementEventDTO event) {
+<span class="fc" id="L53">        LOGGER.info(&quot;Handling video engagement event for video ID: {}&quot;, event.getVideoId());</span>
+<span class="fc" id="L54">        videoService.watchVideo(event.getVideoId(), event.getUserId());</span>
+<span class="fc" id="L55">    }</span>
+
+    // Handles feedback events like likes and dislikes
+    @Topic(&quot;video-feedback-events&quot;)
+    public void handleVideoFeedbackEvents(@KafkaKey String key,
+                                          VideoFeedbackEventDTO event) {
+<span class="fc" id="L61">        LOGGER.info(&quot;Handling video feedback event for video ID: {}&quot;, event.getVideoId());</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if(event.isLikeStatus()) {</span>
+<span class="fc" id="L63">            videoService.likeVideo(event.getVideoId(), event.getUserId());</span>
+        } else {
+<span class="fc" id="L65">            videoService.dislikeVideo(event.getVideoId(), event.getUserId());</span>
+        }
+<span class="fc" id="L67">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
