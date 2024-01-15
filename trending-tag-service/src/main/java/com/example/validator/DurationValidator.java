@@ -3,6 +3,8 @@ package com.example.validator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 public class DurationValidator {
+
+    // Regex pattern to match duration strings in the format of number followed by a 'd', 'h', or 'm'.
     private static final Pattern DURATION_PATTERN = Pattern.compile("(\\d+)([dhm])");
 
     public static boolean isValidDuration(String duration) {
@@ -37,6 +39,7 @@ public class DurationValidator {
 
     private static boolean isValidValueForUnit(int value, char unit) {
         int maxDays = 365, maxHours = 23, maxMinutes = 59;
+
         return switch (unit) {
             case 'd' -> value >= 0 && value <= maxDays;
             case 'h' -> value >= 0 && value <= maxHours;

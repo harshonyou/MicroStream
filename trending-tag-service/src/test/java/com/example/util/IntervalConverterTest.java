@@ -7,6 +7,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest(startApplication = false, environments = "no-streams")
 class IntervalConverterTest {
+
+    @Test
+    void testClassExists() {
+        IntervalConverter intervalConverter = new IntervalConverter();
+        assertNotNull(intervalConverter);
+    }
+
     @Test
     void testValidInputDays() {
         assertEquals("10 day", IntervalConverter.convertToPostgresInterval("10d"));

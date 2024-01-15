@@ -5,12 +5,14 @@ import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.MappedEntity;
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Data
 @MappedEntity(value = "aggregated_tag_likes")
+@Getter
+@Setter
 @AllArgsConstructor
 @Introspected
 @Serdeable

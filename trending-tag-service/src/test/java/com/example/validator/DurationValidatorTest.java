@@ -9,6 +9,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class DurationValidatorTest {
 
     @Test
+    void testClassExists() {
+        DurationValidator durationValidator = new DurationValidator();
+        assertNotNull(durationValidator);
+    }
+
+    @Test
     void testValidDurations() {
         assertTrue(DurationValidator.isValidDuration("10d"));
         assertTrue(DurationValidator.isValidDuration("5h"));
