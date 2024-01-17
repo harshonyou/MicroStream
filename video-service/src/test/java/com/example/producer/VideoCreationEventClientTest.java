@@ -38,7 +38,7 @@ class VideoCreationEventClientTest {
         VideoCreationEventDTO event = new VideoCreationEventDTO(userId, videoId, title, tags);
 
         VideoCreationEventClient client = testClient();
-        client.notifyOnNewVideoPosted("key", event);
+        client.notifyOnVideoCreationEvent("key", event);
 
         assertEquals(1, videoCreation.size());
         assertTrue(videoCreation.containsKey("key"));

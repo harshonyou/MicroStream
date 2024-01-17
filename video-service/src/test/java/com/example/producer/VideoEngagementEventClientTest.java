@@ -33,7 +33,7 @@ class VideoEngagementEventClientTest {
         Instant watchedTime = Instant.now();
         VideoEngagementEventDTO event = new VideoEngagementEventDTO(userId, videoId, watchedTime);
         VideoEngagementEventClient client = testClient();
-        client.notifyOnVideoWatched("key", event);
+        client.notifyOnVideoEngagementEvent("key", event);
         assertEquals(1, videoEngagement.size());
         assertTrue(videoEngagement.containsKey("key"));
         assertEquals(event, videoEngagement.get("key"));

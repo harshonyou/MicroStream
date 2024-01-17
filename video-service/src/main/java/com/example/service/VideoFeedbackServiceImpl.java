@@ -39,7 +39,7 @@ public class VideoFeedbackServiceImpl implements VideoFeedbackService {
             return Optional.empty();
         }
 
-        eventClient.notifyOnLikeDislike(
+        eventClient.notifyOnVideoFeedbackEvent(
                 userId,
                 new VideoFeedbackEventDTO(
                         userId,

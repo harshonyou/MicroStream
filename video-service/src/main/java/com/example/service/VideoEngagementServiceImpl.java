@@ -48,7 +48,7 @@ public class VideoEngagementServiceImpl implements VideoEngagementService {
 
         videoEngagementDTO = fromEntity(engagementRepository.save(fromDto(videoEngagementDTO)));
 
-        eventClient.notifyOnVideoWatched(
+        eventClient.notifyOnVideoEngagementEvent(
                 videoEngagementDTO.getUserId(),
                 new VideoEngagementEventDTO(
                         videoEngagementDTO.getUserId(),

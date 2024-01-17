@@ -37,7 +37,7 @@ class VideoFeedbackEventClientTest {
         VideoFeedbackEventDTO event = new VideoFeedbackEventDTO(userId, videoId, tags, likeStatus);
 
         VideoFeedbackEventClient client = testClient();
-        client.notifyOnLikeDislike("key", event);
+        client.notifyOnVideoFeedbackEvent("key", event);
 
         assertEquals(1, videoFeedback.size());
         assertTrue(videoFeedback.containsKey("key"));

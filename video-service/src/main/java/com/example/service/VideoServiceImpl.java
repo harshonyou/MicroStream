@@ -42,7 +42,7 @@ public class VideoServiceImpl implements VideoService {
             tagService.tagVideo(videoDto.getTags(), videoDto.getVideoId());
         }
 
-        eventClient.notifyOnNewVideoPosted(
+        eventClient.notifyOnVideoCreationEvent(
                 videoDto.getUserId(),
                 new VideoCreationEventDTO(
                         videoDto.getUserId(),
