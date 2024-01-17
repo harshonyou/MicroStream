@@ -1,3 +1,4 @@
+# Description: docker-compose file for running the trending tag service tests
 version: '3'
 
 services:

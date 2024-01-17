@@ -1,3 +1,4 @@
+# Description: docker-compose file for development environment (can be used for testing as well)
 version: '3'
 
 services:

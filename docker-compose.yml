@@ -1,3 +1,10 @@
+# Description: Docker compose file for running the social media platform locally
+# This expects the following images to be built:
+# - video-service
+# - trending-tag-service
+# - subscription-service
+# They can be built using jib (https://github.com/GoogleContainerTools/jib), a gradle plugin:
+# Command: ./gradlew jibDockerBuild
 version: '3'
 
 services:

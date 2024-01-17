@@ -1,3 +1,6 @@
+# This scripts does the migration for Quality Assurance
+# It creates a few users and posts videos, likes videos, watches videos and subscribes to tags
+
 # Base URL for Video Service and Subscription Service
 $videoServiceUrl = "http://localhost:8282"
 $subscriptionServiceUrl = "http://localhost:8585"
