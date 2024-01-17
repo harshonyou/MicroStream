@@ -3,10 +3,7 @@
 * Diagrams for the architecture
 
 - Code
-* Orchestration using Docker using Compose (each Microservice in a container)
 * Scan the containers for vulnerabilities and resolve any detected issues
-* Validation of controller
-* Paging
 
 - CLI
 * Complete test
