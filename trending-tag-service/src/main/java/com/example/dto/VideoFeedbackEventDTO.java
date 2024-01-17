@@ -1,15 +1,17 @@
+// Code Generated Via EGL Template
+
 package com.example.dto;
 
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.*;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Serdeable
 public class VideoFeedbackEventDTO {
     private Set<String> tags;

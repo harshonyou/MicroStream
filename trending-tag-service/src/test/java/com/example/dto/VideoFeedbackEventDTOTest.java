@@ -33,14 +33,4 @@ class VideoFeedbackEventDTOTest {
         assertEquals(expectedTags, dto.getTags());
         assertTrue(dto.isLikeStatus());
     }
-
-    @Test
-    void testToString() {
-        Set<String> tags = new HashSet<>();
-        tags.add("tag1");
-        tags.add("tag2");
-        VideoFeedbackEventDTO dto = new VideoFeedbackEventDTO(tags, true);
-        String expectedString = "VideoFeedbackEventDTO(tags=[tag1, tag2], likeStatus=true)";
-        assertEquals(expectedString, dto.toString());
-    }
 }
