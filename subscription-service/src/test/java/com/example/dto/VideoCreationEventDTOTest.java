@@ -63,22 +63,4 @@ class VideoCreationEventDTOTest {
         assertEquals(testTitle, videoEvent.getTitle(), "Constructor does not set title correctly");
         assertEquals(testTags, videoEvent.getTags(), "Constructor does not set tags correctly");
     }
-
-    @Test
-    public void testToString() {
-        String testUserId = "User123";
-        UUID testVideoId = UUID.randomUUID();
-        String testTitle = "Test Video";
-        Set<String> testTags = new HashSet<>();
-        testTags.add("Adventure");
-        testTags.add("Action");
-
-        VideoCreationEventDTO videoEvent = new VideoCreationEventDTO(testUserId, testVideoId, testTitle, testTags);
-        String toStringResult = videoEvent.toString();
-
-        assertTrue(toStringResult.contains(testUserId), "toString does not contain userId");
-        assertTrue(toStringResult.contains(testVideoId.toString()), "toString does not contain videoId");
-        assertTrue(toStringResult.contains(testTitle), "toString does not contain title");
-        assertTrue(toStringResult.contains(testTags.toString()), "toString does not contain tags");
-    }
 }

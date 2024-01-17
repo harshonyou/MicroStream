@@ -1,3 +1,5 @@
+// Code Generated Via EGL Template
+
 package com.example.dto;
 
 import io.micronaut.serde.annotation.Serdeable;
@@ -11,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Serdeable
-@ToString
 public class VideoCreationEventDTO {
     private String userId;
     private UUID videoId;

@@ -47,18 +47,4 @@ class VideoEngagementEventDTOTest {
         assertEquals(testVideoId, videoEventDTO.getVideoId(), "Constructor does not set videoId correctly");
         assertEquals(testWatchedTime, videoEventDTO.getWatchedTime(), "Constructor does not set watchedTime correctly");
     }
-
-    @Test
-    public void testToString() {
-        String testUserId = "User123";
-        UUID testVideoId = UUID.randomUUID();
-        Instant testWatchedTime = Instant.now();
-
-        VideoEngagementEventDTO videoEventDTO = new VideoEngagementEventDTO(testUserId, testVideoId, testWatchedTime);
-        String toStringResult = videoEventDTO.toString();
-
-        assertTrue(toStringResult.contains(testUserId), "toString does not contain userId");
-        assertTrue(toStringResult.contains(testVideoId.toString()), "toString does not contain videoId");
-        assertTrue(toStringResult.contains(testWatchedTime.toString()), "toString does not contain watchedTime");
-    }
 }

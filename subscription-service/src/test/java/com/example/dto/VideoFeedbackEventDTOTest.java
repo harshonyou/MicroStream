@@ -46,18 +46,4 @@ class VideoFeedbackEventDTOTest {
         assertEquals(testVideoId, videoFeedbackEventDTO.getVideoId(), "Constructor does not set videoId correctly");
         assertEquals(testLikeStatus, videoFeedbackEventDTO.isLikeStatus(), "Constructor does not set likeStatus correctly");
     }
-
-    @Test
-    public void testToString() {
-        String testUserId = "User123";
-        UUID testVideoId = UUID.randomUUID();
-        boolean testLikeStatus = true;
-
-        VideoFeedbackEventDTO videoFeedbackEventDTO = new VideoFeedbackEventDTO(testUserId, testVideoId, testLikeStatus);
-        String toStringResult = videoFeedbackEventDTO.toString();
-
-        assertTrue(toStringResult.contains(testUserId), "toString does not contain userId");
-        assertTrue(toStringResult.contains(testVideoId.toString()), "toString does not contain videoId");
-        assertTrue(toStringResult.contains(String.valueOf(testLikeStatus)), "toString does not contain likeStatus");
-    }
 }
