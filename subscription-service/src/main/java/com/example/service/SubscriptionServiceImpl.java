@@ -1,10 +1,9 @@
 package com.example.service;
 
 import com.example.dto.TagEngagementEventDTO;
-import com.example.producer.TagSubscriptionEventClient;
+import com.example.producer.TagEngagementEventClient;
 import com.example.repository.Neo4jTagRepository;
 import com.example.repository.TagRepository;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +15,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     private final TagRepository tagRepository;
 
-    private final TagSubscriptionEventClient eventClient;
+    private final TagEngagementEventClient eventClient;
     
-    public SubscriptionServiceImpl(Neo4jTagRepository tagRepository, TagSubscriptionEventClient eventClient) {
+    public SubscriptionServiceImpl(Neo4jTagRepository tagRepository, TagEngagementEventClient eventClient) {
         this.tagRepository = tagRepository;
         this.eventClient = eventClient;
     }
@@ -27,13 +26,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public void subscribeUserToTag(String tagName, String userId) {
         LOGGER.info("Subscribing user ID: {} to tag: {}", userId, tagName);
         tagRepository.associateUserWithTag(tagName, userId);
-        eventClient.notifyOnTagSubscribeUnsubscribe(userId, new TagEngagementEventDTO(userId, tagName, true));
+        eventClient.notifyOnTagEngagementEvent(userId, new TagEngagementEventDTO(userId, tagName, true));
     }
 
     @Override
     public void unsubscribeUserFromTag(String tagName, String userId) {
         LOGGER.info("Unsubscribing user ID: {} from tag: {}", userId, tagName);
         tagRepository.disassociateUserFromTag(tagName, userId);
-        eventClient.notifyOnTagSubscribeUnsubscribe(userId, new TagEngagementEventDTO(userId, tagName, false));
+        eventClient.notifyOnTagEngagementEvent(userId, new TagEngagementEventDTO(userId, tagName, false));
     }
 }

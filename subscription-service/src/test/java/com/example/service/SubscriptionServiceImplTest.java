@@ -2,7 +2,7 @@ package com.example.service;
 
 import com.example.dto.TagEngagementEventDTO;
 import com.example.model.Tag;
-import com.example.producer.TagSubscriptionEventClient;
+import com.example.producer.TagEngagementEventClient;
 import com.example.repository.Neo4jTagRepository;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -23,7 +23,7 @@ class SubscriptionServiceImplTest {
     Neo4jTagRepository tagRepository;
 
     @Mock
-    TagSubscriptionEventClient mockEventClient;
+    TagEngagementEventClient mockEventClient;
 
     @AfterEach
     public void tearDown() {
@@ -41,7 +41,7 @@ class SubscriptionServiceImplTest {
         tagRepository.addTag(new Tag(tagName));
         subscriptionService.subscribeUserToTag(tagName, userId);
 
-        verify(mockEventClient).notifyOnTagSubscribeUnsubscribe(eq(userId), argThat(new ArgumentMatcher<TagEngagementEventDTO>() {
+        verify(mockEventClient).notifyOnTagEngagementEvent(eq(userId), argThat(new ArgumentMatcher<TagEngagementEventDTO>() {
             @Override
             public boolean matches(TagEngagementEventDTO argument) {
                 return argument.getUserId().equals(userId) && argument.getTag().equals(tagName) && argument.isSubscriptionStatus();
@@ -63,7 +63,7 @@ class SubscriptionServiceImplTest {
         tagRepository.addTag(new Tag(tagName));
         subscriptionService.unsubscribeUserFromTag(tagName, userId);
 
-        verify(mockEventClient).notifyOnTagSubscribeUnsubscribe(eq(userId), argThat(new ArgumentMatcher<TagEngagementEventDTO>() {
+        verify(mockEventClient).notifyOnTagEngagementEvent(eq(userId), argThat(new ArgumentMatcher<TagEngagementEventDTO>() {
             @Override
             public boolean matches(TagEngagementEventDTO argument) {
                 return argument.getUserId().equals(userId) && argument.getTag().equals(tagName) && !argument.isSubscriptionStatus();

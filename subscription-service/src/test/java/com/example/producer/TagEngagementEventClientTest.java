@@ -12,12 +12,12 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest(startApplication = false, environments = "no-streams")
-class TagSubscriptionEventClientTest {
+class TagEngagementEventClientTest {
 
     private final Map<String, TagEngagementEventDTO> tagEngagements = new HashMap<>();
 
-    @MockBean(TagSubscriptionEventClient.class)
-    TagSubscriptionEventClient testClient() {
+    @MockBean(TagEngagementEventClient.class)
+    TagEngagementEventClient testClient() {
         return tagEngagements::put;
     }
 
@@ -33,8 +33,8 @@ class TagSubscriptionEventClientTest {
         boolean subscriptionStatus = true;
         TagEngagementEventDTO event = new TagEngagementEventDTO(userId, tag, subscriptionStatus);
 
-        TagSubscriptionEventClient client = testClient();
-        client.notifyOnTagSubscribeUnsubscribe("key", event);
+        TagEngagementEventClient client = testClient();
+        client.notifyOnTagEngagementEvent("key", event);
 
         assertEquals(1, tagEngagements.size());
         assertTrue(tagEngagements.containsKey("key"));
