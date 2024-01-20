@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.service.SubscriptionService;
+import com.example.service.TagService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.PathVariable;
@@ -17,9 +18,11 @@ public class SubscriptionController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionController.class);
 
     private final SubscriptionService subscriptionService;
+    private final TagService tagService;
 
-    public SubscriptionController(SubscriptionService subscriptionService) {
+    public SubscriptionController(SubscriptionService subscriptionService, TagService tagService) {
         this.subscriptionService = subscriptionService;
+        this.tagService = tagService;
     }
 
     // Endpoint to subscribe a user to a tag
@@ -28,6 +31,7 @@ public class SubscriptionController {
             @PathVariable(value = "userId") @NotEmpty String userId,
             @PathVariable(value = "tagName") @NotEmpty String tagName) {
         LOGGER.info("Subscribing user ID: {} to tag: {}", userId, tagName);
+        tagService.addTag(tagName);
         subscriptionService.subscribeUserToTag(tagName, userId);
         return HttpResponse.ok();
     }
