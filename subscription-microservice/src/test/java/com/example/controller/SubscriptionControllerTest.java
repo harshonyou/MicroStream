@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.service.SubscriptionService;
+import com.example.service.TagService;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,12 +17,15 @@ class SubscriptionControllerTest {
     @Mock
     SubscriptionService mockSubscriptionService;
 
+    @Mock
+    TagService mockTagService;
+
     SubscriptionController subscriptionController;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        subscriptionController = new SubscriptionController(mockSubscriptionService);
+        subscriptionController = new SubscriptionController(mockSubscriptionService, mockTagService);
     }
 
     @Test
