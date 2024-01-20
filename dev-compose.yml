@@ -25,23 +25,34 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  kafka-init:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - kafka
+    command: >
+      /bin/bash -c "
+        echo 'Waiting for Kafka to start...' &&
+        until kafka-topics --bootstrap-server kafka:9090 --list;
+        do
+          sleep 2;
+        done &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka:9090 --partitions 1 --replication-factor 1 --topic video-creation-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka:9090 --partitions 1 --replication-factor 1 --topic video-engagement-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka:9090 --partitions 1 --replication-factor 1 --topic video-feedback-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka:9090 --partitions 1 --replication-factor 1 --topic tag-engagement-events
+      "
+
   cassandra:
     image: cassandra:latest
-    container_name: cassandra
     ports:
       - "9042:9042"
     environment:
       - CASSANDRA_CLUSTER_NAME=micronautCluster
       - CASSANDRA_DC=DC1
       - CASSANDRA_RACK=RAC1
-    volumes:
-      - cassandra_data:/var/lib/cassandra
-    networks:
-      - cassandra_network
 
   cassandra-init:
     image: cassandra:latest
-    container_name: cassandra-init
     depends_on:
       - cassandra
     command: >
@@ -52,8 +63,6 @@ services:
           sleep 2
         done &&
         cqlsh cassandra -e \"CREATE KEYSPACE IF NOT EXISTS micronaut WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};\""
-    networks:
-      - cassandra_network
 
   postgres:
     image: postgres:latest
@@ -63,6 +72,19 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+
+  postgres-init:
+    image: postgres:latest
+    depends_on:
+      - postgres
+    command: >
+      /bin/bash -c "
+        until PGPASSWORD=postgres psql -h postgres -U postgres -d postgres -c 'SELECT 1';
+        do
+          echo 'Waiting for PostgreSQL to be up...'
+          sleep 2
+        done
+      "
 
   neo4j:
     image: neo4j:latest
@@ -85,17 +107,10 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9090
 
-#  pgadmin:
-#    image: dpage/pgadmin4
-#    ports:
-#      - "5050:80"
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#      PGADMIN_DEFAULT_PASSWORD: postgres
-
-networks:
-  cassandra_network:
-    driver: bridge
-
-volumes:
-  cassandra_data:
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
