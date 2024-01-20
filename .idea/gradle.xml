@@ -5,37 +5,37 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/cli" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/client" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/cli" />
+            <option value="$PROJECT_DIR$/client" />
           </set>
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/subscription-service" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/subscription-microservice" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/subscription-service" />
+            <option value="$PROJECT_DIR$/subscription-microservice" />
           </set>
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/trending-tag-service" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/trending-microservice" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/trending-tag-service" />
+            <option value="$PROJECT_DIR$/trending-microservice" />
           </set>
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/video-service" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/video-microservice" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/video-service" />
+            <option value="$PROJECT_DIR$/video-microservice" />
           </set>
         </option>
       </GradleProjectSettings>
