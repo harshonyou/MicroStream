@@ -30,13 +30,13 @@ class AggregatedTagLikeControllerTest {
     }
 
     @Test
-    public void testGetTopTagsOfPastHourWithEmptyList() {
+    public void testGetTopTagsOfCurrentHourWithEmptyList() {
         HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getCurrentTopHashtags(10);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
     }
 
     @Test
-    public void testGetTopTagsOfPastHourWithHighLimit() {
+    public void testGetTopTagsOfCurrentHourWithHighLimit() {
         setUpDummyData(aggregatedTagLikeRepository);
 
         HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getCurrentTopHashtags(101);
@@ -47,7 +47,7 @@ class AggregatedTagLikeControllerTest {
     }
 
     @Test // FYI: This test is not deterministic because of the fact it is based on the hour window
-    public void testGetTop10TagsOfPastHour() {
+    public void testGetTop10TagsOfCurrentHour() {
         setUpDummyData(aggregatedTagLikeRepository);
 
         HttpResponse<Iterable<CurrentHourAggregatedTagLikeDTO>> response = aggregatedTagLikeController.getCurrentTopHashtags(10);

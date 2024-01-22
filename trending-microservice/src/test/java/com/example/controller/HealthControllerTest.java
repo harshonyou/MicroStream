@@ -1,3 +1,5 @@
+// Code Generated Via EGL Template
+
 package com.example.controller;
 
 import io.micronaut.http.HttpResponse;
