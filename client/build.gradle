@@ -24,7 +24,7 @@ dependencies {
 
 
 application {
-    mainClass.set("com.example.CliCommand")
+    mainClass.set("com.example.Cli")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("17")
