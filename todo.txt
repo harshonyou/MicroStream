@@ -1,10 +1,1 @@
-- Paper work
-* Document overall architecture
-* Diagrams for the architecture
-
-- Code
-* Scan the containers for vulnerabilities and resolve any detected issues
-
-- CLI
-* Complete test
-
+- Limit in recommendation
