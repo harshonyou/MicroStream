@@ -22,7 +22,7 @@ dependencies {
     implementation("io.micronaut.serde:micronaut-serde-jackson")
     compileOnly("io.micronaut:micronaut-http-client")
     compileOnly("org.projectlombok:lombok")
-    runtimeOnly("ch.qos.logback:logback-classic")
+    runtimeOnly("ch.qos.logback:logback-classic:1.4.14")
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("org.awaitility:awaitility:4.2.0")
     testImplementation("org.mockito:mockito-core")
@@ -77,6 +77,9 @@ jib {
     from {
 //        image = 'eclipse-temurin:17-jre-focal'
         image = 'eclipse-temurin:17-jdk-alpine'
+    }
+    to {
+        tags = ['latest', project.version]
     }
 }
 
