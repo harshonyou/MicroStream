@@ -9,7 +9,7 @@ import picocli.CommandLine;
 
 import java.util.UUID;
 
-@CommandLine.Command(name = "watch-video", description = "Watch a video by video id")
+@CommandLine.Command(name = "watch-video", description = "Watch a video by video id", mixinStandardHelpOptions = true)
 public class WatchVideoCommand implements Runnable {
     @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;

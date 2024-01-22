@@ -11,7 +11,8 @@ import java.util.List;
 
 @CommandLine.Command(
         name = "past-top",
-        description = "Get the past top trending tags"
+        description = "Get the past top trending tags",
+        mixinStandardHelpOptions = true
 )
 public class PastTopTagCommand implements Runnable {
     @CommandLine.Option(

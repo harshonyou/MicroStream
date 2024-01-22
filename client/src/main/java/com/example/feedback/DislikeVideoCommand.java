@@ -9,7 +9,7 @@ import picocli.CommandLine;
 
 import java.util.UUID;
 
-@CommandLine.Command(name = "dislike-video", description = "Dislike a video by video id")
+@CommandLine.Command(name = "dislike-video", description = "Dislike a video by video id", mixinStandardHelpOptions = true)
 public class DislikeVideoCommand implements Runnable{
     @CommandLine.Option(names = {"-u", "--userid"}, description = "User ID")
     private String userId;

@@ -6,7 +6,7 @@ import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "unsubscribe", description = "Unsubscribe a tag")
+@CommandLine.Command(name = "unsubscribe", description = "Unsubscribe a tag", mixinStandardHelpOptions = true)
 public class UnsubscribeTagCommand implements Runnable {
     @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;

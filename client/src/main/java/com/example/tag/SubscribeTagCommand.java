@@ -6,7 +6,7 @@ import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "subscribe", description = "Subscribe a tag")
+@CommandLine.Command(name = "subscribe", description = "Subscribe a tag", mixinStandardHelpOptions = true)
 public class SubscribeTagCommand implements Runnable {
     @CommandLine.Option(names = {"-u", "--user"}, description = "User ID", required = true)
     private String userId;

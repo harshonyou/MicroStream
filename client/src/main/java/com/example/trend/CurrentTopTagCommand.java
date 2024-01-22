@@ -14,7 +14,8 @@ import java.util.List;
 
 @CommandLine.Command(
         name = "current-top",
-        description = "Get the current hour window [from 0th minute to 59th minute] top trending tags"
+        description = "Get the current hour window [from 0th minute to 59th minute] top trending tags",
+        mixinStandardHelpOptions = true
 )
 public class CurrentTopTagCommand implements Runnable {
     @CommandLine.Option(
