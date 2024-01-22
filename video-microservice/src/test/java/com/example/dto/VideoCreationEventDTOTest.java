@@ -20,6 +20,15 @@ class VideoCreationEventDTOTest {
     }
 
     @Test
+    public void testNoArgConstructor() {
+        VideoCreationEventDTO noArgDTO = new VideoCreationEventDTO();
+        assertNull(noArgDTO.getUserId());
+        assertNull(noArgDTO.getVideoId());
+        assertNull(noArgDTO.getTitle());
+        assertNull(noArgDTO.getTags());
+    }
+
+    @Test
     public void testSetAndGetUserId() {
         dto.setUserId("newUser");
         assertEquals("newUser", dto.getUserId());
