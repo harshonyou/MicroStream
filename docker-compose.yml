@@ -1,13 +1,23 @@
+# Code Generated Via EGL Template
+# protected region customDescription on begin
+
 # Description: Docker compose file for running the social media platform locally
 # This expects the following images to be built:
 # - video-service
 # - trending-tag-service
 # - subscription-service
-# They can be built using jib (https://github.com/GoogleContainerTools/jib), a gradle plugin:
+# They can be built using Google Jib (https://github.com/GoogleContainerTools/jib), a gradle plugin:
 # Command: ./gradlew jibDockerBuild
+
+# Alternatively, you can run `./gradlew dockerBuild` to build the images using Micronaut's docker plugin.
+
+# protected region customDescription end
+
 version: '3'
 
 services:
+
+  # protected region customServices on begin
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     restart: unless-stopped
@@ -222,11 +232,13 @@ services:
       PASSWORD: *neo4j_password
     networks:
       - neo4j_network
+  # protected region customServices end
 
-  video-service:
-    image: video-service:0.1
+  # ./gradlew jibDockerBuild
+  video-microservice:
+    image: video-microservice:latest
     restart: unless-stopped
-    container_name: video-service
+    container_name: video-microservice
     ports:
       - "8282:8282"
     environment:
@@ -236,6 +248,8 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
       CASSANDRA_MIGRATION: true
       MICRONAUT_ENVIRONMENTS: prod
+      # protected region customEnvironmentVariables on begin
+      # protected region customEnvironmentVariables end
     depends_on:
       kafka-init:
         condition: service_completed_successfully
@@ -245,22 +259,25 @@ services:
       - kafka_network
       - cassandra_network
 
-  trending-tag-service:
-    image: trending-tag-service:0.1
+  # ./gradlew jibDockerBuild
+  trending-microservice:
+    image: trending-microservice:latest
     restart: unless-stopped
-    container_name: trending-tag-service
+    container_name: trending-microservice
     ports:
       - "8286:8286"
     environment:
       PORT: 8286
-      DB: *postgres_db
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_USERNAME: *postgres_user
-      DB_PASSWORD: *postgres_password
       KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
       FLYWAY_ENABLED: true
       MICRONAUT_ENVIRONMENTS: prod
+      # protected region customEnvironmentVariables on begin
+      DB: *postgres_db
+      DB_USERNAME: *postgres_user
+      DB_PASSWORD: *postgres_password
+      # protected region customEnvironmentVariables end
     depends_on:
       kafka-init:
         condition: service_completed_successfully
@@ -270,20 +287,23 @@ services:
       - kafka_network
       - postgres_network
 
-  subscription-service:
-    image: subscription-service:0.1
+  # ./gradlew jibDockerBuild
+  subscription-microservice:
+    image: subscription-microservice:latest
     restart: unless-stopped
-    container_name: subscription-service
+    container_name: subscription-microservice
     ports:
       - "8585:8585"
     environment:
       PORT: 8585
       NEO4J_HOST: neo4j
       NEO4J_PORT: 7687
-      NEO4J_USERNAME: *neo4j_user
-      NEO4J_PASSWORD: *neo4j_password
       KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
       MICRONAUT_ENVIRONMENTS: prod
+      # protected region customEnvironmentVariables on begin
+      NEO4J_USERNAME: *neo4j_user
+      NEO4J_PASSWORD: *neo4j_password
+      # protected region customEnvironmentVariables end
     depends_on:
       kafka-init:
         condition: service_completed_successfully
