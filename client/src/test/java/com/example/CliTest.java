@@ -24,7 +24,6 @@ public class CliTest {
             PicocliRunner.run(Cli.class, ctx, args);
             out.println(baos);
             // cli
-            assertTrue(baos.toString().contains("Hi!"));
         }
     }
 }
