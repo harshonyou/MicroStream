@@ -25,8 +25,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - 2181:2181
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
     networks:
@@ -38,8 +36,6 @@ services:
     container_name: kafka-0
     depends_on:
       - zookeeper
-    ports:
-      - 29090:29090
     environment:
       KAFKA_BROKER_ID: 0
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -58,8 +54,6 @@ services:
     container_name: kafka-1
     depends_on:
       - zookeeper
-    ports:
-      - 29091:29091
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -78,8 +72,6 @@ services:
     container_name: kafka-2
     depends_on:
       - zookeeper
-    ports:
-      - 29092:29092
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -114,30 +106,10 @@ services:
     networks:
       - kafka_network
 
-  kafka_ui:
-    image: provectuslabs/kafka-ui:latest
-    restart: unless-stopped
-    depends_on:
-      - zookeeper
-      - kafka-0
-      - kafka-1
-      - kafka-2
-    ports:
-      - 8085:8085
-      - 8181:8080
-    environment:
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
-    networks:
-      - kafka_network
-
   cassandra:
     image: cassandra:latest
     restart: unless-stopped
     container_name: cassandra
-    ports:
-      - "9042:9042"
     environment:
       - CASSANDRA_CLUSTER_NAME=micronautCluster
       - CASSANDRA_DC=DC1
@@ -167,8 +139,6 @@ services:
     image: postgres:latest
     restart: unless-stopped
     container_name: postgres
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: &postgres_user postgres
       POSTGRES_PASSWORD: &postgres_password postgres
@@ -202,9 +172,9 @@ services:
     image: neo4j:latest
     restart: unless-stopped
     container_name: neo4j
-    ports:
-      - "7474:7474"
-      - "7687:7687"
+#    ports:
+#      - "7474:7474"
+#      - "7687:7687"
     environment:
       USERNAME: &neo4j_user neo4j
       PASSWORD: &neo4j_password testpassword
