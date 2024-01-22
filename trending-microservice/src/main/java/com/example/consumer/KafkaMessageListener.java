@@ -9,21 +9,24 @@ import io.micronaut.configuration.kafka.annotation.Topic;
 
 import com.example.dto.VideoFeedbackEventDTO;
 
-// Define custom imports here
+// protected region customImports on begin
+// protected region customImports end
 
 @KafkaListener(groupId = "trending-hashtag-microservice-listener", offsetReset = OffsetReset.EARLIEST)
 public class KafkaMessageListener {
 
-    // Define class-level variables here
+    // protected region classVariableDeclaration on begin
+    // protected region classVariableDeclaration end
 
     @Topic("video-feedback-events")
     public void handleVideoFeedbackEvents(
             @KafkaKey String key,
             VideoFeedbackEventDTO event) {
-        // Custom method implementation goes here
+        // protected region methodImplementation on begin
         System.out.println("Handling video feedback event for tags: " + event.getTags());
         // Doing nothing, as we have got custom Kafka Stream to handle this
-        // com.example.stream.TagAggregatorStream
+        // com.example.stream.TagAggregatorStream is the custom stream
+        // protected region methodImplementation end
     }
 
 }
