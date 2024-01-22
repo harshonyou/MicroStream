@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RecommendationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">subscription-service</a> &gt; <a href="index.source.html" class="el_package">com.example.controller</a> &gt; <span class="el_source">RecommendationController.java</span></div><h1>RecommendationController.java</h1><pre class="source lang-java linenums">package com.example.controller;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RecommendationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">subscription-microservice</a> &gt; <a href="index.source.html" class="el_package">com.example.controller</a> &gt; <span class="el_source">RecommendationController.java</span></div><h1>RecommendationController.java</h1><pre class="source lang-java linenums">package com.example.controller;
 
 import com.example.dto.RecommendedVideoDTO;
 import com.example.service.RecommendationService;
@@ -6,52 +6,53 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.validation.Validated;
 import jakarta.validation.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-// Controller to handle video recommendation requests
+@Validated
 @Controller(&quot;/api/v1&quot;)
 public class RecommendationController {
 
-<span class="fc" id="L19">    private static final Logger LOGGER = LoggerFactory.getLogger(RecommendationController.class);</span>
+<span class="fc" id="L20">    private static final Logger LOGGER = LoggerFactory.getLogger(RecommendationController.class);</span>
 
     private final RecommendationService recommendationService;
 
-<span class="fc" id="L23">    public RecommendationController(RecommendationService recommendationService) {</span>
-<span class="fc" id="L24">        this.recommendationService = recommendationService;</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L24">    public RecommendationController(RecommendationService recommendationService) {</span>
+<span class="fc" id="L25">        this.recommendationService = recommendationService;</span>
+<span class="fc" id="L26">    }</span>
 
     // Endpoint to get the timeline videos for a user
     @Get(&quot;/users/{userId}/timeline&quot;)
     public HttpResponse&lt;Iterable&lt;RecommendedVideoDTO&gt;&gt; getTimeline(
             @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId) {
-<span class="fc" id="L31">        LOGGER.info(&quot;Fetching timeline for user ID: {}&quot;, userId);</span>
-<span class="fc" id="L32">        List&lt;RecommendedVideoDTO&gt; timeline = recommendationService.getUserTimeline(userId);</span>
+<span class="fc" id="L32">        LOGGER.info(&quot;Fetching timeline for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L33">        List&lt;RecommendedVideoDTO&gt; timeline = recommendationService.getUserTimeline(userId);</span>
 
-<span class="fc bfc" id="L34" title="All 2 branches covered.">        if(timeline.isEmpty()) {</span>
-<span class="fc" id="L35">            LOGGER.info(&quot;No content found for user ID: {}&quot;, userId);</span>
-<span class="fc" id="L36">            return HttpResponse.noContent();</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if(timeline.isEmpty()) {</span>
+<span class="fc" id="L36">            LOGGER.info(&quot;No content found for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L37">            return HttpResponse.noContent();</span>
         }
 
-<span class="fc" id="L39">        return HttpResponse.ok(timeline);</span>
+<span class="fc" id="L40">        return HttpResponse.ok(timeline);</span>
     }
 
     // Endpoint to get video recommendations for a user
     @Get(&quot;/users/{userId}/videos/recommendations&quot;)
     public HttpResponse&lt;Iterable&lt;RecommendedVideoDTO&gt;&gt; getRecommendations(
             @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId) {
-<span class="fc" id="L46">        LOGGER.info(&quot;Fetching video recommendations for user ID: {}&quot;, userId);</span>
-<span class="fc" id="L47">        List&lt;RecommendedVideoDTO&gt; recommendations = recommendationService.getUserRecommendations(userId);</span>
+<span class="fc" id="L47">        LOGGER.info(&quot;Fetching video recommendations for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L48">        List&lt;RecommendedVideoDTO&gt; recommendations = recommendationService.getUserRecommendations(userId);</span>
 
-<span class="fc bfc" id="L49" title="All 2 branches covered.">        if(recommendations.isEmpty()) {</span>
-<span class="fc" id="L50">            LOGGER.info(&quot;No recommendations found for user ID: {}&quot;, userId);</span>
-<span class="fc" id="L51">            return HttpResponse.noContent();</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if(recommendations.isEmpty()) {</span>
+<span class="fc" id="L51">            LOGGER.info(&quot;No recommendations found for user ID: {}&quot;, userId);</span>
+<span class="fc" id="L52">            return HttpResponse.noContent();</span>
         }
 
-<span class="fc" id="L54">        return HttpResponse.ok(recommendations);</span>
+<span class="fc" id="L55">        return HttpResponse.ok(recommendations);</span>
     }
 
     // Endpoint to get video recommendations for a user based on a specific tag
@@ -59,15 +60,15 @@ public class RecommendationController {
     public HttpResponse&lt;Iterable&lt;RecommendedVideoDTO&gt;&gt; getRecommendations(
             @PathVariable(value = &quot;userId&quot;) @NotEmpty String userId,
             @PathVariable(value = &quot;tagName&quot;) @NotEmpty String tagName) {
-<span class="fc" id="L62">        LOGGER.info(&quot;Fetching recommendations for user ID: {} and tag: {}&quot;, userId, tagName);</span>
-<span class="fc" id="L63">        List&lt;RecommendedVideoDTO&gt; recommendations = recommendationService.getUserRecommendations(userId, tagName);</span>
+<span class="fc" id="L63">        LOGGER.info(&quot;Fetching recommendations for user ID: {} and tag: {}&quot;, userId, tagName);</span>
+<span class="fc" id="L64">        List&lt;RecommendedVideoDTO&gt; recommendations = recommendationService.getUserRecommendations(userId, tagName);</span>
 
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if(recommendations.isEmpty()) {</span>
-<span class="fc" id="L66">            LOGGER.info(&quot;No recommendations found for user ID: {} and tag: {}&quot;, userId, tagName);</span>
-<span class="fc" id="L67">            return HttpResponse.noContent();</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if(recommendations.isEmpty()) {</span>
+<span class="fc" id="L67">            LOGGER.info(&quot;No recommendations found for user ID: {} and tag: {}&quot;, userId, tagName);</span>
+<span class="fc" id="L68">            return HttpResponse.noContent();</span>
         }
 
-<span class="fc" id="L70">        return HttpResponse.ok(recommendations);</span>
+<span class="fc" id="L71">        return HttpResponse.ok(recommendations);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
