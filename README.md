@@ -2,7 +2,9 @@
 
 ## Overview
 
-This project implements a simplified video-sharing platform inspired by popular social media apps (like TikTok). It is designed using a microservices architecture to ensure scalability, flexibility, and ease of maintenance. The platform includes services for managing videos, trending hashtags, and user subscriptions, each of which is independently scalable and deployable.
+This project implements a simplified video-sharing platform inspired by popular social media apps (like TikTok). It is designed using a microservices architecture to ensure scalability, flexibility, and ease of maintenance. The platform includes services for managing videos, trending hashtags, and user subscriptions, each of which is independently scalable and deployable. 
+
+For a detailed report, please visit [here](https://harshonyou.github.io/MicroStream/report.pdf).
 
 ## Architecture
 
