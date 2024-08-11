@@ -1,0 +1,60 @@
+[% out.println("# Code Generated Via EGL Template"); %]
+[%= out.startPreserve("#", "", "customDescription", true) %]
+[%= out.stopPreserve() %]
+
+[% 
+out.println("version: '3'");
+out.println();
+out.println("services:");
+%]
+
+  [%= out.startPreserve("#", "", "customServices", true) %]
+  [%= out.stopPreserve() %]
+
+[% 
+for (microservice in microservices) {
+	var containerConfig = microservice.containerizatin.containerConfigs;
+
+	var serviceName = microservice.name.toLowerCase().replaceAll("\\s+", "-");
+    
+    var imageTag = containerConfig.get('imageTag');
+    var serviceImage = serviceName + ":" + imageTag;
+    
+    var sourcePort = containerConfig.get('sourcePort');
+    var targetPort = containerConfig.get('targetPort');
+    var portsMapping = sourcePort + ":" + targetPort;
+    
+    out.println("  # ./gradlew jibDockerBuild");
+    out.println("  " + serviceName + ":");
+    out.println("    image: " + serviceImage);
+    out.println("    restart: unless-stopped");
+    out.println("    container_name: " + serviceName);
+    out.println("    ports:");
+    out.println("      - \"" + portsMapping + "\"");
+    out.println("    environment:");
+    out.println("      PORT: " + sourcePort);
+    for (envVar in microservice.containerizatin.environmentVariables) {
+    	out.println("      " + envVar.key + ": " + envVar.value);
+    }
+	%]
+      [%= out.startPreserve("#", "", "customEnvironmentVariables", true) %]
+  	  [%= out.stopPreserve() %]
+    [%
+	out.println("    depends_on:");
+	for (dependOn in microservice.containerizatin.dependsOn) {
+    	out.println("      " + dependOn + "-init:");
+    	out.println("        condition: service_completed_successfully");
+    }
+    out.println("    networks:");
+    for (network in microservice.containerizatin.networks) {
+    	out.println("      - " + network + "_network");
+    }
+    out.println();
+}
+%]
+
+[%= out.startPreserve("#", "", "customNetwork", true) %]
+[%= out.stopPreserve() %]
+
+[%= out.startPreserve("#", "", "customVolumes", true) %]
+[%= out.stopPreserve() %]

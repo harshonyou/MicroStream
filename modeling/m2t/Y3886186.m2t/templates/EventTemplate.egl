@@ -1,0 +1,40 @@
+[%
+var hasSetType = false;
+var hasUUIDType = false;
+var hasInstantType = false;
+for (field in event.fields) {
+    if (field.value.contains("Set")) {
+        hasSetType = true;
+    } else if (field.value.contains("UUID")) {
+        hasUUIDType = true;
+    } else if (field.value.contains("Instant")) {
+        hasInstantType = true;
+    }
+}
+%]
+// Code Generated Via EGL Template
+
+package com.example.dto;
+
+import io.micronaut.serde.annotation.Serdeable;
+import lombok.*;
+
+[%if (hasSetType) { %]import java.util.Set;
+[%}%]
+[%if (hasUUIDType) { %]import java.util.UUID;
+[%}%]
+[%if (hasInstantType) { %]import java.time.Instant;
+[%}%]
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Serdeable
+public class [%= event.name.replace(" ", "")%]DTO {
+	[%for (field in event.fields) { %]
+    private [%=field.value.replace("&lt;", "<")%] [%=field.key%];
+    [%}%]
+}
+
+

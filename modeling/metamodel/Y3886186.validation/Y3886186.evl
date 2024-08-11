@@ -1,0 +1,49 @@
+context Event {
+
+  /*
+   * Every event should be used in at least one event stream.
+   */
+  constraint UsedInAtLeastOneEventStream {
+    check: EventStream.all.exists(es | es.eventType = self)
+    message: 'Event ' + self.name + ' must be used in at least one event stream.'
+  }
+}
+
+context EventStream {
+
+  /*
+   * Every event stream needs to have at least one publisher and one subscriber.
+   * Constraints will produce an error since there should not be any event that does not have a publisher.
+   * Critiques will only provide a warning since there is at least one event that does not have any subscribers.
+   */
+  constraint HasAtLeastOnePublisher {
+    check: Microservice.all.exists(m | m.publishes.includes(self))
+    message: 'Event stream ' + self.name + ' is recommended to have at least one publisher.'
+  }
+
+  critique HasAtLeastOneSubscriber {
+    check: Microservice.all.exists(m | m.subscribes.includes(self))
+    message: 'Event stream ' + self.name + ' is recommended to have at least one subscriber.'
+  }
+}
+
+context Microservice {
+
+  /*
+   * There should be at least one microservice.
+   */
+  constraint AtLeastOneMicroserviceExists {
+    check: Microservice.all.size() > 0
+    message: 'There must be at least one microservice in the model.'
+  }
+
+  /*
+   * Every microservice needs at least one “health” resource using the HTTP GET method 
+   * and taking no parameters, for reporting if it is working correctly.
+   */
+  constraint HasHealthCheckResource {
+    check: self.apiResources.exists(r | r.method = HttpMethod#GET and r.path = '/health' and r.requestParams.isEmpty())
+    message: 'Microservice ' + self.name + ' must have at least one "health" resource using the HTTP GET method and taking no parameters.'
+  }
+}
+

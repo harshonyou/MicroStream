@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/Y3886186/src" modelPluginID="Y3886186" modelName="Y3886186"
+    rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="5.0" copyrightFields="false" operationReflection="true" importOrganizing="true">
+  <foreignModel>Y3886186.ecore</foreignModel>
+  <genPackages prefix="Y3886186" disposableProviderFactory="true" ecorePackage="Y3886186.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="Y3886186.ecore#//HttpMethod">
+      <genEnumLiterals ecoreEnumLiteral="Y3886186.ecore#//HttpMethod/GET"/>
+      <genEnumLiterals ecoreEnumLiteral="Y3886186.ecore#//HttpMethod/POST"/>
+      <genEnumLiterals ecoreEnumLiteral="Y3886186.ecore#//HttpMethod/PUT"/>
+      <genEnumLiterals ecoreEnumLiteral="Y3886186.ecore#//HttpMethod/DELETE"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="Y3886186.ecore#//CommunicationPattern">
+      <genEnumLiterals ecoreEnumLiteral="Y3886186.ecore#//CommunicationPattern/REST"/>
+      <genEnumLiterals ecoreEnumLiteral="Y3886186.ecore#//CommunicationPattern/MESSAGE_QUEUE"/>
+      <genEnumLiterals ecoreEnumLiteral="Y3886186.ecore#//CommunicationPattern/GRPC"/>
+      <genEnumLiterals ecoreEnumLiteral="Y3886186.ecore#//CommunicationPattern/WEBSOCKET"/>
+    </genEnums>
+    <genClasses ecoreClass="Y3886186.ecore#//Event">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//Event/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Event/fields"/>
+    </genClasses>
+    <genClasses ecoreClass="Y3886186.ecore#//EventStream">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//EventStream/name"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Y3886186.ecore#//EventStream/eventType"/>
+    </genClasses>
+    <genClasses ecoreClass="Y3886186.ecore#//ApiError">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//ApiError/code"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//ApiError/message"/>
+    </genClasses>
+    <genClasses ecoreClass="Y3886186.ecore#//ApiResource">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//ApiResource/method"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//ApiResource/path"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//ApiResource/requestFormat"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//ApiResource/responseFormat"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//ApiResource/requestParams"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//ApiResource/responseParams"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//ApiResource/errorResponses"/>
+    </genClasses>
+    <genClasses ecoreClass="Y3886186.ecore#//Containerization">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//Containerization/technology"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Containerization/containerConfigs"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Containerization/environmentVariables"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//Containerization/dependsOn"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//Containerization/networks"/>
+    </genClasses>
+    <genClasses ecoreClass="Y3886186.ecore#//Microservice">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//Microservice/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//Microservice/description"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Y3886186.ecore#//Microservice/communicationPatterns"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Microservice/subscribes"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Microservice/publishes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Microservice/apiResources"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Microservice/containerizatin"/>
+    </genClasses>
+    <genClasses ecoreClass="Y3886186.ecore#//Model">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Model/microservices"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Model/eventStreams"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Y3886186.ecore#//Model/events"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

@@ -1,0 +1,172 @@
+pre {
+	var outDir = "gen/"; // Replace this with microservices dir
+    var nestedDir = "src/main/java/com/example/"; // Main source directory
+    var nestedTestDir = "src/test/java/com/example/"; // Test source directory
+    var tmpDir = "templates/"; // Directory containing template files
+    
+    // Subdirectories for different components of a microservice
+    var skaffoldDirs = Sequence{
+	    				"controller", 
+	    				"dto", 
+	    				"helper", 
+	    				"model",
+	    				"repository",
+	    				"service"};
+    
+    // Retrieve all microservices defined in the project
+    var microservices = Microservice.all();
+    
+    // Generate scaffolding structure for each microservice and its components
+	var microservicesSkaffoldingList = new Sequence;
+	for (ms in microservices) {
+		for (skaffoldDir in skaffoldDirs) {
+            var tuple = Tuple{name = ms.name, subDir = skaffoldDir};
+            microservicesSkaffoldingList.add(tuple);
+        }
+	}
+	
+	// Create a list of events associated with each microservice
+	var microservicesEventsList = new Sequence;
+	for (ms in microservices) {
+	    var eventsSet = new Set;
+	
+		// Add published and subscribed events to the set
+	    for (stream in ms.publishes) {
+	        if (stream.eventType.isDefined()) {
+	            eventsSet.add(stream.eventType);
+	        }
+	    }
+	
+	    for (stream in ms.subscribes) {
+	        if (stream.eventType.isDefined()) {
+	            eventsSet.add(stream.eventType);
+	        }
+	    }
+	
+		// For each unique event, create a tuple with microservice name and event
+	    if (eventsSet.size() > 0) {
+	    	for (eventEntry in eventsSet) {
+		    	var tuple = Tuple{name = ms.name, event = eventEntry};
+		        microservicesEventsList.add(tuple);
+	    	}
+	    }
+	}
+	
+	// Generate a list of publishers for each microservice
+	var microservicesPublishersList = new Sequence;
+	for (ms in microservices) {
+	    if (ms.publishes.size() > 0) {
+	        for (stream in ms.publishes) {
+	            var tuple = Tuple{name = ms.name, stream = stream};
+	            microservicesPublishersList.add(tuple);
+	        }
+	    }
+	}
+}
+
+rule GenerateSkaffoldDotKeep transform v in : microservicesSkaffoldingList {
+    pre {
+    	var dir = outDir + v.name.toLowerCase().replace(" ", "-") + "/" + nestedDir;
+		var fileName = ".keep";
+	}
+    template: tmpDir + "HealthControllerTemplate.egl"
+    target: dir + v.subDir + "/" + fileName
+}
+
+rule GenerateTestSkaffoldDotKeep transform v in : microservicesSkaffoldingList {
+    pre {
+    	var dir = outDir + v.name.toLowerCase().replace(" ", "-") + "/" + nestedTestDir;
+		var fileName = ".keep";
+	}
+    template: tmpDir + "HealthControllerTemplate.egl"
+    target: dir + v.subDir + "/" + fileName
+}
+
+rule GenerateDockerCompose {
+    template: tmpDir + "DockerComposeTemplate.egl"
+    parameters : Map {
+        "microservices" = microservices
+    }
+    merge: true
+    target: outDir + "gen-docker-compose.yml"
+}
+
+rule GenerateHealthController transform ms in : microservices {
+    pre {
+    	var dir = outDir + ms.name.toLowerCase().replace(" ", "-") + "/" + nestedDir;
+		var fileName = "HealthController.java";
+	}
+    template: tmpDir + "HealthControllerTemplate.egl"
+    parameters : Map {
+        "microservice" = ms
+    }
+    target: dir + "controller/" + fileName
+}
+
+rule GenerateHealthControllerTest transform ms in : microservices {
+    pre {
+    	var dir = outDir + ms.name.toLowerCase().replace(" ", "-") + "/" + nestedTestDir;
+		var fileName = "HealthControllerTest.java";
+	}
+    template: tmpDir + "HealthControllerTestTemplate.egl"
+    parameters : Map {
+        "microservice" = ms
+    }
+    target: dir + "controller/" + fileName
+}
+
+rule GenerateAllControllerSkelleton transform ms : Microservice {
+	pre {
+		var dir = outDir + ms.name.toLowerCase().replace(" ", "-") + "/" + nestedDir;
+		var fileName = ms.name.replace(" Microservice", "").replace(" ", "") + "ControllerSkelleton.java";
+	}
+    guard : ms.apiResources.size() > 0
+    template: tmpDir + "ControllerTemplate.egl"
+    parameters : Map {
+        "microservice" = ms,
+        "apiResources" = ms.apiResources
+    }
+    merge: true
+	target: dir + "controller/" + fileName
+}
+
+rule GenerateEventDTO transform v in: microservicesEventsList {
+	pre {		
+		var dir = outDir + v.name.toLowerCase().replace(" ", "-") + "/" + nestedDir;
+		var fileName = v.event.name.replace(" ", "") + "DTO.java";
+	}
+	template: tmpDir + "EventTemplate.egl"
+    parameters : Map {
+        "event" = v.event
+    }
+    overwrite: true
+    target: dir + "dto/" + fileName
+}
+
+rule GeneratePublisherInterface transform v in : microservicesPublishersList {
+	pre {
+		var dir = outDir + v.name.toLowerCase().replace(" ", "-") + "/" + nestedDir;
+		var fileName = v.stream.name.replace(" ", "").replace("Stream", "") + "EventClient.java";
+	}
+	template: tmpDir + "EventStreamProducerTemplate.egl"
+    parameters : Map {
+        "eventStream" = v.stream
+    }
+    overwrite: true
+    target: dir + "producer/" + fileName
+}
+
+rule GenerateConsumerClass transform ms : Microservice {
+    guard : ms.subscribes.size() > 0
+    pre {
+    	var dir = outDir + ms.name.toLowerCase().replace(" ", "-") + "/" + nestedDir;
+		var fileName = "KafkaMessageListener.java";
+	}
+    template: tmpDir + "EventStreamConsumerTemplate.egl"
+    parameters : Map {
+        "microservice" = ms,
+        "subscribedStreams" = ms.subscribes
+    }
+    merge: true
+    target: dir + "consumer/" + fileName
+}

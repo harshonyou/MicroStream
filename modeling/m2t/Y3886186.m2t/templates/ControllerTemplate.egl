@@ -1,0 +1,47 @@
+[% out.setContentType("Java"); %]
+// Code Generated Via EGL Template
+
+package com.example.controller;
+
+import io.micronaut.http.annotation.*;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
+import javax.inject.Inject;
+
+[% 
+// Generate the controller class
+out.println("@Controller(\"/" + microservice.name.replace(" Microservice", "").toLowerCase().replace(" ", "-") + "\")");
+out.println("public class " + microservice.name.replace(" Microservice", "").replace(" ", "") + "Controller {");
+
+// Generate methods for each API resource
+for (apiResource in apiResources) {
+    var methodName = apiResource.path.replace("/", "").toLowerCase();
+    var httpMethodAnnotation = "Get"; // Default HTTP method
+    var path = apiResource.path;
+
+    // Determine the HTTP method
+    switch (apiResource.method.toString()) {
+        case "GET":
+            httpMethodAnnotation = "Get";
+            break;
+        case "POST":
+            httpMethodAnnotation = "Post";
+            break;
+        case "PUT":
+            httpMethodAnnotation = "Put";
+            break;
+        case "DELETE":
+            httpMethodAnnotation = "Delete";
+            break;
+    }
+
+    // Generate the method
+    out.println("    @" + httpMethodAnnotation + "(\"" + path + "\")");
+    out.println("    public HttpResponse<String> " + methodName + "() {");
+    out.println("        // TODO: Implement the logic for " + methodName);
+    out.println("        return HttpResponse.status(HttpStatus.OK).body(\"Success\");");
+    out.println("    }\n");
+}
+
+out.println("}");
+%]

@@ -1,0 +1,402 @@
+?nsuri: Y3886186
+model:
+  # Microservices
+  - microservices:
+      - name: "Video Microservice"
+        description: "Handles video related operations"
+        communicationPatterns:
+          - "REST"
+          - "MESSAGE_QUEUE"
+        publishes:
+          - "Video Creation Stream"
+          - "Video Engagement Stream"
+          - "Video Feedback Stream"
+        apiResources:
+          - path: "/health"
+            method: "GET"
+        apiResources:
+          - path: "/users/{userId}/videos"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "Iterable&lt;VideoDTO>"
+        apiResources:
+          - path: "/users/{userId}/videos/{videoId}"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "videoId"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "VideoDTO"
+        apiResources:
+          - path: "/users/{userId}/videos"
+            method: "POST"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "body"
+                value: "Video"
+            responseParams:
+              - key: "body"
+                value: "VideoDTO"
+        apiResources:
+          - path: "/users/{userId}/videos/{videoId}/watch"
+            method: "POST"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "videoId"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "VideoEngagementDTO"
+        apiResources:
+          - path: "/users/{userId}/videos/{videoId}/watch"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "videoId"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "VideoEngagementDTO"
+        apiResources:
+          - path: "/users/{userId}/videos/{videoId}/like"
+            method: "POST"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "videoId"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "VideoFeedbackDTO"
+        apiResources:
+          - path: "/users/{userId}/videos/{videoId}/dislike"
+            method: "POST"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "videoId"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "VideoFeedbackDTO"
+        apiResources:
+          - path: "/videos/tags/{tagName}"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "tagName"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "Iterable&lt;VideoTagDTO>"
+        containerizatin:
+          - technology: "Docker Compose"
+            containerConfigs:
+              - key: "imageTag"
+                value: "latest"
+            containerConfigs:
+              - key: "replica"
+                value: "1"
+            containerConfigs:
+              - key: "sourcePort"
+                value: "8585"
+            containerConfigs:
+              - key: "targetPort"
+                value: "8585"
+            environmentVariables:
+              - key: "DB_HOST"
+                value: "cassandra"
+            environmentVariables:
+              - key: "DB_PORT"
+                value: "9042"
+            environmentVariables:
+              - key: "KAFKA_BOOTSTRAP_SERVERS"
+                value: "kafka-0:9090,kafka-1:9091,kafka-2:9092"
+            environmentVariables:
+              - key: "CASSANDRA_MIGRATION"
+                value: "true"
+            environmentVariables:
+              - key: "MICRONAUT_ENVIRONMENTS"
+                value: "prod"
+            dependsOn:
+              - "kafka"
+              - "cassandra"
+            networks:
+              - "kafka"
+              - "cassandra"
+  - microservices:
+      - name: "Trending Microservice"
+        description: "Handles trending hashtags"
+        communicationPatterns:
+          - "REST"
+          - "MESSAGE_QUEUE"
+        subscribes:
+          - "Video Feedback Stream"
+        apiResources:
+          - path: "/health"
+            method: "GET"
+        apiResources:
+          - path: "/hashtags/top/current"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "limit"
+                value: "Integer"
+            responseParams:
+              - key: "body"
+                value: "Iterable&lt;CurrentHourAggregatedTagLikeDTO>"
+        apiResources:
+          - path: "/hashtags/top/past"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "limit"
+                value: "Integer"
+            responseParams:
+              - key: "body"
+                value: "Iterable&lt;CurrentHourAggregatedTagLikeDTO>"
+        containerizatin:
+          - technology: "Docker Compose"
+            containerConfigs:
+              - key: "imageTag"
+                value: "latest"
+            containerConfigs:
+              - key: "replica"
+                value: "1"
+            containerConfigs:
+              - key: "sourcePort"
+                value: "8286"
+            containerConfigs:
+              - key: "targetPort"
+                value: "8286"
+            environmentVariables:
+              - key: "DB_HOST"
+                value: "postgres"
+            environmentVariables:
+              - key: "DB_PORT"
+                value: "5432"
+            environmentVariables:
+              - key: "KAFKA_BOOTSTRAP_SERVERS"
+                value: "kafka-0:9090,kafka-1:9091,kafka-2:9092"
+            environmentVariables:
+              - key: "FLYWAY_ENABLED"
+                value: "true"
+            environmentVariables:
+              - key: "MICRONAUT_ENVIRONMENTS"
+                value: "prod"
+            dependsOn:
+              - "kafka"
+              - "postgres"
+            networks:
+              - "kafka"
+              - "postgres"
+  - microservices:
+      - name: "Subscription Microservice"
+        description: "Manages subscriptions"
+        communicationPatterns:
+          - "REST"
+          - "MESSAGE_QUEUE"
+        publishes:
+          - "Tag Engagement Stream"
+        subscribes:
+          - "Video Creation Stream"
+          - "Video Engagement Stream"
+          - "Video Feedback Stream"
+        apiResources:
+          - path: "/health"
+            method: "GET"
+        apiResources:
+          - path: "/users/{userId}/timeline"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "Iterable&lt;RecommendedVideoDTO>"
+        apiResources:
+          - path: "/users/{userId}/videos/recommendations"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "Iterable&lt;RecommendedVideoDTO>"
+        apiResources:
+          - path: "/users/{userId}/tags/{tagName}/videos/recommendations"
+            method: "GET"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "tagName"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "Iterable&lt;RecommendedVideoDTO>"
+        apiResources:
+          - path: "/users/{userId}/tags/{tagName}/subscribe"
+            method: "POST"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "tagName"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "Void"
+        apiResources:
+          - path: "/users/{userId}/tags/{tagName}/unsubscribe"
+            method: "POST"
+            requestFormat: "application/json"
+            responseFormat: "application/json"
+            requestParams:
+              - key: "userId"
+                value: "String"
+            requestParams:
+              - key: "tagName"
+                value: "String"
+            responseParams:
+              - key: "body"
+                value: "Void"
+        containerizatin:
+          - technology: "Docker Compose"
+            containerConfigs:
+              - key: "imageTag"
+                value: "latest"
+            containerConfigs:
+              - key: "replica"
+                value: "1"
+            containerConfigs:
+              - key: "sourcePort"
+                value: "8585"
+            containerConfigs:
+              - key: "targetPort"
+                value: "8585"
+            environmentVariables:
+              - key: "NEO4J_HOST"
+                value: "neo4j"
+            environmentVariables:
+              - key: "NEO4J_PORT"
+                value: "7687"
+            environmentVariables:
+              - key: "KAFKA_BOOTSTRAP_SERVERS"
+                value: "kafka-0:9090,kafka-1:9091,kafka-2:9092"
+            environmentVariables:
+              - key: "MICRONAUT_ENVIRONMENTS"
+                value: "prod"
+            dependsOn:
+              - "kafka"
+              - "neo4j"
+            networks:
+              - "kafka"
+              - "neo4j"
+
+  # Event Streams
+  - eventStreams:
+      - name: "Video Creation Stream"
+      - eventType: "Video Creation Event"
+  - eventStreams:
+      - name: "Video Engagement Stream"
+      - eventType: "Video Engagement Event"
+  - eventStreams:
+      - name: "Video Feedback Stream"
+      - eventType: "Video Feedback Event"
+  - eventStreams:
+      - name: "Tag Engagement Stream"
+      - eventType: "Tag Engagement Event"
+
+  # Events
+  - events:
+      - name: "Video Creation Event"
+        fields:
+          - key: "userId"
+            value: "String"
+        fields:
+          - key: "videoId"
+            value: "UUID"
+        fields:
+          - key: "title"
+            value: "String"
+        fields:
+          - key: "tags"
+            value: "Set&lt;String>"
+  - events:
+      - name: "Video Engagement Event"
+        fields:
+          - key: "userId"
+            value: "String"
+        fields:
+          - key: "videoId"
+            value: "UUID"
+        fields:
+          - key: "watchedTime"
+            value: "Instant"
+  - events:
+      - name: "Video Feedback Event"
+        fields:
+          - key: "userId"
+            value: "String"
+        fields:
+          - key: "videoId"
+            value: "UUID"
+        fields:
+          - key: "tags"
+            value: "Set&lt;String>"
+        fields:
+          - key: "likeStatus"
+            value: "boolean"
+  - events:
+      - name: "Tag Engagement Event"
+        fields:
+          - key: "userId"
+            value: "String"
+        fields:
+          - key: "tag"
+            value: "String"
+        fields:
+          - key: "subscriptionStatus"
+            value: "boolean"

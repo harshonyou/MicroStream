@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:filter="http://www.eclipse.org/sirius/diagram/description/filter/1.1.0" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" xmlns:tool="http://www.eclipse.org/sirius/diagram/description/tool/1.1.0" xmlns:tool_1="http://www.eclipse.org/sirius/description/tool/1.1.0" name="Y3886186" version="12.0.0.2017041100">
+  <ownedViewpoints name="Y3886186 Viewpoint">
+    <ownedRepresentations xsi:type="description_1:DiagramDescription" name="Y3886186 Diagram" label="Y3886186 Diagram" domainClass="Y3886186::Model" enablePopupBars="true">
+      <metamodel href="Y3886186#/"/>
+      <filters xsi:type="filter:CompositeFilterDescription" name="hideNoPublisherFilter" label="Hide No Publishers">
+        <filters xsi:type="filter:MappingFilter" mappings="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@containerMappings[name='microserviceContainer']" semanticConditionExpression="aql:self.publishes &lt;> Sequence{}"/>
+      </filters>
+      <filters xsi:type="filter:CompositeFilterDescription" name="hideNoSubscriberFilter" label="Hide No Subscribers">
+        <filters xsi:type="filter:MappingFilter" mappings="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@containerMappings[name='microserviceContainer']" semanticConditionExpression="aql:self.subscribes &lt;> Sequence{}"/>
+      </filters>
+      <defaultLayer name="Default">
+        <nodeMappings name="eventNode" label="Event Node" semanticCandidatesExpression="feature:events" domainClass="Y3886186::Event">
+          <style xsi:type="style:SquareDescription" labelSize="12" showIcon="false" sizeComputationExpression="15" labelPosition="node" resizeKind="NSEW">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_green']"/>
+          </style>
+        </nodeMappings>
+        <nodeMappings name="eventStreamNode" label="Event Stream Node" semanticCandidatesExpression="feature:eventStreams" domainClass="Y3886186::EventStream">
+          <style xsi:type="style:LozengeNodeDescription" labelSize="12" showIcon="false" sizeComputationExpression="18" labelPosition="node" resizeKind="NSEW">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_orange']"/>
+          </style>
+        </nodeMappings>
+        <containerMappings name="microserviceContainer" label="Microservice Container" semanticCandidatesExpression="feature:microservices" domainClass="Y3886186::Microservice" childrenPresentation="List">
+          <subNodeMappings name="apiResourceNode" label="API Resource Node" semanticCandidatesExpression="feature:apiResources" domainClass="Y3886186::ApiResource">
+            <style xsi:type="style:SquareDescription" borderSizeComputationExpression="1" labelSize="12" showIcon="false" labelExpression="[self.method + ' ' + self.path/]" labelPosition="node" resizeKind="NSEW">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='gray']"/>
+            </style>
+          </subNodeMappings>
+          <style xsi:type="style:FlatContainerStyleDescription" labelSize="12" showIcon="false" widthComputationExpression="10" heightComputationExpression="10">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <backgroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_blue']"/>
+            <foregroundColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_blue']"/>
+          </style>
+        </containerMappings>
+        <toolSections name="nodeCreationTool" label="Node Creation">
+          <ownedTools xsi:type="tool:ContainerCreationDescription" name="microserviceCreationTool" label="Create Microservice" containerMappings="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@containerMappings[name='microserviceContainer']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:CreateInstance" typeName="Y3886186::Microservice" referenceName="microservices"/>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool:NodeCreationDescription" name="eventCreationTool" label="Create Event" nodeMappings="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@nodeMappings[name='eventNode']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:CreateInstance" typeName="Y3886186::Event" referenceName="events"/>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool:NodeCreationDescription" name="eventStreamCreationTool" label="Create Event Stream" nodeMappings="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@nodeMappings[name='eventStreamNode']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:CreateInstance" typeName="Y3886186::EventStream" referenceName="eventStreams"/>
+            </initialOperation>
+          </ownedTools>
+        </toolSections>
+      </defaultLayer>
+      <additionalLayers name="transitionLayer" label="Transition Layer" activeByDefault="true">
+        <edgeMappings name="eventEdge" label="Event Edge" sourceMapping="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@nodeMappings[name='eventStreamNode']" targetMapping="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@nodeMappings[name='eventNode']" targetFinderExpression="feature:eventType">
+          <style lineStyle="dash_dot" sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_purple']"/>
+            <centerLabelStyleDescription labelSize="12" showIcon="false" labelExpression="Event Type">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="consumerEdge" label="Consumer Edge" sourceMapping="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@containerMappings[name='microserviceContainer']" targetMapping="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@nodeMappings[name='eventStreamNode']" targetFinderExpression="feature:subscribes">
+          <style sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='yellow']"/>
+            <centerLabelStyleDescription labelSize="12" showIcon="false" labelExpression="Subscribes">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="publisherEdge" label="Publisher Edge" sourceMapping="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@containerMappings[name='microserviceContainer']" targetMapping="//@ownedViewpoints[name='Y3886186%20Viewpoint']/@ownedRepresentations[name='Y3886186%20Diagram']/@defaultLayer/@nodeMappings[name='eventStreamNode']" targetFinderExpression="feature:publishes">
+          <style sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='light_red']"/>
+            <centerLabelStyleDescription labelSize="12" showIcon="false" labelExpression="Publishes">
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+      </additionalLayers>
+    </ownedRepresentations>
+    <ownedJavaExtensions qualifiedClassName="Y3886186.design.Services"/>
+  </ownedViewpoints>
+</description:Group>

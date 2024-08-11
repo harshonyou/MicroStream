@@ -1,0 +1,47 @@
+[% out.setContentType("Java"); %]
+// Code Generated Via EGL Template
+
+package com.example.consumer;
+
+import io.micronaut.configuration.kafka.annotation.KafkaKey;
+import io.micronaut.configuration.kafka.annotation.KafkaListener;
+import io.micronaut.configuration.kafka.annotation.OffsetReset;
+import io.micronaut.configuration.kafka.annotation.Topic;
+
+[% 
+for (stream in subscribedStreams) {
+    var eventDtoName = stream.eventType.name.replace(" ", "") + "DTO"; 
+    out.println("import com.example.dto." + eventDtoName + ";");
+}
+%]
+
+[%= out.startPreserve("customImports", true) %]
+[%= out.stopPreserve() %]
+
+[%out.println("@KafkaListener(groupId = \"" + microservice.name.toLowerCase().replace(" ", "-") + "-listener\", offsetReset = OffsetReset.EARLIEST)");%]
+public class KafkaMessageListener {
+	
+	[%= out.startPreserve("classVariableDeclaration", true) %]
+	[%= out.stopPreserve() %]
+
+	[% 
+	for (stream in subscribedStreams) {
+	    var event = stream.eventType;
+	    var eventDtoName = stream.eventType.name.replace(" ", "") + "DTO"; 
+	    var topicName = stream.name.toLowerCase().replace("stream", "events").replace(" ", "-");
+		var methodName = "handle" + stream.name.replace("Stream", "Events").replace(" ", "");
+		out.println("\t" + "@Topic(\"" + topicName + "\")");
+		out.println("\t" + "public void " + methodName + "(");
+		out.println("\t\t" + "@KafkaKey String key,");
+		out.println("\t\t" + eventDtoName + " event) {");
+		
+		%]
+		[%= out.startPreserve("methodImplementation", true) %]
+		[%= out.stopPreserve() %]
+		[%
+		out.println("\t" + "}");
+		out.println();
+
+	}
+	%]
+}

@@ -1,0 +1,77 @@
+@namespace(uri="Y3886186", prefix="smp")
+package Y3886186;
+
+// Events with fields and their types
+class Event {
+  attr String name;
+  val ecore.EStringToStringMapEntry[*] fields; // Map of field names to their types
+}
+
+// Event Streams with a name and associated event type
+class EventStream {
+  attr String name;
+  ref Event eventType; // Link to the event type associated with this stream
+}
+
+// Allowed HTTP methods
+enum HttpMethod {
+  GET;
+  POST;
+  PUT;
+  DELETE;
+  // For simplicity, other methods are not included.
+}
+
+// Error handling - for future
+class ApiError {
+  attr int code;
+  attr String message;
+}
+
+// A class for API resources
+class ApiResource {
+  attr HttpMethod method;
+  attr String path;
+  attr String requestFormat;
+  attr String responseFormat;
+  val ecore.EStringToStringMapEntry[*] requestParams;  // Request parameters
+  val ecore.EStringToStringMapEntry[*] responseParams; // Response parameters
+  val ApiError[*] errorResponses; // List of possible error responses
+}
+
+// A class for Containerization
+class Containerization {
+  attr String technology; // e.g., Docker, Docker Compose, Kubernetes
+  val ecore.EStringToStringMapEntry[*] containerConfigs; // Configuration specifics for containerization
+  // containerConfigs for eg: port, version, image name, container name, etc.
+  val ecore.EStringToStringMapEntry[*] environmentVariables;
+  attr String[*] dependsOn;
+  attr String[*] networks;
+}
+
+// Allowed Communication Patterns
+enum CommunicationPattern {
+  REST;
+  MESSAGE_QUEUE;
+  GRPC;
+  WEBSOCKET;
+  // For more complexity, more can be appended. For now only REST and MESSAGE_QUEUE is being used.
+}
+
+// A class for Microservices
+class Microservice {
+  attr String name;
+  attr String description;
+  attr CommunicationPattern[*] communicationPatterns; // Set of Communication Patterns
+  ref EventStream[*] subscribes; // Event Streams that the Microservice subscribes to
+  ref EventStream[*] publishes;  // Event Streams that the Microservice publishes to
+  val ApiResource[*] apiResources; // List of API resources
+  val Containerization containerizatin; // Deployable technique
+}
+
+// A class for Model
+class Model {
+  val Microservice[*] microservices;
+  val EventStream[*] eventStreams;
+  val Event[*] events;
+}

@@ -1,0 +1,28 @@
+[%
+var interfaceName = eventStream.name.replace(" ", "").replace("Stream", "") + "EventClient"; // Construct interface name
+var kafkaClientId = eventStream.name.toLowerCase().replace(" stream", "").replace(" ", "-") + "-events-producer"; // Construct Kafka client ID 
+var eventDtoName = eventStream.eventType.name.replace(" ", "") + "DTO";
+
+
+var methodName = "notifyOn" + eventStream.eventType.name.replace(" ", "");
+var topicName = eventStream.name.toLowerCase().replace("stream", "events").replace(" ", "-");
+%]
+// Code Generated Via EGL Template
+
+package com.example.producer;
+
+import io.micronaut.configuration.kafka.annotation.KafkaClient;
+import io.micronaut.configuration.kafka.annotation.KafkaKey;
+import io.micronaut.configuration.kafka.annotation.Topic;
+
+import com.example.dto.[%=eventDtoName%];
+
+
+@KafkaClient(id = "[%=kafkaClientId%]")
+public interface [%=interfaceName%] {
+	@Topic("[%=topicName%]")
+    void [%=methodName%](
+            @KafkaKey String key,
+            [%=eventDtoName%] event
+    );
+}

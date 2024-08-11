@@ -1,0 +1,91 @@
+# Code Generated Via EGL Template
+# protected region customDescription on begin
+# protected region customDescription end
+
+version: '3'
+
+services:
+
+  # protected region customServices on begin
+  # protected region customServices end
+
+  # ./gradlew jibDockerBuild
+  video-microservice:
+    image: video-microservice:latest
+    restart: unless-stopped
+    container_name: video-microservice
+    ports:
+      - "8585:8585"
+    environment:
+      PORT: 8585
+      DB_HOST: cassandra
+      DB_PORT: 9042
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
+      CASSANDRA_MIGRATION: true
+      MICRONAUT_ENVIRONMENTS: prod
+      # protected region customEnvironmentVariables on begin
+  	  # protected region customEnvironmentVariables end
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      cassandra-init:
+        condition: service_completed_successfully
+    networks:
+      - kafka_network
+      - cassandra_network
+
+  # ./gradlew jibDockerBuild
+  trending-microservice:
+    image: trending-microservice:0.1
+    restart: unless-stopped
+    container_name: trending-microservice
+    ports:
+      - "8286:8286"
+    environment:
+      PORT: 8286
+      DB_HOST: postgres
+      DB_PORT: 5432
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
+      FLYWAY_ENABLED: true
+      MICRONAUT_ENVIRONMENTS: prod
+      # protected region customEnvironmentVariables on begin
+  	  # protected region customEnvironmentVariables end
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      postgres-init:
+        condition: service_completed_successfully
+    networks:
+      - kafka_network
+      - postgres_network
+
+  # ./gradlew jibDockerBuild
+  subscription-microservice:
+    image: subscription-microservice:0.1
+    restart: unless-stopped
+    container_name: subscription-microservice
+    ports:
+      - "8585:8585"
+    environment:
+      PORT: 8585
+      NEO4J_HOST: neo4j
+      NEO4J_PORT: 7687
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9090,kafka-1:9091,kafka-2:9092
+      MICRONAUT_ENVIRONMENTS: prod
+      # protected region customEnvironmentVariables on begin
+  	  # protected region customEnvironmentVariables end
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      neo4j-init:
+        condition: service_completed_successfully
+    networks:
+      - kafka_network
+      - neo4j_network
+
+
+# protected region customNetwork on begin
+# protected region customNetwork end
+
+# protected region customVolumes on begin
+# protected region customVolumes end
